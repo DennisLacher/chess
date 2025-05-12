@@ -1,0 +1,119 @@
+body {
+  touch-action: none;
+  background-color: #f3f4f6;
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+}
+
+.container {
+  text-align: center;
+  padding: 20px;
+  max-width: 90vw;
+  box-sizing: border-box;
+}
+
+#chessboard {
+  max-width: 100%;
+  height: auto;
+  display: block;
+  margin: 0 auto;
+  border: 4px solid #333;
+  border-radius: 8px;
+}
+
+#turnIndicator {
+  margin-top: 15px;
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: #333;
+}
+
+#startScreen {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 20px;
+  border-radius: 8px;
+  text-align: center;
+}
+
+#startScreen h1 {
+  font-size: 1.5rem;
+  margin-bottom: 15px;
+}
+
+#startScreen button,
+#gameControls button {
+  display: block;
+  margin: 10px auto;
+  padding: 10px 20px;
+  font-size: 1rem;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  color: white;
+}
+
+#startWhiteButton,
+#startBlackButton,
+#startFreestyleButton {
+  background-color: #4caf50;
+}
+
+#startWhiteButton:hover,
+#startBlackButton:hover,
+#startFreestyleButton:hover {
+  background-color: #45a049;
+}
+
+#undoButton {
+  background-color: #ff9800;
+}
+
+#undoButton:hover {
+  background-color: #e68900;
+}
+
+#rotateButton {
+  background-color: #2196f3;
+}
+
+#rotateButton:hover {
+  background-color: #1e88e5;
+}
+
+#restartButton {
+  background-color: #f44336;
+}
+
+#restartButton:hover {
+  background-color: #d32f2f;
+}
+
+.hidden {
+  display: none;
+}
+
+@media (max-width: 640px) {
+  #turnIndicator {
+    font-size: 0.9rem;
+  }
+
+  #startScreen h1 {
+    font-size: 1.25rem;
+  }
+
+  #startScreen button,
+  #gameControls button {
+    font-size: 0.8rem;
+    padding: 8px 16px;
+  }
+}
