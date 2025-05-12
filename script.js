@@ -18,6 +18,12 @@ document.addEventListener("DOMContentLoaded", () => {
   const undoButton = document.getElementById("undoButton");
   const restartButton = document.getElementById("restartButton");
 
+  // Debugging: Überprüfen, ob die Buttons korrekt gefunden werden
+  if (!startWhiteButton || !startBlackButton || !startFreestyleButton) {
+    console.log("Error: One or more buttons not found. Check IDs in index.html.");
+    return;
+  }
+
   let size = Math.min((window.innerWidth * 0.9 - 40) / 8, 45);
   let offsetX = size / 2;
   let offsetY = size / 2;
@@ -334,7 +340,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const piece = board[y][x];
         if (piece && (piece === piece.toUpperCase()) === (player === "white")) {
           for (let toY = 0; toY < 8; toY++) {
-            for (let toX = 0; x < 8; toX++) {
+            for (let toX = 0; toX < 8; toX++) { // Fehler behoben: x < 8 zu toX < 8 geändert
               if (isLegalMove(piece, x, y, toX, toY)) {
                 return false;
               }
@@ -507,9 +513,18 @@ document.addEventListener("DOMContentLoaded", () => {
     return shuffled;
   }
 
-  startWhiteButton.addEventListener("click", () => startGame("white"));
-  startBlackButton.addEventListener("click", () => startGame("black"));
-  startFreestyleButton.addEventListener("click", () => startGame("white", true));
+  startWhiteButton.addEventListener("click", () => {
+    console.log("Start White Button clicked");
+    startGame("white");
+  });
+  startBlackButton.addEventListener("click", () => {
+    console.log("Start Black Button clicked");
+    startGame("black");
+  });
+  startFreestyleButton.addEventListener("click", () => {
+    console.log("Start Freestyle Button clicked");
+    startGame("white", true);
+  });
 
   rotateButton.addEventListener("click", () => {
     if (gameStarted) {
