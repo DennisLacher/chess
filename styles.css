@@ -1,20 +1,14 @@
-.animate-fade-in {
-  animation: fadeIn 0.5s ease-in;
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+    background-color: #2e2e2e;
 }
 
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(-10px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-#startScreen, #gameContainer {
-  animation: fadeIn 0.5s ease-in;
-}
-
-#moveHistory {
-  font-size: 0.9rem;
-}
-
-#moveList li {
-  margin-bottom: 0.5rem;
+canvas {
+    border: 5px solid #000;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.6);
+    background-color: #fff;
 }
