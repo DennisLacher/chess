@@ -216,7 +216,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function getLegalMoves(x, y) {
     if (DEBUG.enableLogging && DEBUG.logLevel === "debug") {
-      console.log("Calculating legal moves for position:", x, y);
+      console.log("Calculating legal moves for position:", x, y, "Piece:", board[y][x]);
     }
     const moves = [];
     const piece = board[y][x];
@@ -345,7 +345,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     if (DEBUG.enableLogging && DEBUG.logLevel === "debug") {
-      console.log("Legal moves for", piece, "at", x, y, ":", moves);
+      console.log("Legal moves calculated:", moves);
     }
     return moves;
   }
@@ -383,7 +383,7 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
     if (DEBUG.enableLogging && DEBUG.logLevel === "debug") {
-      console.log("Canvas clicked/touched");
+      console.log("Canvas clicked/touched, event:", event.type);
     }
     const rect = canvas.getBoundingClientRect();
     const clientX = event.clientX || (event.touches && event.touches[0]?.clientX);
@@ -395,6 +395,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const x = Math.floor((clientX - rect.left - offsetX) / size);
     const y = Math.floor((clientY - rect.top - offsetY) / size);
+    if (DEBUG.enableLogging && DEBUG.logLevel === "debug") {
+      console.log("Raw coordinates:", clientX, clientY, "Converted to:", x, y);
+    }
 
     let boardX = x;
     let boardY = y;
@@ -417,7 +420,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     if (DEBUG.enableLogging && DEBUG.logLevel === "debug") {
-      console.log("Clicked position on board:", boardX, boardY);
+      console.log("Clicked position on board:", boardX, boardY, "Piece:", board[boardY][boardX]);
     }
 
     const piece = board[boardY][boardX];
