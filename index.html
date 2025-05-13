@@ -7,25 +7,25 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="styles.css">
 </head>
-<body class="bg-gradient-to-br from-gray-900 to-gray-800 min-h-screen flex items-center justify-center">
+<body class="bg-gradient-to-br from-gray-900 to-gray-800 min-h-screen flex items-center justify-center p-4">
   <div id="startScreen" class="text-center">
-    <h1 class="text-4xl md:text-5xl font-extrabold text-white mb-6 drop-shadow-lg">Modernes Schachspiel</h1>
-    <button id="startButton" class="bg-gradient-to-r from-green-500 to-green-600 text-white px-6 py-3 rounded-lg shadow-lg hover:from-green-600 hover:to-green-700 transition duration-300 mb-4 transform hover:scale-105">Spiel starten</button>
-    <button id="startFreestyleButton" class="bg-gradient-to-r from-green-500 to-green-600 text-white px-6 py-3 rounded-lg shadow-lg hover:from-green-600 hover:to-green-700 transition duration-300 transform hover:scale-105">Freestyle-Modus starten</button>
+    <h1 class="text-3xl sm:text-4xl md:text-5xl font-extrabold text-white mb-6 drop-shadow-lg">Modernes Schachspiel</h1>
+    <button id="startButton" class="bg-gradient-to-r from-green-500 to-green-600 text-white px-4 py-2 sm:px-6 sm:py-3 rounded-lg shadow-lg hover:from-green-600 hover:to-green-700 transition duration-300 mb-4 transform hover:scale-105">Spiel starten</button>
+    <button id="startFreestyleButton" class="bg-gradient-to-r from-green-500 to-green-600 text-white px-4 py-2 sm:px-6 sm:py-3 rounded-lg shadow-lg hover:from-green-600 hover:to-green-700 transition duration-300 transform hover:scale-105">Freestyle-Modus starten</button>
   </div>
-  <div id="gameContainer" class="hidden w-full max-w-screen-lg mx-auto p-4 flex">
-    <div class="w-3/4">
-      <div id="turnIndicator" class="text-center mb-4 text-xl font-semibold text-white drop-shadow"></div>
-      <canvas id="chessboard" class="mx-auto border-4 border-gray-700 rounded-lg shadow-xl"></canvas>
-      <div class="flex flex-wrap justify-center gap-3 mt-6">
-        <button id="rotateButton" class="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-4 py-2 rounded-lg shadow hover:from-blue-600 hover:to-blue-700 transition duration-300 transform hover:scale-105">Brett drehen</button>
-        <button id="smartphoneModeButton" class="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-4 py-2 rounded-lg shadow hover:from-blue-600 hover:to-blue-700 transition duration-300 transform hover:scale-105">Smartphone-Modus</button>
-        <button id="soundToggleButton" class="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-4 py-2 rounded-lg shadow hover:from-blue-600 hover:to-blue-700 transition duration-300 transform hover:scale-105">Sound ausschalten</button>
-        <button id="undoButton" class="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-4 py-2 rounded-lg shadow hover:from-blue-600 hover:to-blue-700 transition duration-300 transform hover:scale-105">Zug zurück</button>
-        <button id="restartButton" class="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-4 py-2 rounded-lg shadow hover:from-blue-600 hover:to-blue-700 transition duration-300 transform hover:scale-105">Neustart</button>
+  <div id="gameContainer" class="hidden w-full max-w-4xl mx-auto flex flex-col sm:flex-row">
+    <div class="w-full sm:w-3/4 flex flex-col items-center">
+      <div id="turnIndicator" class="text-center mb-4 text-lg sm:text-xl font-semibold text-white drop-shadow"></div>
+      <canvas id="chessboard" class="border-4 border-gray-700 rounded-lg shadow-xl"></canvas>
+      <div class="flex flex-wrap justify-center gap-2 sm:gap-3 mt-4 sm:mt-6">
+        <button id="rotateButton" class="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-3 py-1 sm:px-4 sm:py-2 rounded-lg shadow hover:from-blue-600 hover:to-blue-700 transition duration-300 transform hover:scale-105">Brett drehen</button>
+        <button id="smartphoneModeButton" class="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-3 py-1 sm:px-4 sm:py-2 rounded-lg shadow hover:from-blue-600 hover:to-blue-700 transition duration-300 transform hover:scale-105">Smartphone-Modus</button>
+        <button id="soundToggleButton" class="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-3 py-1 sm:px-4 sm:py-2 rounded-lg shadow hover:from-blue-600 hover:to-blue-700 transition duration-300 transform hover:scale-105">Sound ausschalten</button>
+        <button id="undoButton" class="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-3 py-1 sm:px-4 sm:py-2 rounded-lg shadow hover:from-blue-600 hover:to-blue-700 transition duration-300 transform hover:scale-105">Zug zurück</button>
+        <button id="restartButton" class="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-3 py-1 sm:px-4 sm:py-2 rounded-lg shadow hover:from-blue-600 hover:to-blue-700 transition duration-300 transform hover:scale-105">Neustart</button>
       </div>
     </div>
-    <div id="moveHistory" class="w-1/4 ml-4 p-2 bg-gray-800 text-white rounded-lg overflow-y-auto max-h-[400px]">
+    <div id="moveHistory" class="w-full sm:w-1/4 sm:ml-4 mt-4 sm:mt-0 p-2 bg-gray-800 text-white rounded-lg overflow-y-auto max-h-[400px]">
       <h3 class="text-lg font-semibold mb-2">Zug-Historie</h3>
       <ul id="moveList" class="list-disc pl-5"></ul>
     </div>
