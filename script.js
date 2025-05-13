@@ -1,6 +1,22 @@
-import { CONFIG, DEBUG, SOUND } from './config.js';
-
 document.addEventListener("DOMContentLoaded", () => {
+  // Konfigurations- und Debugging-Einstellungen (aus config.js übernommen)
+  const CONFIG = {
+    defaultBoardSize: 45,
+    minBoardSize: 35,
+    maxWidthFactor: 0.9,
+    offset: 0.5,
+  };
+
+  const DEBUG = {
+    enableLogging: true,
+    logLevel: "debug",
+  };
+
+  const SOUND = {
+    enabledByDefault: true,
+    moveSound: "move.mp3",
+  };
+
   if (DEBUG.enableLogging) {
     console.log("DOM fully loaded, initializing game...", { debugLevel: DEBUG.logLevel });
   }
