@@ -4,10 +4,11 @@ pages:
   stage: deploy
   before_script:
     - mkdir -p public
-    - cp -r *.{html,css,js} public/  # Kopiert alle relevanten Dateien
-    - ls -la public/  # Debug-Ausgabe, um sicherzustellen, dass Dateien kopiert wurden
+    - |
+      find . -maxdepth 1 -type f \( -name "*.html" -o -name "*.css" -o -name "*.js" \) -exec cp {} public/ \;
+    - ls -la public/
   script:
-    - echo "Deploying to GitLab Pages"
+    - echo "Prepared public/ for GitLab Pages deployment"
   artifacts:
     paths:
       - public
