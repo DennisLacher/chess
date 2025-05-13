@@ -1,12 +1,12 @@
 document.addEventListener("DOMContentLoaded", () => {
   const canvas = document.getElementById("chessboard");
   if (!canvas) {
-    console.log("Canvas element not found.");
+    console.error("Canvas element not found. Check if ID 'chessboard' exists in index.html.");
     return;
   }
   const ctx = canvas.getContext("2d");
   if (!ctx) {
-    console.log("Canvas context could not be initialized.");
+    console.error("Failed to initialize canvas context.");
     return;
   }
   const turnIndicator = document.getElementById("turnIndicator");
@@ -20,7 +20,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const restartButton = document.getElementById("restartButton");
 
   if (!startButton || !startFreestyleButton) {
-    console.log("Error: One or more buttons not found. Check IDs in index.html.");
+    console.error("Error: One or more buttons not found. Check IDs in index.html.");
     return;
   }
 
@@ -72,37 +72,29 @@ document.addEventListener("DOMContentLoaded", () => {
   function playMoveSound() {
     if (!soundEnabled) return;
     const sound = new Audio("move.mp3");
-    sound.addEventListener("loadeddata", () => console.log("Move sound loaded successfully"));
-    sound.addEventListener("error", (e) => console.log("Error loading move sound:", e));
-    console.log("Attempting to play move sound");
-    sound.play().catch(error => console.log("Error playing move sound:", error));
+    sound.addEventListener("error", (e) => console.error("Error loading move sound:", e));
+    sound.play().catch(error => console.error("Error playing move sound:", error));
   }
 
   function playCheckSound() {
     if (!soundEnabled) return;
     const sound = new Audio("check.mp3");
-    sound.addEventListener("loadeddata", () => console.log("Check sound loaded successfully"));
-    sound.addEventListener("error", (e) => console.log("Error loading check sound:", e));
-    console.log("Attempting to play check sound");
-    sound.play().catch(error => console.log("Error playing check sound:", error));
+    sound.addEventListener("error", (e) => console.error("Error loading check sound:", e));
+    sound.play().catch(error => console.error("Error playing check sound:", error));
   }
 
   function playCheckmateSound() {
     if (!soundEnabled) return;
     const sound = new Audio("checkmate.mp3");
-    sound.addEventListener("loadeddata", () => console.log("Checkmate sound loaded successfully"));
-    sound.addEventListener("error", (e) => console.log("Error loading checkmate sound:", e));
-    console.log("Attempting to play checkmate sound");
-    sound.play().catch(error => console.log("Error playing checkmate sound:", error));
+    sound.addEventListener("error", (e) => console.error("Error loading checkmate sound:", e));
+    sound.play().catch(error => console.error("Error playing checkmate sound:", error));
   }
 
   function playErrorSound() {
     if (!soundEnabled) return;
     const sound = new Audio("error.mp3");
-    sound.addEventListener("loadeddata", () => console.log("Error sound loaded successfully"));
-    sound.addEventListener("error", (e) => console.log("Error loading error sound:", e));
-    console.log("Attempting to play error sound");
-    sound.play().catch(error => console.log("Error playing error sound:", error));
+    sound.addEventListener("error", (e) => console.error("Error loading error sound:", e));
+    sound.play().catch(error => console.error("Error playing error sound:", error));
   }
 
   function isKingInCheck(player, tempBoard = board) {
@@ -392,7 +384,10 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function drawBoard() {
-    if (!ctx) return;
+    if (!ctx) {
+      console.error("Canvas context (ctx) is not initialized.");
+      return;
+    }
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     let effectiveRotation = rotateBoard;
@@ -467,13 +462,15 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     wasInCheck = isInCheck;
 
-    turnIndicator.textContent = checkmateAnimation
-      ? `${checkmateAnimation.winner} hat gewonnen!`
-      : isCheckmateResult
-      ? `${currentPlayer === "white" ? "Schwarz" : "Weiß"} hat gewonnen! (Schachmatt)`
-      : isStalemateResult
-      ? "Patt!"
-      : `Am Zug: ${currentPlayer === "white" ? "Weiß" : "Schwarz"}${isInCheck ? " (Schach)" : ""}`;
+    if (turnIndicator) {
+      turnIndicator.textContent = checkmateAnimation
+        ? `${checkmateAnimation.winner} hat gewonnen!`
+        : isCheckmateResult
+        ? `${currentPlayer === "white" ? "Schwarz" : "Weiß"} hat gewonnen! (Schachmatt)`
+        : isStalemateResult
+        ? "Patt!"
+        : `Am Zug: ${currentPlayer === "white" ? "Weiß" : "Schwarz"}${isInCheck ? " (Schach)" : ""}`;
+    }
   }
 
   function initStartScreen() {
@@ -511,11 +508,20 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function startGame(freestyle = false) {
-    if (!ctx) return;
+    if (!ctx) {
+      console.error("Canvas context (ctx) is not initialized in startGame.");
+      return;
+    }
+    if (!startScreen || !document.getElementById("gameContainer")) {
+      console.error("Start screen or game container not found.");
+      return;
+    }
+
     currentPlayer = "white";
     gameStarted = true;
     startScreen.style.display = "none";
     document.getElementById("gameContainer").classList.remove("hidden");
+
     if (freestyle) {
       const shuffledRow = shuffleAndMirror(["r", "n", "b", "q", "k", "b", "n", "r"]);
       board = [
@@ -540,6 +546,7 @@ document.addEventListener("DOMContentLoaded", () => {
         ["R", "N", "B", "Q", "K", "B", "N", "R"]
       ];
     }
+
     castlingState.whiteKingMoved = false;
     castlingState.whiteRookA1Moved = false;
     castlingState.whiteRookH1Moved = false;
@@ -550,6 +557,8 @@ document.addEventListener("DOMContentLoaded", () => {
     moveHistory = [];
     checkmateAnimation = null;
     fadingPieces = [];
+    legalMoves = [];
+
     resizeCanvas();
     drawBoard();
   }
@@ -578,71 +587,84 @@ document.addEventListener("DOMContentLoaded", () => {
     startGame(true);
   });
 
-  rotateButton.addEventListener("click", () => {
-    if (gameStarted && !smartphoneMode) {
-      rotateBoard = !rotateBoard;
-      drawBoard();
-    }
-  });
-
-  smartphoneModeButton.addEventListener("click", () => {
-    if (gameStarted) {
-      smartphoneMode = !smartphoneMode;
-      smartphoneModeButton.textContent = smartphoneMode ? "Smartphone-Modus aus" : "Smartphone-Modus";
-      if (smartphoneMode) {
-        rotateBoard = false; // Deaktiviere manuelle Rotation im Smartphone-Modus
+  if (rotateButton) {
+    rotateButton.addEventListener("click", () => {
+      if (gameStarted && !smartphoneMode) {
+        rotateBoard = !rotateBoard;
+        drawBoard();
       }
-      drawBoard();
-    }
-  });
+    });
+  }
 
-  soundToggleButton.addEventListener("click", () => {
-    soundEnabled = !soundEnabled;
-    soundToggleButton.textContent = soundEnabled ? "Sound ausschalten" : "Sound einschalten";
-  });
+  if (smartphoneModeButton) {
+    smartphoneModeButton.addEventListener("click", () => {
+      if (gameStarted) {
+        smartphoneMode = !smartphoneMode;
+        smartphoneModeButton.textContent = smartphoneMode ? "Smartphone-Modus aus" : "Smartphone-Modus";
+        if (smartphoneMode) {
+          rotateBoard = false;
+        }
+        drawBoard();
+      }
+    });
+  }
 
-  undoButton.addEventListener("click", () => {
-    if (moveHistory.length > 0 && gameStarted && !checkmateAnimation) {
-      const lastState = moveHistory.pop();
-      board = lastState.board.map(row => [...row]);
-      Object.assign(castlingState, lastState.castlingState);
-      enPassantTarget = lastState.enPassantTarget;
-      currentPlayer = lastState.currentPlayer === "white" ? "black" : "white";
-      lastMove = moveHistory.length > 0 ? moveHistory[moveHistory.length - 1].lastMove : null;
-      drawBoard();
-    }
-  });
+  if (soundToggleButton) {
+    soundToggleButton.addEventListener("click", () => {
+      soundEnabled = !soundEnabled;
+      soundToggleButton.textContent = soundEnabled ? "Sound ausschalten" : "Sound einschalten";
+    });
+  }
 
-  restartButton.addEventListener("click", () => {
-    board = [
-      ["r", "n", "b", "q", "k", "b", "n", "r"],
-      ["p", "p", "p", "p", "p", "p", "p", "p"],
-      ["", "", "", "", "", "", "", ""],
-      ["", "", "", "", "", "", "", ""],
-      ["", "", "", "", "", "", "", ""],
-      ["", "", "", "", "", "", "", ""],
-      ["P", "P", "P", "P", "P", "P", "P", "P"],
-      ["R", "N", "B", "Q", "K", "B", "N", "R"]
-    ];
-    castlingState.whiteKingMoved = false;
-    castlingState.whiteRookA1Moved = false;
-    castlingState.whiteRookH1Moved = false;
-    castlingState.blackKingMoved = false;
-    castlingState.blackRookA8Moved = false;
-    castlingState.blackRookH8Moved = false;
-    enPassantTarget = null;
-    moveHistory = [];
-    checkmateAnimation = null;
-    fadingPieces = [];
-    restartButton.classList.add("hidden");
-    startScreen.style.display = "block";
-    document.getElementById("gameContainer").classList.add("hidden");
-    gameStarted = false;
-    initStartScreen();
-  });
+  if (undoButton) {
+    undoButton.addEventListener("click", () => {
+      if (moveHistory.length > 0 && gameStarted && !checkmateAnimation) {
+        const lastState = moveHistory.pop();
+        board = lastState.board.map(row => [...row]);
+        Object.assign(castlingState, lastState.castlingState);
+        enPassantTarget = lastState.enPassantTarget;
+        currentPlayer = lastState.currentPlayer === "white" ? "black" : "white";
+        lastMove = moveHistory.length > 0 ? moveHistory[moveHistory.length - 1].lastMove : null;
+        drawBoard();
+      }
+    });
+  }
+
+  if (restartButton) {
+    restartButton.addEventListener("click", () => {
+      board = [
+        ["r", "n", "b", "q", "k", "b", "n", "r"],
+        ["p", "p", "p", "p", "p", "p", "p", "p"],
+        ["", "", "", "", "", "", "", ""],
+        ["", "", "", "", "", "", "", ""],
+        ["", "", "", "", "", "", "", ""],
+        ["", "", "", "", "", "", "", ""],
+        ["P", "P", "P", "P", "P", "P", "P", "P"],
+        ["R", "N", "B", "Q", "K", "B", "N", "R"]
+      ];
+      castlingState.whiteKingMoved = false;
+      castlingState.whiteRookA1Moved = false;
+      castlingState.whiteRookH1Moved = false;
+      castlingState.blackKingMoved = false;
+      castlingState.blackRookA8Moved = false;
+      castlingState.blackRookH8Moved = false;
+      enPassantTarget = null;
+      moveHistory = [];
+      checkmateAnimation = null;
+      fadingPieces = [];
+      restartButton.classList.add("hidden");
+      startScreen.style.display = "block";
+      document.getElementById("gameContainer").classList.add("hidden");
+      gameStarted = false;
+      initStartScreen();
+    });
+  }
 
   function resizeCanvas() {
-    if (!canvas || !ctx) return;
+    if (!canvas || !ctx) {
+      console.error("Canvas or context not initialized in resizeCanvas.");
+      return;
+    }
     size = Math.min((window.innerWidth * 0.9 - 40) / 8, 45);
     offsetX = size / 2;
     offsetY = size / 2;
@@ -909,6 +931,11 @@ document.addEventListener("DOMContentLoaded", () => {
     selected = null;
   }
 
-  resizeCanvas();
-  initStartScreen();
+  // Initialisierung
+  try {
+    resizeCanvas();
+    initStartScreen();
+  } catch (error) {
+    console.error("Error during initialization:", error);
+  }
 });
