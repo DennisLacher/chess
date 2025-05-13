@@ -11,13 +11,15 @@ document.addEventListener("DOMContentLoaded", () => {
   }
   const turnIndicator = document.getElementById("turnIndicator");
   const startScreen = document.getElementById("startScreen");
-  const startWhiteButton = document.getElementById("startWhiteButton");
+  const startButton = document.getElementById("startButton");
   const startFreestyleButton = document.getElementById("startFreestyleButton");
   const rotateButton = document.getElementById("rotateButton");
+  const smartphoneModeButton = document.getElementById("smartphoneModeButton");
+  const soundToggleButton = document.getElementById("soundToggleButton");
   const undoButton = document.getElementById("undoButton");
   const restartButton = document.getElementById("restartButton");
 
-  if (!startWhiteButton || !startFreestyleButton) {
+  if (!startButton || !startFreestyleButton) {
     console.log("Error: One or more buttons not found. Check IDs in index.html.");
     return;
   }
@@ -35,6 +37,8 @@ document.addEventListener("DOMContentLoaded", () => {
   let gameStarted = false;
   let piecesAnimation = [];
   let rotateBoard = false;
+  let smartphoneMode = false;
+  let soundEnabled = true;
   let enPassantTarget = null;
   let moveHistory = [];
   let legalMoves = [];
@@ -66,6 +70,7 @@ document.addEventListener("DOMContentLoaded", () => {
   };
 
   function playMoveSound() {
+    if (!soundEnabled) return;
     const sound = new Audio("move.mp3");
     sound.addEventListener("loadeddata", () => console.log("Move sound loaded successfully"));
     sound.addEventListener("error", (e) => console.log("Error loading move sound:", e));
@@ -74,6 +79,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function playCheckSound() {
+    if (!soundEnabled) return;
     const sound = new Audio("check.mp3");
     sound.addEventListener("loadeddata", () => console.log("Check sound loaded successfully"));
     sound.addEventListener("error", (e) => console.log("Error loading check sound:", e));
@@ -82,6 +88,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function playCheckmateSound() {
+    if (!soundEnabled) return;
     const sound = new Audio("checkmate.mp3");
     sound.addEventListener("loadeddata", () => console.log("Checkmate sound loaded successfully"));
     sound.addEventListener("error", (e) => console.log("Error loading checkmate sound:", e));
@@ -90,6 +97,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function playErrorSound() {
+    if (!soundEnabled) return;
     const sound = new Audio("error.mp3");
     sound.addEventListener("loadeddata", () => console.log("Error sound loaded successfully"));
     sound.addEventListener("error", (e) => console.log("Error loading error sound:", e));
@@ -387,10 +395,15 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!ctx) return;
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+    let effectiveRotation = rotateBoard;
+    if (smartphoneMode) {
+      effectiveRotation = currentPlayer === "black";
+    }
+
     for (let y = 0; y < 8; y++) {
       for (let x = 0; x < 8; x++) {
-        const displayY = rotateBoard ? 7 - y : y;
-        const displayX = rotateBoard ? 7 - x : x;
+        const displayY = effectiveRotation ? 7 - y : y;
+        const displayX = effectiveRotation ? 7 - x : x;
 
         let color = (displayX + displayY) % 2 === 0 ? "#f0d9b5" : "#b58863";
         if (lastMove && ((lastMove.fromX === x && lastMove.fromY === y) || (lastMove.toX === x && lastMove.toY === y))) {
@@ -433,7 +446,7 @@ document.addEventListener("DOMContentLoaded", () => {
     ctx.fillStyle = "#333";
     ctx.globalAlpha = 1;
     ctx.font = `${size * 0.25}px Arial`;
-    if (!rotateBoard) {
+    if (!effectiveRotation) {
       for (let i = 0; i < 8; i++) {
         ctx.fillText(String.fromCharCode(97 + i), offsetX + i * size + size / 2, offsetY + 8 * size + size * 0.3);
         ctx.fillText(8 - i, offsetX - size * 0.4, offsetY + i * size + size / 2);
@@ -497,7 +510,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  function startGame(player, freestyle = false) {
+  function startGame(freestyle = false) {
     if (!ctx) return;
     currentPlayer = "white";
     gameStarted = true;
@@ -555,21 +568,37 @@ document.addEventListener("DOMContentLoaded", () => {
     return shuffled;
   }
 
-  startWhiteButton.addEventListener("click", () => {
-    console.log("Start White Button clicked");
-    startGame("white");
+  startButton.addEventListener("click", () => {
+    console.log("Start Button clicked");
+    startGame();
   });
 
   startFreestyleButton.addEventListener("click", () => {
     console.log("Start Freestyle Button clicked");
-    startGame("white", true);
+    startGame(true);
   });
 
   rotateButton.addEventListener("click", () => {
-    if (gameStarted) {
+    if (gameStarted && !smartphoneMode) {
       rotateBoard = !rotateBoard;
       drawBoard();
     }
+  });
+
+  smartphoneModeButton.addEventListener("click", () => {
+    if (gameStarted) {
+      smartphoneMode = !smartphoneMode;
+      smartphoneModeButton.textContent = smartphoneMode ? "Smartphone-Modus aus" : "Smartphone-Modus";
+      if (smartphoneMode) {
+        rotateBoard = false; // Deaktiviere manuelle Rotation im Smartphone-Modus
+      }
+      drawBoard();
+    }
+  });
+
+  soundToggleButton.addEventListener("click", () => {
+    soundEnabled = !soundEnabled;
+    soundToggleButton.textContent = soundEnabled ? "Sound ausschalten" : "Sound einschalten";
   });
 
   undoButton.addEventListener("click", () => {
@@ -775,7 +804,12 @@ document.addEventListener("DOMContentLoaded", () => {
     let x = Math.floor((clientX - rect.left - offsetX) / size);
     let y = Math.floor((clientY - rect.top - offsetY) / size);
 
-    if (rotateBoard) {
+    let effectiveRotation = rotateBoard;
+    if (smartphoneMode) {
+      effectiveRotation = currentPlayer === "black";
+    }
+
+    if (effectiveRotation) {
       x = 7 - x;
       y = 7 - y;
     }
@@ -818,7 +852,12 @@ document.addEventListener("DOMContentLoaded", () => {
     let toX = Math.floor((clientX - rect.left - offsetX) / size);
     let toY = Math.floor((clientY - rect.top - offsetY) / size);
 
-    if (rotateBoard) {
+    let effectiveRotation = rotateBoard;
+    if (smartphoneMode) {
+      effectiveRotation = currentPlayer === "black";
+    }
+
+    if (effectiveRotation) {
       toX = 7 - toX;
       toY = 7 - toY;
     }
