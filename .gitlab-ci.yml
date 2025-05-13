@@ -1,5 +1,11 @@
+image: alpine:latest
+
 pages:
   stage: deploy
+  before_script:
+    - mkdir -p public
+    - cp -r *.{html,css,js} public/  # Kopiert alle relevanten Dateien
+    - ls -la public/  # Debug-Ausgabe, um sicherzustellen, dass Dateien kopiert wurden
   script:
     - echo "Deploying to GitLab Pages"
   artifacts:
@@ -8,7 +14,3 @@ pages:
   rules:
     - if: '$CI_COMMIT_BRANCH == "main"'
       when: always
-
-before_script:
-  - mkdir -p public
-  - cp -r *.{html,css,js} public/
