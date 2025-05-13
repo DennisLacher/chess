@@ -3,13 +3,13 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Schach</title>
+  <title>Modernes Schachspiel</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body class="bg-gradient-to-br from-gray-900 to-gray-800 min-h-screen flex items-center justify-center">
   <div id="startScreen" class="text-center">
-    <h1 class="text-4xl md:text-5xl font-extrabold text-white mb-6 drop-shadow-lg">Schach</h1>
+    <h1 class="text-4xl md:text-5xl font-extrabold text-white mb-6 drop-shadow-lg">Modernes Schachspiel</h1>
     <button id="startButton" class="bg-gradient-to-r from-green-500 to-green-600 text-white px-6 py-3 rounded-lg shadow-lg hover:from-green-600 hover:to-green-700 transition duration-300 mb-4 transform hover:scale-105">Spiel starten</button>
     <button id="startFreestyleButton" class="bg-gradient-to-r from-green-500 to-green-600 text-white px-6 py-3 rounded-lg shadow-lg hover:from-green-600 hover:to-green-700 transition duration-300 transform hover:scale-105">Freestyle-Modus starten</button>
   </div>
@@ -30,6 +30,6 @@
       <ul id="moveList" class="list-disc pl-5"></ul>
     </div>
   </div>
-  <script src="script.js"></script>
+  <script type="module" src="script.js"></script>
 </body>
 </html>
