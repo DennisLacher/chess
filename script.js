@@ -176,13 +176,20 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function getLegalMoves(x, y) {
+    console.log("Calculating legal moves for position:", x, y);
     const moves = [];
     const piece = board[y][x];
-    if (!piece) return moves;
+    if (!piece) {
+      console.log("No piece at", x, y);
+      return moves;
+    }
+
+    const isWhite = piece === piece.toUpperCase();
+    console.log("Piece:", piece, "isWhite:", isWhite, "Current player:", currentPlayer);
 
     if (piece.toLowerCase() === "p") {
-      const direction = piece === piece.toUpperCase() ? -1 : 1;
-      const startRow = piece === piece.toUpperCase() ? 6 : 1;
+      const direction = isWhite ? -1 : 1;
+      const startRow = isWhite ? 6 : 1;
       if (y + direction >= 0 && y + direction < 8 && !board[y + direction][x]) {
         moves.push({ toX: x, toY: y + direction });
         if (y === startRow && !board[y + 2 * direction][x]) {
@@ -195,7 +202,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const newY = y + direction;
         if (newX >= 0 && newX < 8 && newY >= 0 && newY < 8) {
           const targetPiece = board[newY][newX];
-          if (targetPiece && (targetPiece === targetPiece.toUpperCase()) !== (piece === piece.toUpperCase())) {
+          if (targetPiece && (targetPiece === targetPiece.toUpperCase()) !== isWhite) {
             moves.push({ toX: newX, toY: newY });
           }
         }
@@ -211,7 +218,7 @@ document.addEventListener("DOMContentLoaded", () => {
           if (newX < 0 || newX >= 8 || newY < 0 || newY >= 8) break;
           const targetPiece = board[newY][newX];
           if (targetPiece) {
-            if ((targetPiece === targetPiece.toUpperCase()) !== (piece === piece.toUpperCase())) {
+            if ((targetPiece === targetPiece.toUpperCase()) !== isWhite) {
               moves.push({ toX: newX, toY: newY });
             }
             break;
@@ -229,7 +236,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const newY = y + dy;
         if (newX >= 0 && newX < 8 && newY >= 0 && newY < 8) {
           const targetPiece = board[newY][newX];
-          if (!targetPiece || (targetPiece === targetPiece.toUpperCase()) !== (piece === piece.toUpperCase())) {
+          if (!targetPiece || (targetPiece === targetPiece.toUpperCase()) !== isWhite) {
             moves.push({ toX: newX, toY: newY });
           }
         }
@@ -245,12 +252,46 @@ document.addEventListener("DOMContentLoaded", () => {
           if (newX < 0 || newX >= 8 || newY < 0 || newY >= 8) break;
           const targetPiece = board[newY][newX];
           if (targetPiece) {
-            if ((targetPiece === targetPiece.toUpperCase()) !== (piece === piece.toUpperCase())) {
+            if ((targetPiece === targetPiece.toUpperCase()) !== isWhite) {
               moves.push({ toX: newX, toY: newY });
             }
             break;
           }
           moves.push({ toX: newX, toY: newY });
+        }
+      });
+    } else if (piece.toLowerCase() === "q") {
+      const directions = [[0, 1], [0, -1], [1, 0], [-1, 0], [1, 1], [1, -1], [-1, 1], [-1, -1]];
+      directions.forEach(([dx, dy]) => {
+        let newX = x;
+        let newY = y;
+        while (true) {
+          newX += dx;
+          newY += dy;
+          if (newX < 0 || newX >= 8 || newY < 0 || newY >= 8) break;
+          const targetPiece = board[newY][newX];
+          if (targetPiece) {
+            if ((targetPiece === targetPiece.toUpperCase()) !== isWhite) {
+              moves.push({ toX: newX, toY: newY });
+            }
+            break;
+          }
+          moves.push({ toX: newX, toY: newY });
+        }
+      });
+    } else if (piece.toLowerCase() === "k") {
+      const kingMoves = [
+        [0, 1], [0, -1], [1, 0], [-1, 0],
+        [1, 1], [1, -1], [-1, 1], [-1, -1]
+      ];
+      kingMoves.forEach(([dx, dy]) => {
+        const newX = x + dx;
+        const newY = y + dy;
+        if (newX >= 0 && newX < 8 && newY >= 0 && newY < 8) {
+          const targetPiece = board[newY][newX];
+          if (!targetPiece || (targetPiece === targetPiece.toUpperCase()) !== isWhite) {
+            moves.push({ toX: newX, toY: newY });
+          }
         }
       });
     }
@@ -273,8 +314,11 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    let x = Math.floor((clientX - rect.left - offsetX) / size);
-    let y = Math.floor((clientY - rect.top - offsetY) / size);
+    const x = Math.floor((clientX - rect.left - offsetX) / size);
+    const y = Math.floor((clientY - rect.top - offsetY) / size);
+
+    let boardX = x;
+    let boardY = y;
 
     let effectiveRotation = rotateBoard;
     if (smartphoneMode) {
@@ -282,40 +326,49 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     if (effectiveRotation) {
-      x = 7 - x;
-      y = 7 - y;
+      boardX = 7 - x;
+      boardY = 7 - y;
     }
 
-    if (x < 0 || x >= 8 || y < 0 || y >= 8) {
-      console.log("Click outside board:", x, y);
+    if (boardX < 0 || boardX >= 8 || boardY < 0 || boardY >= 8) {
+      console.log("Click outside board:", boardX, boardY);
       return;
     }
 
-    console.log("Clicked position (adjusted):", x, y);
+    console.log("Clicked position on board:", boardX, boardY);
+
+    const piece = board[boardY][boardX];
+    const isWhitePiece = piece && piece === piece.toUpperCase();
 
     if (!selectedPiece) {
-      const piece = board[y][x];
-      if (piece && (piece === piece.toUpperCase()) === (currentPlayer === "white")) {
-        console.log("Piece selected:", piece, "at", x, y);
-        selectedPiece = { x, y, piece };
-        legalMoves = getLegalMoves(x, y);
+      if (piece && (isWhitePiece === (currentPlayer === "white"))) {
+        console.log("Piece selected:", piece, "at", boardX, boardY);
+        selectedPiece = { x: boardX, y: boardY, piece };
+        legalMoves = getLegalMoves(boardX, boardY);
+        if (legalMoves.length === 0) {
+          console.log("No legal moves available for this piece.");
+          selectedPiece = null;
+        }
         drawBoard();
       } else {
-        console.log("No valid piece selected at", x, y);
+        console.log("No valid piece selected at", boardX, boardY, "Piece:", piece, "Current player:", currentPlayer);
       }
     } else {
-      const move = legalMoves.find(m => m.toX === x && m.toY === y);
+      console.log("Selected piece:", selectedPiece.piece, "at", selectedPiece.x, selectedPiece.y);
+      console.log("Legal moves:", legalMoves);
+      const move = legalMoves.find(m => m.toX === boardX && m.toY === boardY);
       if (move) {
-        console.log("Moving piece from", selectedPiece.x, selectedPiece.y, "to", x, y);
+        console.log("Moving piece from", selectedPiece.x, selectedPiece.y, "to", boardX, boardY);
         const newBoard = board.map(row => [...row]);
-        newBoard[y][x] = selectedPiece.piece;
+        newBoard[boardY][boardX] = selectedPiece.piece;
         newBoard[selectedPiece.y][selectedPiece.x] = "";
         moveHistory.push({ board: board.map(row => [...row]), currentPlayer });
-        lastMove = { fromX: selectedPiece.x, fromY: selectedPiece.y, toX: x, toY: y };
+        lastMove = { fromX: selectedPiece.x, fromY: selectedPiece.y, toX: boardX, toY: boardY };
         board = newBoard;
         currentPlayer = currentPlayer === "white" ? "black" : "white";
+        console.log("Move executed. New current player:", currentPlayer);
       } else {
-        console.log("Invalid move to", x, y);
+        console.log("Invalid move to", boardX, boardY);
       }
       selectedPiece = null;
       legalMoves = [];
