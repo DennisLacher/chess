@@ -393,9 +393,9 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    // Verbesserte Koordinatenberechnung
-    const x = Math.floor((clientX - rect.left) / size);
-    const y = Math.floor((clientY - rect.top) / size);
+    // Korrigierte Koordinatenberechnung mit Offset
+    const x = Math.floor((clientX - rect.left - offsetX) / size);
+    const y = Math.floor((clientY - rect.top - offsetY) / size);
     if (DEBUG.enableLogging && DEBUG.logLevel === "debug") {
       console.log("Raw coordinates:", clientX, clientY);
       console.log("Canvas rect:", rect);
