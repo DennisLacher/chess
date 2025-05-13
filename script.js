@@ -89,6 +89,14 @@ document.addEventListener("DOMContentLoaded", () => {
     sound.play().catch(error => console.log("Error playing checkmate sound:", error));
   }
 
+  function playErrorSound() {
+    const sound = new Audio("error.mp3");
+    sound.addEventListener("loadeddata", () => console.log("Error sound loaded successfully"));
+    sound.addEventListener("error", (e) => console.log("Error loading error sound:", e));
+    console.log("Attempting to play error sound");
+    sound.play().catch(error => console.log("Error playing error sound:", error));
+  }
+
   function isKingInCheck(player, tempBoard = board) {
     const kingPiece = player === "white" ? "K" : "k";
     let kingX = -1, kingY = -1;
@@ -405,7 +413,8 @@ document.addEventListener("DOMContentLoaded", () => {
         if (piece && !fadingPieces.some(p => p.x === x && p.y === y)) {
           const isWhite = piece === piece.toUpperCase();
           ctx.fillStyle = isWhite ? "#ffffff" : "#000000";
-          ctx.font = `${size * 0.7}px Arial, sans-serif`;
+          ctx.globalAlpha = 1;
+          ctx.font = `${size * 0.7}px sans-serif`;
           ctx.textAlign = "center";
           ctx.textBaseline = "middle";
           ctx.save();
@@ -422,6 +431,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     ctx.fillStyle = "#333";
+    ctx.globalAlpha = 1;
     ctx.font = `${size * 0.25}px Arial`;
     if (!rotateBoard) {
       for (let i = 0; i < 8; i++) {
@@ -477,7 +487,8 @@ document.addEventListener("DOMContentLoaded", () => {
         if (piece.y < 0 || piece.y > size * 8) piece.dy *= -1;
         const isWhite = piece.piece === piece.piece.toUpperCase();
         ctx.fillStyle = isWhite ? "#ffffff" : "#000000";
-        ctx.font = `${size * 0.7}px Arial, sans-serif`;
+        ctx.globalAlpha = 1;
+        ctx.font = `${size * 0.7}px sans-serif`;
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
         ctx.fillText(piece.piece, piece.x, piece.y);
@@ -629,7 +640,8 @@ document.addEventListener("DOMContentLoaded", () => {
     drawBoard();
     const isWhite = animatingPiece.piece === animatingPiece.piece.toUpperCase();
     ctx.fillStyle = isWhite ? "#ffffff" : "#000000";
-    ctx.font = `${size * 0.7}px Arial, sans-serif`;
+    ctx.globalAlpha = 1;
+    ctx.font = `${size * 0.7}px sans-serif`;
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
     ctx.fillText(pieces[animatingPiece.piece], animatingPiece.x, animatingPiece.y);
@@ -776,7 +788,8 @@ document.addEventListener("DOMContentLoaded", () => {
         drawBoard();
         const isWhite = selected.piece === selected.piece.toUpperCase();
         ctx.fillStyle = isWhite ? "#ffffff" : "#000000";
-        ctx.font = `${size * 0.7}px Arial, sans-serif`;
+        ctx.globalAlpha = 1;
+        ctx.font = `${size * 0.7}px sans-serif`;
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
         ctx.fillText(pieces[selected.piece], clientX - rect.left, clientY - rect.top);
@@ -792,7 +805,8 @@ document.addEventListener("DOMContentLoaded", () => {
     drawBoard();
     const isWhite = selected.piece === selected.piece.toUpperCase();
     ctx.fillStyle = isWhite ? "#ffffff" : "#000000";
-    ctx.font = `${size * 0.7}px Arial, sans-serif`;
+    ctx.globalAlpha = 1;
+    ctx.font = `${size * 0.7}px sans-serif`;
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
     ctx.fillText(pieces[selected.piece], selected.offsetX, selected.offsetY);
@@ -835,6 +849,7 @@ document.addEventListener("DOMContentLoaded", () => {
         animatePiece();
       } else {
         console.log("Illegal move attempted");
+        playErrorSound();
         illegalMoveFields = { startX: selected.x, startY: selected.y, toX, toY };
         drawBoard();
         setTimeout(() => {
@@ -844,6 +859,7 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     } else {
       console.log("Move outside board");
+      playErrorSound();
       illegalMoveFields = { startX: selected.x, startY: selected.y, toX: selected.x, toY: selected.y };
       drawBoard();
       setTimeout(() => {
