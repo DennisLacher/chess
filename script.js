@@ -18,7 +18,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const undoButton = document.getElementById("undoButton");
   const restartButton = document.getElementById("restartButton");
 
-  // Debugging: Überprüfen, ob die Buttons korrekt gefunden werden
   if (!startWhiteButton || !startBlackButton || !startFreestyleButton) {
     console.log("Error: One or more buttons not found. Check IDs in index.html.");
     return;
@@ -340,7 +339,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const piece = board[y][x];
         if (piece && (piece === piece.toUpperCase()) === (player === "white")) {
           for (let toY = 0; toY < 8; toY++) {
-            for (let toX = 0; toX < 8; toX++) { // Fehler behoben: x < 8 zu toX < 8 geändert
+            for (let toX = 0; toX < 8; toX++) {
               if (isLegalMove(piece, x, y, toX, toY)) {
                 return false;
               }
@@ -380,8 +379,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const piece = board[y][x];
         if (piece && !fadingPieces.some(p => p.x === x && p.y === y)) {
-          ctx.fillStyle = piece === piece.toUpperCase() ? "#ffffff" : "#000000";
-          ctx.font = `${size * 0.7}px Arial`;
+          const isWhite = piece === piece.toUpperCase();
+          ctx.fillStyle = isWhite ? "#ffffff" : "#000000";
+          ctx.font = `${size * 0.7}px 'Chess Merida', sans-serif`;
           ctx.textAlign = "center";
           ctx.textBaseline = "middle";
           ctx.save();
@@ -389,8 +389,18 @@ document.addEventListener("DOMContentLoaded", () => {
             ctx.translate(offsetX + displayX * size + size / 2, offsetY + displayY * size + size / 2);
             ctx.rotate((checkmateAnimation.angle * Math.PI) / 180);
             ctx.fillText(pieces[piece], 0, 0);
+            if (isWhite) {
+              ctx.strokeStyle = "#000000";
+              ctx.lineWidth = 1;
+              ctx.strokeText(pieces[piece], 0, 0);
+            }
           } else {
             ctx.fillText(pieces[piece], offsetX + displayX * size + size / 2, offsetY + displayY * size + size / 2);
+            if (isWhite) {
+              ctx.strokeStyle = "#000000";
+              ctx.lineWidth = 1;
+              ctx.strokeText(pieces[piece], offsetX + displayX * size + size / 2, offsetY + displayY * size + size / 2);
+            }
           }
           ctx.restore();
         }
@@ -445,11 +455,17 @@ document.addEventListener("DOMContentLoaded", () => {
         piece.y += piece.dy;
         if (piece.x < 0 || piece.x > size * 8) piece.dx *= -1;
         if (piece.y < 0 || piece.y > size * 8) piece.dy *= -1;
-        ctx.fillStyle = piece.piece === piece.piece.toUpperCase() ? "#ffffff" : "#000000";
-        ctx.font = `${size * 0.7}px Arial`;
+        const isWhite = piece.piece === piece.piece.toUpperCase();
+        ctx.fillStyle = isWhite ? "#ffffff" : "#000000";
+        ctx.font = `${size * 0.7}px 'Chess Merida', sans-serif`;
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
         ctx.fillText(piece.piece, piece.x, piece.y);
+        if (isWhite) {
+          ctx.strokeStyle = "#000000";
+          ctx.lineWidth = 1;
+          ctx.strokeText(piece.piece, piece.x, piece.y);
+        }
       });
       requestAnimationFrame(animateStartScreen);
     }
@@ -599,11 +615,17 @@ document.addEventListener("DOMContentLoaded", () => {
     animatingPiece.y += dy;
 
     drawBoard();
-    ctx.fillStyle = animatingPiece.piece === animatingPiece.piece.toUpperCase() ? "#ffffff" : "#000000";
-    ctx.font = `${size * 0.7}px Arial`;
+    const isWhite = animatingPiece.piece === animatingPiece.piece.toUpperCase();
+    ctx.fillStyle = isWhite ? "#ffffff" : "#000000";
+    ctx.font = `${size * 0.7}px 'Chess Merida', sans-serif`;
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
     ctx.fillText(pieces[animatingPiece.piece], animatingPiece.x, animatingPiece.y);
+    if (isWhite) {
+      ctx.strokeStyle = "#000000";
+      ctx.lineWidth = 1;
+      ctx.strokeText(pieces[animatingPiece.piece], animatingPiece.x, animatingPiece.y);
+    }
 
     if (Math.abs(animatingPiece.x - targetX) > 0.5 || Math.abs(animatingPiece.y - targetY) > 0.5) {
       requestAnimationFrame(animatePiece);
@@ -704,11 +726,17 @@ document.addEventListener("DOMContentLoaded", () => {
         if (piece.opacity > 0) {
           allFaded = false;
           drawBoard();
-          ctx.fillStyle = `rgba(0, 0, 0, ${piece.opacity})`;
-          ctx.font = `${size * 0.7}px Arial`;
+          const isWhite = board[piece.y][piece.x] === board[piece.y][piece.x].toUpperCase();
+          ctx.fillStyle = `rgba(${isWhite ? '255, 255, 255' : '0, 0, 0'}, ${piece.opacity})`;
+          ctx.font = `${size * 0.7}px 'Chess Merida', sans-serif`;
           ctx.textAlign = "center";
           ctx.textBaseline = "middle";
           ctx.fillText(pieces[board[piece.y][piece.x]], offsetX + piece.x * size + size / 2, offsetY + piece.y * size + size / 2);
+          if (isWhite) {
+            ctx.strokeStyle = `rgba(0, 0, 0, ${piece.opacity})`;
+            ctx.lineWidth = 1;
+            ctx.strokeText(pieces[board[piece.y][piece.x]], offsetX + piece.x * size + size / 2, offsetY + piece.y * size + size / 2);
+          }
           return true;
         }
         return false;
@@ -761,11 +789,17 @@ document.addEventListener("DOMContentLoaded", () => {
         selected = { x, y, piece };
         legalMoves = getLegalMoves(piece, x, y);
         drawBoard();
-        ctx.fillStyle = selected.piece === selected.piece.toUpperCase() ? "#ffffff" : "#000000";
-        ctx.font = `${size * 0.7}px Arial`;
+        const isWhite = selected.piece === selected.piece.toUpperCase();
+        ctx.fillStyle = isWhite ? "#ffffff" : "#000000";
+        ctx.font = `${size * 0.7}px 'Chess Merida', sans-serif`;
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
         ctx.fillText(pieces[selected.piece], clientX - rect.left, clientY - rect.top);
+        if (isWhite) {
+          ctx.strokeStyle = "#000000";
+          ctx.lineWidth = 1;
+          ctx.strokeText(pieces[selected.piece], clientX - rect.left, clientY - rect.top);
+        }
       }
     }
   }
@@ -776,11 +810,17 @@ document.addEventListener("DOMContentLoaded", () => {
     selected.offsetX = clientX - rect.left;
     selected.offsetY = clientY - rect.top;
     drawBoard();
-    ctx.fillStyle = selected.piece === selected.piece.toUpperCase() ? "#ffffff" : "#000000";
-    ctx.font = `${size * 0.7}px Arial`;
+    const isWhite = selected.piece === selected.piece.toUpperCase();
+    ctx.fillStyle = isWhite ? "#ffffff" : "#000000";
+    ctx.font = `${size * 0.7}px 'Chess Merida', sans-serif`;
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
     ctx.fillText(pieces[selected.piece], selected.offsetX, selected.offsetY);
+    if (isWhite) {
+      ctx.strokeStyle = "#000000";
+      ctx.lineWidth = 1;
+      ctx.strokeText(pieces[selected.piece], selected.offsetX, selected.offsetY);
+    }
   }
 
   function handleEnd(clientX, clientY) {
