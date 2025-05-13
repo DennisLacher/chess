@@ -27,6 +27,14 @@ document.addEventListener("DOMContentLoaded", () => {
   const checkSound = new Audio("check.mp3");
   const checkmateSound = new Audio("checkmate.mp3");
 
+  // Debugging: Prüfen, ob die Audio-Objekte geladen werden
+  moveSound.addEventListener("loadeddata", () => console.log("Move sound loaded successfully"));
+  moveSound.addEventListener("error", (e) => console.log("Error loading move sound:", e));
+  checkSound.addEventListener("loadeddata", () => console.log("Check sound loaded successfully"));
+  checkSound.addEventListener("error", (e) => console.log("Error loading check sound:", e));
+  checkmateSound.addEventListener("loadeddata", () => console.log("Checkmate sound loaded successfully"));
+  checkmateSound.addEventListener("error", (e) => console.log("Error loading checkmate sound:", e));
+
   let size = Math.min((window.innerWidth * 0.9 - 40) / 8, 45);
   let offsetX = size / 2;
   let offsetY = size / 2;
@@ -394,15 +402,17 @@ document.addEventListener("DOMContentLoaded", () => {
             ctx.translate(offsetX + displayX * size + size / 2, offsetY + displayY * size + size / 2);
             ctx.rotate((checkmateAnimation.angle * Math.PI) / 180);
             ctx.fillText(pieces[piece], 0, 0);
-            if (isWhite) {
-              ctx.strokeStyle = "#000000";
+            // Kein Stroke für weiße Figuren
+            if (!isWhite) {
+              ctx.strokeStyle = "#ffffff";
               ctx.lineWidth = 1;
               ctx.strokeText(pieces[piece], 0, 0);
             }
           } else {
             ctx.fillText(pieces[piece], offsetX + displayX * size + size / 2, offsetY + displayY * size + size / 2);
-            if (isWhite) {
-              ctx.strokeStyle = "#000000";
+            // Kein Stroke für weiße Figuren
+            if (!isWhite) {
+              ctx.strokeStyle = "#ffffff";
               ctx.lineWidth = 1;
               ctx.strokeText(pieces[piece], offsetX + displayX * size + size / 2, offsetY + displayY * size + size / 2);
             }
@@ -431,6 +441,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const isStalemateResult = isStalemate(currentPlayer);
     
     if (isInCheck && !wasInCheck && !isCheckmateResult && !isStalemateResult) {
+      console.log("Attempting to play check sound");
       checkSound.play().catch(error => console.log("Error playing check sound:", error));
     }
     wasInCheck = isInCheck;
@@ -472,8 +483,9 @@ document.addEventListener("DOMContentLoaded", () => {
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
         ctx.fillText(piece.piece, piece.x, piece.y);
-        if (isWhite) {
-          ctx.strokeStyle = "#000000";
+        // Kein Stroke für weiße Figuren
+        if (!isWhite) {
+          ctx.strokeStyle = "#ffffff";
           ctx.lineWidth = 1;
           ctx.strokeText(piece.piece, piece.x, piece.y);
         }
@@ -629,8 +641,9 @@ document.addEventListener("DOMContentLoaded", () => {
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
     ctx.fillText(pieces[animatingPiece.piece], animatingPiece.x, animatingPiece.y);
-    if (isWhite) {
-      ctx.strokeStyle = "#000000";
+    // Kein Stroke für weiße Figuren
+    if (!isWhite) {
+      ctx.strokeStyle = "#ffffff";
       ctx.lineWidth = 1;
       ctx.strokeText(pieces[animatingPiece.piece], animatingPiece.x, animatingPiece.y);
     }
@@ -675,6 +688,7 @@ document.addEventListener("DOMContentLoaded", () => {
       animatingPiece = null;
       enPassantTarget = null;
 
+      console.log("Attempting to play move sound");
       moveSound.play().catch(error => console.log("Error playing move sound:", error));
 
       const opponent = currentPlayer === "white" ? "black" : "white";
@@ -730,6 +744,7 @@ document.addEventListener("DOMContentLoaded", () => {
       drawBoard();
       requestAnimationFrame(animateCheckmate);
     } else {
+      console.log("Attempting to play checkmate sound");
       checkmateSound.play().catch(error => console.log("Error playing checkmate sound:", error));
 
       let allFaded = true;
@@ -744,8 +759,9 @@ document.addEventListener("DOMContentLoaded", () => {
           ctx.textAlign = "center";
           ctx.textBaseline = "middle";
           ctx.fillText(pieces[board[piece.y][piece.x]], offsetX + piece.x * size + size / 2, offsetY + piece.y * size + size / 2);
-          if (isWhite) {
-            ctx.strokeStyle = `rgba(0, 0, 0, ${piece.opacity})`;
+          // Kein Stroke für weiße Figuren
+          if (!isWhite) {
+            ctx.strokeStyle = `rgba(255, 255, 255, ${piece.opacity})`;
             ctx.lineWidth = 1;
             ctx.strokeText(pieces[board[piece.y][piece.x]], offsetX + piece.x * size + size / 2, offsetY + piece.y * size + size / 2);
           }
@@ -807,8 +823,9 @@ document.addEventListener("DOMContentLoaded", () => {
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
         ctx.fillText(pieces[selected.piece], clientX - rect.left, clientY - rect.top);
-        if (isWhite) {
-          ctx.strokeStyle = "#000000";
+        // Kein Stroke für weiße Figuren
+        if (!isWhite) {
+          ctx.strokeStyle = "#ffffff";
           ctx.lineWidth = 1;
           ctx.strokeText(pieces[selected.piece], clientX - rect.left, clientY - rect.top);
         }
@@ -828,8 +845,9 @@ document.addEventListener("DOMContentLoaded", () => {
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
     ctx.fillText(pieces[selected.piece], selected.offsetX, selected.offsetY);
-    if (isWhite) {
-      ctx.strokeStyle = "#000000";
+    // Kein Stroke für weiße Figuren
+    if (!isWhite) {
+      ctx.strokeStyle = "#ffffff";
       ctx.lineWidth = 1;
       ctx.strokeText(pieces[selected.piece], selected.offsetX, selected.offsetY);
     }
