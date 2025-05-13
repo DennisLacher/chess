@@ -1,5 +1,9 @@
+import { CONFIG, DEBUG, SOUND } from './config.js';
+
 document.addEventListener("DOMContentLoaded", () => {
-  console.log("DOM fully loaded, initializing game...");
+  if (DEBUG.enableLogging) {
+    console.log("DOM fully loaded, initializing game...", { debugLevel: DEBUG.logLevel });
+  }
 
   // DOM-Elemente
   const canvas = document.getElementById("chessboard");
@@ -28,20 +32,20 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // Spielvariablen
-  let size = 0;
-  let offsetX = 0;
-  let offsetY = 0;
+  let size = CONFIG.defaultBoardSize;
+  let offsetX = size * CONFIG.offset;
+  let offsetY = size * CONFIG.offset;
   let selectedPiece = null;
   let currentPlayer = "white";
   let gameStarted = false;
   let rotateBoard = false;
   let smartphoneMode = false;
-  let soundEnabled = true;
+  let soundEnabled = SOUND.enabledByDefault;
   let moveHistory = [];
   let legalMoves = [];
   let lastMove = null;
   let moveCount = 1;
-  let moveNotations = []; // Für die Zug-Historie
+  let moveNotations = [];
 
   const pieces = {
     r: "♜", n: "♞", b: "♝", q: "♛", k: "♚", p: "♟",
@@ -60,7 +64,9 @@ document.addEventListener("DOMContentLoaded", () => {
   ];
 
   function drawBoard() {
-    console.log("Drawing board...");
+    if (DEBUG.enableLogging && DEBUG.logLevel === "debug") {
+      console.log("Drawing board...");
+    }
     if (!ctx) {
       console.error("Canvas context not available.");
       return;
@@ -116,20 +122,26 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function resizeCanvas() {
-    console.log("Resizing canvas...");
-    size = Math.min((window.innerWidth * 0.9 - 40) / 8, window.innerHeight < 600 ? 35 : 45);
-    offsetX = size / 2;
-    offsetY = size / 2;
+    if (DEBUG.enableLogging && DEBUG.logLevel === "debug") {
+      console.log("Resizing canvas...");
+    }
+    size = Math.min((window.innerWidth * CONFIG.maxWidthFactor - 40) / 8, window.innerHeight < 600 ? CONFIG.minBoardSize : CONFIG.defaultBoardSize);
+    offsetX = size * CONFIG.offset;
+    offsetY = size * CONFIG.offset;
     canvas.width = size * 8 + offsetX * 2;
     canvas.height = size * 8 + offsetY * 2;
-    console.log("New canvas size:", canvas.width, "x", canvas.height);
+    if (DEBUG.enableLogging && DEBUG.logLevel === "debug") {
+      console.log("New canvas size:", canvas.width, "x", canvas.height);
+    }
     if (gameStarted) {
       drawBoard();
     }
   }
 
   function startGame(freestyle = false) {
-    console.log("Starting game, freestyle mode:", freestyle);
+    if (DEBUG.enableLogging && DEBUG.logLevel === "debug") {
+      console.log("Starting game, freestyle mode:", freestyle);
+    }
     currentPlayer = "white";
     gameStarted = true;
     selectedPiece = null;
@@ -182,17 +194,23 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function getLegalMoves(x, y) {
-    console.log("Calculating legal moves for position:", x, y);
+    if (DEBUG.enableLogging && DEBUG.logLevel === "debug") {
+      console.log("Calculating legal moves for position:", x, y);
+    }
     const moves = [];
     const piece = board[y][x];
     if (!piece) {
-      console.log("No piece at", x, y);
+      if (DEBUG.enableLogging && DEBUG.logLevel === "debug") {
+        console.log("No piece at", x, y);
+      }
       return moves;
     }
 
     const isWhite = piece === piece.toUpperCase();
     if ((isWhite && currentPlayer !== "white") || (!isWhite && currentPlayer !== "black")) {
-      console.log("Not the current player's turn for this piece.");
+      if (DEBUG.enableLogging && DEBUG.logLevel === "debug") {
+        console.log("Not the current player's turn for this piece.");
+      }
       return moves;
     }
 
@@ -305,7 +323,9 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     }
 
-    console.log("Legal moves for", piece, "at", x, y, ":", moves);
+    if (DEBUG.enableLogging && DEBUG.logLevel === "debug") {
+      console.log("Legal moves for", piece, "at", x, y, ":", moves);
+    }
     return moves;
   }
 
@@ -336,10 +356,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function handleCanvasClick(event) {
     if (!gameStarted) {
-      console.log("Game not started yet.");
+      if (DEBUG.enableLogging && DEBUG.logLevel === "debug") {
+        console.log("Game not started yet.");
+      }
       return;
     }
-    console.log("Canvas clicked/touched");
+    if (DEBUG.enableLogging && DEBUG.logLevel === "debug") {
+      console.log("Canvas clicked/touched");
+    }
     const rect = canvas.getBoundingClientRect();
     const clientX = event.clientX || (event.touches && event.touches[0]?.clientX);
     const clientY = event.clientY || (event.touches && event.touches[0]?.clientY);
@@ -365,34 +389,48 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     if (boardX < 0 || boardX >= 8 || boardY < 0 || boardY >= 8) {
-      console.log("Click outside board:", boardX, boardY);
+      if (DEBUG.enableLogging && DEBUG.logLevel === "debug") {
+        console.log("Click outside board:", boardX, boardY);
+      }
       return;
     }
 
-    console.log("Clicked position on board:", boardX, boardY);
+    if (DEBUG.enableLogging && DEBUG.logLevel === "debug") {
+      console.log("Clicked position on board:", boardX, boardY);
+    }
 
     const piece = board[boardY][boardX];
     const isWhitePiece = piece && piece === piece.toUpperCase();
 
     if (!selectedPiece) {
       if (piece && (isWhitePiece === (currentPlayer === "white"))) {
-        console.log("Piece selected:", piece, "at", boardX, boardY);
+        if (DEBUG.enableLogging && DEBUG.logLevel === "debug") {
+          console.log("Piece selected:", piece, "at", boardX, boardY);
+        }
         selectedPiece = { x: boardX, y: boardY, piece };
         legalMoves = getLegalMoves(boardX, boardY);
         if (legalMoves.length === 0) {
-          console.log("No legal moves available for this piece.");
+          if (DEBUG.enableLogging && DEBUG.logLevel === "debug") {
+            console.log("No legal moves available for this piece.");
+          }
           selectedPiece = null;
         }
         drawBoard();
       } else {
-        console.log("No valid piece selected at", boardX, boardY, "Piece:", piece, "Current player:", currentPlayer);
+        if (DEBUG.enableLogging && DEBUG.logLevel === "debug") {
+          console.log("No valid piece selected at", boardX, boardY, "Piece:", piece, "Current player:", currentPlayer);
+        }
       }
     } else {
-      console.log("Selected piece:", selectedPiece.piece, "at", selectedPiece.x, selectedPiece.y);
-      console.log("Legal moves:", legalMoves);
+      if (DEBUG.enableLogging && DEBUG.logLevel === "debug") {
+        console.log("Selected piece:", selectedPiece.piece, "at", selectedPiece.x, selectedPiece.y);
+        console.log("Legal moves:", legalMoves);
+      }
       const move = legalMoves.find(m => m.toX === boardX && m.toY === boardY);
       if (move) {
-        console.log("Moving piece from", selectedPiece.x, selectedPiece.y, "to", boardX, boardY);
+        if (DEBUG.enableLogging && DEBUG.logLevel === "debug") {
+          console.log("Moving piece from", selectedPiece.x, selectedPiece.y, "to", boardX, boardY);
+        }
         const newBoard = board.map(row => [...row]);
         newBoard[boardY][boardX] = selectedPiece.piece;
         newBoard[selectedPiece.y][selectedPiece.x] = "";
@@ -400,10 +438,14 @@ document.addEventListener("DOMContentLoaded", () => {
         lastMove = { fromX: selectedPiece.x, fromY: selectedPiece.y, toX: boardX, toY: boardY };
         board = newBoard;
         currentPlayer = currentPlayer === "white" ? "black" : "white";
-        console.log("Move executed. New current player:", currentPlayer);
+        if (DEBUG.enableLogging && DEBUG.logLevel === "debug") {
+          console.log("Move executed. New current player:", currentPlayer);
+        }
         updateMoveHistory();
       } else {
-        console.log("Invalid move to", boardX, boardY);
+        if (DEBUG.enableLogging && DEBUG.logLevel === "debug") {
+          console.log("Invalid move to", boardX, boardY);
+        }
       }
       selectedPiece = null;
       legalMoves = [];
@@ -413,19 +455,25 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Event-Listener
   startButton.addEventListener("click", () => {
-    console.log("Start button clicked");
+    if (DEBUG.enableLogging && DEBUG.logLevel === "debug") {
+      console.log("Start button clicked");
+    }
     startGame();
   });
 
   startFreestyleButton.addEventListener("click", () => {
-    console.log("Freestyle button clicked");
+    if (DEBUG.enableLogging && DEBUG.logLevel === "debug") {
+      console.log("Freestyle button clicked");
+    }
     startGame(true);
   });
 
   if (rotateButton) {
     rotateButton.addEventListener("click", () => {
       if (gameStarted && !smartphoneMode) {
-        console.log("Rotate button clicked");
+        if (DEBUG.enableLogging && DEBUG.logLevel === "debug") {
+          console.log("Rotate button clicked");
+        }
         rotateBoard = !rotateBoard;
         drawBoard();
       }
@@ -435,7 +483,9 @@ document.addEventListener("DOMContentLoaded", () => {
   if (smartphoneModeButton) {
     smartphoneModeButton.addEventListener("click", () => {
       if (gameStarted) {
-        console.log("Smartphone mode button clicked");
+        if (DEBUG.enableLogging && DEBUG.logLevel === "debug") {
+          console.log("Smartphone mode button clicked");
+        }
         smartphoneMode = !smartphoneMode;
         smartphoneModeButton.textContent = smartphoneMode ? "Smartphone-Modus aus" : "Smartphone-Modus";
         if (smartphoneMode) {
@@ -448,7 +498,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
   if (soundToggleButton) {
     soundToggleButton.addEventListener("click", () => {
-      console.log("Sound toggle button clicked");
+      if (DEBUG.enableLogging && DEBUG.logLevel === "debug") {
+        console.log("Sound toggle button clicked");
+      }
       soundEnabled = !soundEnabled;
       soundToggleButton.textContent = soundEnabled ? "Sound ausschalten" : "Sound einschalten";
     });
@@ -457,7 +509,9 @@ document.addEventListener("DOMContentLoaded", () => {
   if (undoButton) {
     undoButton.addEventListener("click", () => {
       if (moveHistory.length > 0 && gameStarted) {
-        console.log("Undo button clicked");
+        if (DEBUG.enableLogging && DEBUG.logLevel === "debug") {
+          console.log("Undo button clicked");
+        }
         const lastState = moveHistory.pop();
         board = lastState.board;
         currentPlayer = lastState.currentPlayer;
@@ -479,7 +533,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
   if (restartButton) {
     restartButton.addEventListener("click", () => {
-      console.log("Restart button clicked");
+      if (DEBUG.enableLogging && DEBUG.logLevel === "debug") {
+        console.log("Restart button clicked");
+      }
       gameStarted = false;
       startScreen.style.display = "block";
       gameContainer.classList.add("hidden");
@@ -495,11 +551,15 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   window.addEventListener("resize", () => {
-    console.log("Window resized");
+    if (DEBUG.enableLogging && DEBUG.logLevel === "debug") {
+      console.log("Window resized");
+    }
     resizeCanvas();
   });
 
   // Initialisierung
-  console.log("Initializing game...");
+  if (DEBUG.enableLogging && DEBUG.logLevel === "debug") {
+    console.log("Initializing game...");
+  }
   resizeCanvas();
 });
