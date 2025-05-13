@@ -30,7 +30,7 @@ document.addEventListener("DOMContentLoaded", () => {
   let size = 0;
   let offsetX = 0;
   let offsetY = 0;
-  let selected = null;
+  let selectedPiece = null;
   let currentPlayer = "white";
   let gameStarted = false;
   let rotateBoard = false;
@@ -58,6 +58,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function drawBoard() {
     console.log("Drawing board...");
+    if (!ctx) {
+      console.error("Canvas context not available.");
+      return;
+    }
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     let effectiveRotation = rotateBoard;
@@ -125,8 +129,13 @@ document.addEventListener("DOMContentLoaded", () => {
     console.log("Starting game, freestyle mode:", freestyle);
     currentPlayer = "white";
     gameStarted = true;
+    selectedPiece = null;
+    legalMoves = [];
+    moveHistory = [];
+    lastMove = null;
     startScreen.style.display = "none";
     gameContainer.classList.remove("hidden");
+    restartButton.classList.remove("hidden");
 
     if (freestyle) {
       const shuffledRow = shuffleArray(["r", "n", "b", "q", "k", "b", "n", "r"]);
@@ -153,9 +162,6 @@ document.addEventListener("DOMContentLoaded", () => {
       ];
     }
 
-    moveHistory = [];
-    legalMoves = [];
-    lastMove = null;
     resizeCanvas();
     drawBoard();
   }
@@ -228,6 +234,25 @@ document.addEventListener("DOMContentLoaded", () => {
           }
         }
       });
+    } else if (piece.toLowerCase() === "b") {
+      const directions = [[1, 1], [1, -1], [-1, 1], [-1, -1]];
+      directions.forEach(([dx, dy]) => {
+        let newX = x;
+        let newY = y;
+        while (true) {
+          newX += dx;
+          newY += dy;
+          if (newX < 0 || newX >= 8 || newY < 0 || newY >= 8) break;
+          const targetPiece = board[newY][newX];
+          if (targetPiece) {
+            if ((targetPiece === targetPiece.toUpperCase()) !== (piece === piece.toUpperCase())) {
+              moves.push({ toX: newX, toY: newY });
+            }
+            break;
+          }
+          moves.push({ toX: newX, toY: newY });
+        }
+      });
     }
 
     console.log("Legal moves for", piece, "at", x, y, ":", moves);
@@ -235,7 +260,10 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function handleCanvasClick(event) {
-    if (!gameStarted) return;
+    if (!gameStarted) {
+      console.log("Game not started yet.");
+      return;
+    }
     console.log("Canvas clicked/touched");
     const rect = canvas.getBoundingClientRect();
     const clientX = event.clientX || (event.touches && event.touches[0]?.clientX);
@@ -263,11 +291,13 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    if (!selected) {
+    console.log("Clicked position (adjusted):", x, y);
+
+    if (!selectedPiece) {
       const piece = board[y][x];
       if (piece && (piece === piece.toUpperCase()) === (currentPlayer === "white")) {
         console.log("Piece selected:", piece, "at", x, y);
-        selected = { x, y, piece };
+        selectedPiece = { x, y, piece };
         legalMoves = getLegalMoves(x, y);
         drawBoard();
       } else {
@@ -276,18 +306,18 @@ document.addEventListener("DOMContentLoaded", () => {
     } else {
       const move = legalMoves.find(m => m.toX === x && m.toY === y);
       if (move) {
-        console.log("Moving piece from", selected.x, selected.y, "to", x, y);
+        console.log("Moving piece from", selectedPiece.x, selectedPiece.y, "to", x, y);
         const newBoard = board.map(row => [...row]);
-        newBoard[y][x] = selected.piece;
-        newBoard[selected.y][selected.x] = "";
+        newBoard[y][x] = selectedPiece.piece;
+        newBoard[selectedPiece.y][selectedPiece.x] = "";
         moveHistory.push({ board: board.map(row => [...row]), currentPlayer });
-        lastMove = { fromX: selected.x, fromY: selected.y, toX: x, toY: y };
+        lastMove = { fromX: selectedPiece.x, fromY: selectedPiece.y, toX: x, toY: y };
         board = newBoard;
         currentPlayer = currentPlayer === "white" ? "black" : "white";
       } else {
         console.log("Invalid move to", x, y);
       }
-      selected = null;
+      selectedPiece = null;
       legalMoves = [];
       drawBoard();
     }
@@ -344,6 +374,8 @@ document.addEventListener("DOMContentLoaded", () => {
         board = lastState.board;
         currentPlayer = lastState.currentPlayer === "white" ? "black" : "white";
         lastMove = moveHistory.length > 0 ? moveHistory[moveHistory.length - 1].lastMove : null;
+        selectedPiece = null;
+        legalMoves = [];
         drawBoard();
       }
     });
