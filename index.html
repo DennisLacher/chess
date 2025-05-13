@@ -1,25 +1,28 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="de">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Chess Game</title>
+  <title>Schachspiel</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
   <div id="startScreen">
-    <h1>Willkommen beim Schachspiel!</h1>
-    <button id="startWhiteButton">Spiel als Weiß starten</button>
-    <button id="startFreestyleButton">Freestyle Chess starten</button>
+    <h1>Schachspiel</h1>
+    <button id="startButton">Spiel starten</button>
+    <button id="startFreestyleButton">Freestyle-Modus starten</button>
+    <canvas id="chessboard"></canvas>
   </div>
   <div id="gameContainer" class="hidden">
-    <div id="turnIndicator"></div>
-    <canvas id="chessboard"></canvas>
-    <div id="controls">
+    <div id="turnIndicator">Am Zug: Weiß</div>
+    <div class="button-container">
       <button id="rotateButton">Brett drehen</button>
+      <button id="smartphoneModeButton">Smartphone-Modus</button>
+      <button id="soundToggleButton">Sound ausschalten</button>
       <button id="undoButton">Rückgängig</button>
       <button id="restartButton" class="hidden">Neustart</button>
     </div>
+    <canvas id="chessboard"></canvas>
   </div>
   <script src="script.js"></script>
 </body>
