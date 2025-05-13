@@ -484,7 +484,7 @@ document.addEventListener("DOMContentLoaded", () => {
         x: Math.random() * (size * 8),
         y: Math.random() * (size * 8),
         dx: (Math.random() - 0.5) * 2,
-        dy: (Math.random() - 0.5) * 2
+        dy: (Math.random - 0.5) * 2
       });
     }
     animateStartScreen();
