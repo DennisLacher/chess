@@ -13,9 +13,10 @@ document.addEventListener("DOMContentLoaded", () => {
   const soundToggleButton = document.getElementById("soundToggleButton");
   const undoButton = document.getElementById("undoButton");
   const restartButton = document.getElementById("restartButton");
+  const moveList = document.getElementById("moveList");
 
   // Überprüfung der DOM-Elemente
-  if (!canvas || !startScreen || !startButton || !startFreestyleButton || !gameContainer || !turnIndicator) {
+  if (!canvas || !startScreen || !startButton || !startFreestyleButton || !gameContainer || !turnIndicator || !moveList) {
     console.error("One or more DOM elements are missing. Check index.html for correct IDs.");
     return;
   }
@@ -39,6 +40,7 @@ document.addEventListener("DOMContentLoaded", () => {
   let moveHistory = [];
   let legalMoves = [];
   let lastMove = null;
+  let moveCount = 1;
 
   const pieces = {
     r: "♜", n: "♞", b: "♝", q: "♛", k: "♚", p: "♟",
@@ -133,6 +135,8 @@ document.addEventListener("DOMContentLoaded", () => {
     legalMoves = [];
     moveHistory = [];
     lastMove = null;
+    moveCount = 1;
+    moveList.innerHTML = "";
     startScreen.style.display = "none";
     gameContainer.classList.remove("hidden");
     restartButton.classList.remove("hidden");
@@ -185,7 +189,10 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     const isWhite = piece === piece.toUpperCase();
-    console.log("Piece:", piece, "isWhite:", isWhite, "Current player:", currentPlayer);
+    if ((isWhite && currentPlayer !== "white") || (!isWhite && currentPlayer !== "black")) {
+      console.log("Not the current player's turn for this piece.");
+      return moves;
+    }
 
     if (piece.toLowerCase() === "p") {
       const direction = isWhite ? -1 : 1;
@@ -300,6 +307,27 @@ document.addEventListener("DOMContentLoaded", () => {
     return moves;
   }
 
+  function getMoveNotation(fromX, fromY, toX, toY) {
+    const fileFrom = String.fromCharCode(97 + fromX);
+    const rankFrom = 8 - fromY;
+    const fileTo = String.fromCharCode(97 + toX);
+    const rankTo = 8 - toY;
+    const piece = board[fromY][fromX].toLowerCase();
+    const pieceSymbol = piece === "p" ? "" : piece.toUpperCase();
+    return `${pieceSymbol}${fileFrom}${rankFrom}-${fileTo}${rankTo}`;
+  }
+
+  function updateMoveHistory() {
+    if (lastMove) {
+      const moveNotation = getMoveNotation(lastMove.fromX, lastMove.fromY, lastMove.toX, lastMove.toY);
+      const moveItem = document.createElement("li");
+      moveItem.textContent = `${moveCount}. ${moveNotation}`;
+      moveList.appendChild(moveItem);
+      if (currentPlayer === "black") moveCount++;
+      moveList.scrollTop = moveList.scrollHeight;
+    }
+  }
+
   function handleCanvasClick(event) {
     if (!gameStarted) {
       console.log("Game not started yet.");
@@ -367,6 +395,7 @@ document.addEventListener("DOMContentLoaded", () => {
         board = newBoard;
         currentPlayer = currentPlayer === "white" ? "black" : "white";
         console.log("Move executed. New current player:", currentPlayer);
+        updateMoveHistory();
       } else {
         console.log("Invalid move to", boardX, boardY);
       }
@@ -427,6 +456,8 @@ document.addEventListener("DOMContentLoaded", () => {
         board = lastState.board;
         currentPlayer = lastState.currentPlayer === "white" ? "black" : "white";
         lastMove = moveHistory.length > 0 ? moveHistory[moveHistory.length - 1].lastMove : null;
+        if (currentPlayer === "white" && moveCount > 1) moveCount--;
+        moveList.removeChild(moveList.lastChild);
         selectedPiece = null;
         legalMoves = [];
         drawBoard();
