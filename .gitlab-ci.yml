@@ -4,8 +4,7 @@ pages:
   stage: deploy
   before_script:
     - mkdir -p public
-    - |
-      find . -maxdepth 1 -type f \( -name "*.html" -o -name "*.css" -o -name "*.js" \) -exec cp {} public/ \;
+    - find . -maxdepth 1 -type f \( -name "*.html" -o -name "*.css" -o -name "*.js" \) -exec cp {} public/ \;
     - ls -la public/
   script:
     - echo "Prepared public/ for GitLab Pages deployment"
