@@ -1,5 +1,7 @@
 document.addEventListener("DOMContentLoaded", () => {
-  // Konfigurations- und Debugging-Einstellungen (aus config.js übernommen)
+  console.log("Script loaded and DOMContentLoaded event fired.");
+
+  // Konfigurations- und Debugging-Einstellungen
   const CONFIG = {
     defaultBoardSize: 45,
     minBoardSize: 35,
@@ -18,7 +20,7 @@ document.addEventListener("DOMContentLoaded", () => {
   };
 
   if (DEBUG.enableLogging) {
-    console.log("DOM fully loaded, initializing game...", { debugLevel: DEBUG.logLevel });
+    console.log("Initializing game with CONFIG:", CONFIG);
   }
 
   // DOM-Elemente
@@ -36,6 +38,9 @@ document.addEventListener("DOMContentLoaded", () => {
   const moveList = document.getElementById("moveList");
 
   // Überprüfung der DOM-Elemente
+  console.log("Checking DOM elements...");
+  console.log("startButton:", startButton);
+  console.log("startFreestyleButton:", startFreestyleButton);
   if (!canvas || !startScreen || !startButton || !startFreestyleButton || !gameContainer || !turnIndicator || !moveList) {
     console.error("One or more DOM elements are missing. Check index.html for correct IDs.");
     return;
@@ -470,6 +475,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // Event-Listener
+  console.log("Adding event listeners...");
   startButton.addEventListener("click", () => {
     if (DEBUG.enableLogging && DEBUG.logLevel === "debug") {
       console.log("Start button clicked");
