@@ -1,3 +1,10 @@
+@font-face {
+  font-family: 'Chess Merida';
+  src: url('https://cdn.jsdelivr.net/npm/chess-merida-font@1.0.0/ChessMerida.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+}
+
 body {
   touch-action: none;
   background-color: #f3f4f6;
@@ -10,110 +17,112 @@ body {
   min-height: 100vh;
 }
 
-.container {
-  text-align: center;
-  padding: 20px;
-  max-width: 90vw;
-  box-sizing: border-box;
-}
-
-#chessboard {
-  max-width: 100%;
-  height: auto;
-  display: block;
-  margin: 0 auto;
-  border: 4px solid #333;
-  border-radius: 8px;
-}
-
-#turnIndicator {
-  margin-top: 15px;
-  font-size: 1.2rem;
-  font-weight: bold;
-  color: #333;
-}
-
 #startScreen {
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  background: rgba(0, 0, 0, 0.8);
-  color: white;
-  padding: 20px;
-  border-radius: 8px;
-  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  background-color: rgba(255, 255, 255, 0.9);
+  padding: 2rem;
+  border-radius: 10px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 #startScreen h1 {
-  font-size: 1.5rem;
-  margin-bottom: 15px;
+  font-size: 2rem;
+  color: #333;
+  margin: 0;
 }
 
-#startScreen button,
-#gameControls button {
-  display: block;
-  margin: 10px auto;
-  padding: 10px 20px;
-  font-size: 1rem;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
+#startScreen button {
+  background: linear-gradient(to right, #4a90e2, #63b3ed);
   color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  font-size: 1.1rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
-#startWhiteButton,
-#startBlackButton,
-#startFreestyleButton {
-  background-color: #4caf50;
+#startScreen button:hover {
+  background: linear-gradient(to right, #357abd, #4a90e2);
+  transform: scale(1.05);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
 }
 
-#startWhiteButton:hover,
-#startBlackButton:hover,
-#startFreestyleButton:hover {
-  background-color: #45a049;
+#startScreen button:active {
+  transform: scale(0.95);
 }
 
-#undoButton {
-  background-color: #ff9800;
+#gameContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
 }
 
-#undoButton:hover {
-  background-color: #e68900;
+#turnIndicator {
+  font-size: 1.2rem;
+  color: #333;
 }
 
-#rotateButton {
-  background-color: #2196f3;
+#chessboard {
+  font-family: 'Chess Merida', sans-serif;
 }
 
-#rotateButton:hover {
-  background-color: #1e88e5;
+#controls {
+  display: flex;
+  gap: 0.5rem;
 }
 
-#restartButton {
-  background-color: #f44336;
+#controls button {
+  background: linear-gradient(to right, #48bb78, #68d391);
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  font-size: 1rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
-#restartButton:hover {
-  background-color: #d32f2f;
+#controls button:hover {
+  background: linear-gradient(to right, #38a169, #48bb78);
+  transform: scale(1.05);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+#controls button:active {
+  transform: scale(0.95);
 }
 
 .hidden {
-  display: none;
+  display: none !important;
 }
 
-@media (max-width: 640px) {
-  #turnIndicator {
-    font-size: 0.9rem;
-  }
-
+@media (max-width: 600px) {
   #startScreen h1 {
-    font-size: 1.25rem;
+    font-size: 1.5rem;
   }
 
-  #startScreen button,
-  #gameControls button {
+  #startScreen button {
+    font-size: 0.9rem;
+    padding: 0.5rem 1rem;
+  }
+
+  #turnIndicator {
+    font-size: 1rem;
+  }
+
+  #controls button {
     font-size: 0.8rem;
-    padding: 8px 16px;
+    padding: 0.4rem 0.8rem;
   }
 }
