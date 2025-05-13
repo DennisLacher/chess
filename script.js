@@ -1,7 +1,6 @@
 document.addEventListener("DOMContentLoaded", () => {
   console.log("Script loaded and DOMContentLoaded event fired.");
 
-  // Konfigurations- und Debugging-Einstellungen
   const CONFIG = {
     defaultBoardSize: 45,
     minBoardSize: 35,
@@ -23,7 +22,6 @@ document.addEventListener("DOMContentLoaded", () => {
     console.log("Initializing game with CONFIG:", CONFIG);
   }
 
-  // DOM-Elemente
   const canvas = document.getElementById("chessboard");
   const startScreen = document.getElementById("startScreen");
   const startButton = document.getElementById("startButton");
@@ -37,7 +35,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const restartButton = document.getElementById("restartButton");
   const moveList = document.getElementById("moveList");
 
-  // Überprüfung der DOM-Elemente
   console.log("Checking DOM elements...");
   console.log("startButton:", startButton);
   console.log("startFreestyleButton:", startFreestyleButton);
@@ -52,7 +49,6 @@ document.addEventListener("DOMContentLoaded", () => {
     return;
   }
 
-  // Spielvariablen
   let size = CONFIG.defaultBoardSize;
   let offsetX = size * CONFIG.offset;
   let offsetY = size * CONFIG.offset;
@@ -146,7 +142,12 @@ document.addEventListener("DOMContentLoaded", () => {
     if (DEBUG.enableLogging && DEBUG.logLevel === "debug") {
       console.log("Resizing canvas...");
     }
-    size = Math.min((window.innerWidth * CONFIG.maxWidthFactor - 40) / 8, window.innerHeight < 600 ? CONFIG.minBoardSize : CONFIG.defaultBoardSize);
+    const maxWidth = window.innerWidth * CONFIG.maxWidthFactor - 40;
+    const maxHeight = window.innerHeight - 100; // Platz für Buttons und Historie
+    size = Math.min(maxWidth / 8, maxHeight / 8, CONFIG.defaultBoardSize);
+    if (window.innerWidth < 640) {
+      size = Math.min(size, CONFIG.minBoardSize);
+    }
     offsetX = size * CONFIG.offset;
     offsetY = size * CONFIG.offset;
     canvas.width = size * 8 + offsetX * 2;
@@ -393,14 +394,14 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    // Korrigierte Koordinatenberechnung mit Offset
+    // Verbesserte Koordinatenberechnung
     const x = Math.floor((clientX - rect.left - offsetX) / size);
     const y = Math.floor((clientY - rect.top - offsetY) / size);
     if (DEBUG.enableLogging && DEBUG.logLevel === "debug") {
       console.log("Raw coordinates:", clientX, clientY);
       console.log("Canvas rect:", rect);
-      console.log("Converted to:", x, y);
       console.log("size:", size, "offsetX:", offsetX, "offsetY:", offsetY);
+      console.log("Converted to grid coordinates:", x, y);
     }
 
     let boardX = x;
@@ -481,7 +482,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // Event-Listener
   console.log("Adding event listeners...");
   startButton.addEventListener("click", () => {
     if (DEBUG.enableLogging && DEBUG.logLevel === "debug") {
@@ -586,7 +586,6 @@ document.addEventListener("DOMContentLoaded", () => {
     resizeCanvas();
   });
 
-  // Initialisierung
   if (DEBUG.enableLogging && DEBUG.logLevel === "debug") {
     console.log("Initializing game...");
   }
