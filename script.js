@@ -12,16 +12,20 @@ document.addEventListener("DOMContentLoaded", () => {
   const turnIndicator = document.getElementById("turnIndicator");
   const startScreen = document.getElementById("startScreen");
   const startWhiteButton = document.getElementById("startWhiteButton");
-  const startBlackButton = document.getElementById("startBlackButton");
   const startFreestyleButton = document.getElementById("startFreestyleButton");
   const rotateButton = document.getElementById("rotateButton");
   const undoButton = document.getElementById("undoButton");
   const restartButton = document.getElementById("restartButton");
 
-  if (!startWhiteButton || !startBlackButton || !startFreestyleButton) {
+  if (!startWhiteButton || !startFreestyleButton) {
     console.log("Error: One or more buttons not found. Check IDs in index.html.");
     return;
   }
+
+  // Sounds initialisieren
+  const moveSound = new Audio("https://cdn.freesound.org/previews/171/171104_71257-lq.mp3"); // Beispiel-URL für Move-Sound
+  const checkSound = new Audio("https://cdn.freesound.org/previews/562/562345_11818947-lq.mp3"); // Beispiel-URL für Check-Sound
+  const checkmateSound = new Audio("https://cdn.freesound.org/previews/530/530920_10877482-lq.mp3"); // Beispiel-URL für Checkmate-Sound
 
   let size = Math.min((window.innerWidth * 0.9 - 40) / 8, 45);
   let offsetX = size / 2;
@@ -39,6 +43,7 @@ document.addEventListener("DOMContentLoaded", () => {
   let enPassantTarget = null;
   let moveHistory = [];
   let legalMoves = [];
+  let wasInCheck = false; // Zum Verfolgen, ob der Spieler im vorherigen Zug im Schach war
 
   const pieces = {
     r: "♜", n: "♞", b: "♝", q: "♛", k: "♚", p: "♟",
@@ -424,6 +429,13 @@ document.addEventListener("DOMContentLoaded", () => {
     const isInCheck = isKingInCheck(currentPlayer);
     const isCheckmateResult = isCheckmate(currentPlayer);
     const isStalemateResult = isStalemate(currentPlayer);
+    
+    // Check-Sound abspielen, nur wenn der Spieler neu ins Schach gerät
+    if (isInCheck && !wasInCheck && !isCheckmateResult && !isStalemateResult) {
+      checkSound.play().catch(error => console.log("Error playing check sound:", error));
+    }
+    wasInCheck = isInCheck;
+
     turnIndicator.textContent = checkmateAnimation
       ? `${checkmateAnimation.winner} hat gewonnen!`
       : isCheckmateResult
@@ -473,7 +485,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function startGame(player, freestyle = false) {
     if (!ctx) return;
-    currentPlayer = player;
+    currentPlayer = "white"; // Immer mit Weiß starten
     gameStarted = true;
     startScreen.style.display = "none";
     document.getElementById("gameContainer").classList.remove("hidden");
@@ -533,10 +545,7 @@ document.addEventListener("DOMContentLoaded", () => {
     console.log("Start White Button clicked");
     startGame("white");
   });
-  startBlackButton.addEventListener("click", () => {
-    console.log("Start Black Button clicked");
-    startGame("black");
-  });
+
   startFreestyleButton.addEventListener("click", () => {
     console.log("Start Freestyle Button clicked");
     startGame("white", true);
@@ -667,6 +676,9 @@ document.addEventListener("DOMContentLoaded", () => {
       animatingPiece = null;
       enPassantTarget = null;
 
+      // Move-Sound abspielen
+      moveSound.play().catch(error => console.log("Error playing move sound:", error));
+
       const opponent = currentPlayer === "white" ? "black" : "white";
       if (isCheckmate(opponent)) {
         const kingPiece = opponent === "black" ? "k" : "K";
@@ -720,6 +732,9 @@ document.addEventListener("DOMContentLoaded", () => {
       drawBoard();
       requestAnimationFrame(animateCheckmate);
     } else {
+      // Checkmate-Sound abspielen
+      checkmateSound.play().catch(error => console.log("Error playing checkmate sound:", error));
+
       let allFaded = true;
       fadingPieces = fadingPieces.filter(piece => {
         piece.opacity -= 0.05;
