@@ -1,76 +1,12 @@
-body {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  height: 100vh;
-  margin: 0;
-  background-color: #f4f4f4;
-  font-family: Arial, sans-serif;
+.animate-fade-in {
+  animation: fadeIn 0.5s ease-in;
 }
 
-#startScreen {
-  text-align: center;
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
-#startScreen h1 {
-  font-size: 3em;
-  margin-bottom: 20px;
-}
-
-#startScreen button {
-  font-size: 1.2em;
-  padding: 10px 20px;
-  margin: 10px;
-  cursor: pointer;
-  background-color: #4CAF50;
-  color: white;
-  border: none;
-  border-radius: 5px;
-}
-
-#startScreen button:hover {
-  background-color: #45a049;
-}
-
-#gameContainer {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-#turnIndicator {
-  font-size: 1.5em;
-  margin-bottom: 10px;
-}
-
-#chessboard {
-  border: 2px solid #333;
-  background-color: white;
-}
-
-.button-container {
-  margin-top: 20px;
-  display: flex;
-  gap: 10px;
-  flex-wrap: wrap;
-  justify-content: center;
-}
-
-.button-container button {
-  font-size: 1em;
-  padding: 8px 16px;
-  cursor: pointer;
-  background-color: #008CBA;
-  color: white;
-  border: none;
-  border-radius: 5px;
-}
-
-.button-container button:hover {
-  background-color: #007bb5;
-}
-
-.hidden {
-  display: none !important;
+#startScreen, #gameContainer {
+  animation: fadeIn 0.5s ease-in;
 }
