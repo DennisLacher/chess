@@ -3,26 +3,326 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Schachspiel</title>
-  <link rel="stylesheet" href="styles.css">
+  <title>Modernes Schachspiel</title>
+  <script src="https://cdn.jsdelivr.net/npm/react@18.2.0/umd/react.development.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/react-dom@18.2.0/umd/react-dom.development.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@babel/standalone@7.22.5/Babel.min.js"></script>
 </head>
-<body>
-  <div id="startScreen">
-    <h1>Schachspiel</h1>
-    <button id="startButton">Spiel starten</button>
-    <button id="startFreestyleButton">Freestyle-Modus starten</button>
-  </div>
-  <div id="gameContainer" class="hidden">
-    <div id="turnIndicator">Am Zug: Weiß</div>
-    <canvas id="chessboard"></canvas>
-    <div class="button-container">
-      <button id="rotateButton">Brett drehen</button>
-      <button id="smartphoneModeButton">Smartphone-Modus</button>
-      <button id="soundToggleButton">Sound ausschalten</button>
-      <button id="undoButton">Zug zurück</button>
-      <button id="restartButton" class="hidden">Neustart</button>
-    </div>
-  </div>
-  <script src="script.js"></script>
-</body>
-</html>
+<body class="bg-gradient-to-br from-gray-100 to-gray-300 min-h-screen flex items-center justify-center">
+  <div id="root" class="w-full max-w-screen-lg mx-auto p-4"></div>
+  <script type="text/babel">
+    const { useState, useEffect, useRef } = React;
+
+    const pieces = {
+      r: "♜", n: "♞", b: "♝", q: "♛", k: "♚", p: "♟",
+      R: "♖", N: "♘", B: "♗", Q: "♕", K: "♔", P: "♙"
+    };
+
+    const initialBoard = [
+      ["r", "n", "b", "q", "k", "b", "n", "r"],
+      ["p", "p", "p", "p", "p", "p", "p", "p"],
+      ["", "", "", "", "", "", "", ""],
+      ["", "", "", "", "", "", "", ""],
+      ["", "", "", "", "", "", "", ""],
+      ["", "", "", "", "", "", "", ""],
+      ["P", "P", "P", "P", "P", "P", "P", "P"],
+      ["R", "N", "B", "Q", "K", "B", "N", "R"]
+    ];
+
+    const ChessGame = () => {
+      const [gameStarted, setGameStarted] = useState(false);
+      const [currentPlayer, setCurrentPlayer] = useState("white");
+      const [board, setBoard] = useState(initialBoard);
+      const [selected, setSelected] = useState(null);
+      const [legalMoves, setLegalMoves] = useState([]);
+      const [lastMove, setLastMove] = useState(null);
+      const [moveHistory, setMoveHistory] = useState([]);
+      const [rotateBoard, setRotateBoard] = useState(false);
+      const [smartphoneMode, setSmartphoneMode] = useState(false);
+      const [soundEnabled, setSoundEnabled] = useState(true);
+      const [size, setSize] = useState(0);
+      const [offsetX, setOffsetX] = useState(0);
+      const [offsetY, setOffsetY] = useState(0);
+      const canvasRef = useRef(null);
+
+      useEffect(() => {
+        resizeCanvas();
+        window.addEventListener("resize", resizeCanvas);
+        return () => window.removeEventListener("resize", resizeCanvas);
+      }, []);
+
+      useEffect(() => {
+        if (gameStarted) {
+          drawBoard();
+        }
+      }, [board, selected, legalMoves, lastMove, rotateBoard, smartphoneMode, size]);
+
+      const resizeCanvas = () => {
+        const canvas = canvasRef.current;
+        if (!canvas) return;
+        const ctx = canvas.getContext("2d");
+        if (!ctx) return;
+
+        const newSize = Math.min((window.innerWidth * 0.9 - 40) / 8, 45);
+        setSize(newSize);
+        setOffsetX(newSize / 2);
+        setOffsetY(newSize / 2);
+        canvas.width = newSize * 8 + (newSize / 2) * 2;
+        canvas.height = newSize * 8 + (newSize / 2) * 2;
+        drawBoard();
+      };
+
+      const drawBoard = () => {
+        const canvas = canvasRef.current;
+        if (!canvas) return;
+        const ctx = canvas.getContext("2d");
+        if (!ctx) return;
+
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        let effectiveRotation = rotateBoard;
+        if (smartphoneMode) {
+          effectiveRotation = currentPlayer === "black";
+        }
+
+        for (let y = 0; y < 8; y++) {
+          for (let x = 0; x < 8; x++) {
+            const displayY = effectiveRotation ? 7 - y : y;
+            const displayX = effectiveRotation ? 7 - x : x;
+
+            ctx.fillStyle = (displayX + displayY) % 2 === 0 ? "#f0d9b5" : "#b58863";
+            if (lastMove && ((lastMove.fromX === x && lastMove.fromY === y) || (lastMove.toX === x && lastMove.toY === y))) {
+              ctx.fillStyle = "#d4e4d2";
+            }
+            if (legalMoves.some(move => move.toX === x && move.toY === y)) {
+              ctx.fillStyle = "#a3e635";
+            }
+            ctx.fillRect(offsetX + displayX * size, offsetY + displayY * size, size, size);
+
+            const piece = board[y][x];
+            if (piece) {
+              const isWhite = piece === piece.toUpperCase();
+              ctx.fillStyle = isWhite ? "#ffffff" : "#000000";
+              ctx.font = `${size * 0.7}px sans-serif`;
+              ctx.textAlign = "center";
+              ctx.textBaseline = "middle";
+              ctx.fillText(pieces[piece], offsetX + displayX * size + size / 2, offsetY + displayY * size + size / 2);
+            }
+          }
+        }
+
+        ctx.fillStyle = "#333";
+        ctx.font = `${size * 0.25}px Arial`;
+        if (!effectiveRotation) {
+          for (let i = 0; i < 8; i++) {
+            ctx.fillText(String.fromCharCode(97 + i), offsetX + i * size + size / 2, offsetY + 8 * size + size * 0.3);
+            ctx.fillText(8 - i, offsetX - size * 0.4, offsetY + i * size + size / 2);
+          }
+        } else {
+          for (let i = 0; i < 8; i++) {
+            ctx.fillText(String.fromCharCode(97 + (7 - i)), offsetX + i * size + size / 2, offsetY + 8 * size + size * 0.3);
+            ctx.fillText(i + 1, offsetX - size * 0.4, offsetY + (7 - i) * size + size / 2);
+          }
+        }
+      };
+
+      const startGame = (freestyle = false) => {
+        setGameStarted(true);
+        setCurrentPlayer("white");
+        setMoveHistory([]);
+        setLegalMoves([]);
+        setLastMove(null);
+        if (freestyle) {
+          const shuffledRow = shuffleArray(["r", "n", "b", "q", "k", "b", "n", "r"]);
+          setBoard([
+            shuffledRow,
+            ["p", "p", "p", "p", "p", "p", "p", "p"],
+            ["", "", "", "", "", "", "", ""],
+            ["", "", "", "", "", "", "", ""],
+            ["", "", "", "", "", "", "", ""],
+            ["", "", "", "", "", "", "", ""],
+            ["P", "P", "P", "P", "P", "P", "P", "P"],
+            shuffledRow.map(p => p.toUpperCase())
+          ]);
+        } else {
+          setBoard(initialBoard.map(row => [...row]));
+        }
+      };
+
+      const shuffleArray = (array) => {
+        let shuffled = [...array];
+        for (let i = shuffled.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+        }
+        return shuffled;
+      };
+
+      const getSimpleLegalMoves = (x, y) => {
+        const moves = [];
+        const piece = board[y][x];
+        if (piece.toLowerCase() === "p") {
+          const direction = piece === piece.toUpperCase() ? -1 : 1;
+          const startRow = piece === piece.toUpperCase() ? 6 : 1;
+          if (y + direction >= 0 && y + direction < 8 && !board[y + direction][x]) {
+            moves.push({ toX: x, toY: y + direction });
+            if (y === startRow && !board[y + 2 * direction][x]) {
+              moves.push({ toX: x, toY: y + 2 * direction });
+            }
+          }
+        }
+        return moves;
+      };
+
+      const handleCanvasClick = (event) => {
+        if (!gameStarted) return;
+        const canvas = canvasRef.current;
+        const rect = canvas.getBoundingClientRect();
+        const clientX = event.clientX || (event.touches && event.touches[0].clientX);
+        const clientY = event.clientY || (event.touches && event.touches[0].clientY);
+        let x = Math.floor((clientX - rect.left - offsetX) / size);
+        let y = Math.floor((clientY - rect.top - offsetY) / size);
+
+        let effectiveRotation = rotateBoard;
+        if (smartphoneMode) {
+          effectiveRotation = currentPlayer === "black";
+        }
+
+        if (effectiveRotation) {
+          x = 7 - x;
+          y = 7 - y;
+        }
+
+        if (x < 0 || x >= 8 || y < 0 || y >= 8) return;
+
+        if (!selected) {
+          const piece = board[y][x];
+          if (piece && (piece === piece.toUpperCase()) === (currentPlayer === "white")) {
+            setSelected({ x, y, piece });
+            setLegalMoves(getSimpleLegalMoves(x, y));
+          }
+        } else {
+          if (legalMoves.some(move => move.toX === x && move.toY === y)) {
+            const newBoard = board.map(row => [...row]);
+            newBoard[y][x] = selected.piece;
+            newBoard[selected.y][selected.x] = "";
+            setMoveHistory([...moveHistory, { board: board.map(row => [...row]), currentPlayer }]);
+            setLastMove({ fromX: selected.x, fromY: selected.y, toX: x, toY: y });
+            setBoard(newBoard);
+            setCurrentPlayer(currentPlayer === "white" ? "black" : "white");
+          }
+          setSelected(null);
+          setLegalMoves([]);
+        }
+      };
+
+      const handleUndo = () => {
+        if (moveHistory.length === 0) return;
+        const lastState = moveHistory[moveHistory.length - 1];
+        setBoard(lastState.board);
+        setCurrentPlayer(lastState.currentPlayer);
+        setMoveHistory(moveHistory.slice(0, -1));
+        setLastMove(moveHistory.length > 1 ? moveHistory[moveHistory.length - 2].lastMove : null);
+      };
+
+      const handleRestart = () => {
+        setGameStarted(false);
+        setBoard(initialBoard.map(row => [...row]));
+        setCurrentPlayer("white");
+        setMoveHistory([]);
+        setLegalMoves([]);
+        setLastMove(null);
+        setRotateBoard(false);
+        setSmartphoneMode(false);
+      };
+
+      return (
+        <div className="w-full">
+          {!gameStarted ? (
+            <div className="text-center animate-fade-in">
+              <h1 className="text-4xl md:text-5xl font-bold text-gray-800 mb-6">Modernes Schachspiel</h1>
+              <button
+                onClick={() => startGame()}
+                className="bg-indigo-600 text-white px-6 py-3 rounded-lg shadow-md hover:bg-indigo-700 transition duration-300 mb-4"
+              >
+                Spiel starten
+              </button>
+              <button
+                onClick={() => startGame(true)}
+                className="bg-indigo-600 text-white px-6 py-3 rounded-lg shadow-md hover:bg-indigo-700 transition duration-300"
+              >
+                Freestyle-Modus starten
+              </button>
+            </div>
+          ) : (
+            <div className="animate-fade-in">
+              <div className="text-center mb-4">
+                <p className="text-xl font-semibold text-gray-700">
+                  Am Zug: {currentPlayer === "white" ? "Weiß" : "Schwarz"}
+                </p>
+              </div>
+              <canvas
+                ref={canvasRef}
+                className="mx-auto border-4 border-gray-800 rounded-lg shadow-lg"
+                onClick={handleCanvasClick}
+                onTouchStart={(e) => {
+                  e.preventDefault();
+                  handleCanvasClick(e);
+                }}
+              />
+              <div className="flex flex-wrap justify-center gap-3 mt-6">
+                <button
+                  onClick={() => {
+                    if (!smartphoneMode) setRotateBoard(!rotateBoard);
+                  }}
+                  className="bg-blue-500 text-white px-4 py-2 rounded-lg shadow hover:bg-blue-600 transition duration-300"
+                >
+                  Brett drehen
+                </button>
+                <button
+                  onClick={() => {
+                    setSmartphoneMode(!smartphoneMode);
+                    if (!smartphoneMode) setRotateBoard(false);
+                  }}
+                  className="bg-blue-500 text-white px-4 py-2 rounded-lg shadow hover:bg-blue-600 transition duration-300"
+                >
+                  {smartphoneMode ? "Smartphone-Modus aus" : "Smartphone-Modus"}
+                </button>
+                <button
+                  onClick={() => setSoundEnabled(!soundEnabled)}
+                  className="bg-blue-500 text-white px-4 py-2 rounded-lg shadow hover:bg-blue-600 transition duration-300"
+                >
+                  {soundEnabled ? "Sound ausschalten" : "Sound einschalten"}
+                </button>
+                <button
+                  onClick={handleUndo}
+                  className="bg-blue-500 text-white px-4 py-2 rounded-lg shadow hover:bg-blue-600 transition duration-300"
+                >
+                  Zug zurück
+                </button>
+                <button
+                  onClick={handleRestart}
+                  className="bg-blue-500 text-white px-4 py-2 rounded-lg shadow hover:bg-blue-600 transition duration-300"
+                >
+                  Neustart
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+      );
+    };
+
+    const root = ReactDOM.createRoot(document.getElementById("root"));
+    root.render(<ChessGame />);
+  </script>
+  <style>
+    .animate-fade-in {
+      animation: fadeIn 0.5s ease-in;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+  </style>
