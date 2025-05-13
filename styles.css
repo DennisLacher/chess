@@ -1,121 +1,50 @@
 body {
-       touch-action: none;
-       background-color: #f3f4f6;
-       margin: 0;
-       padding: 0;
-       overflow-x: hidden;
-       display: flex;
-       justify-content: center;
-       align-items: center;
-       min-height: 100vh;
-     }
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  margin: 0;
+  background-color: #f0f0f0;
+  font-family: Arial, sans-serif;
+}
 
-     #startScreen {
-       position: absolute;
-       top: 50%;
-       left: 50%;
-       transform: translate(-50%, -50%);
-       display: flex;
-       flex-direction: column;
-       align-items: center;
-       gap: 1rem;
-       background-color: rgba(255, 255, 255, 0.9);
-       padding: 2rem;
-       border-radius: 10px;
-       box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-     }
+#startScreen, #gameContainer {
+  text-align: center;
+}
 
-     #startScreen h1 {
-       font-size: 2rem;
-       color: #333;
-       margin: 0;
-     }
+.hidden {
+  display: none;
+}
 
-     #startScreen button {
-       background: linear-gradient(to right, #4a90e2, #63b3ed);
-       color: white;
-       border: none;
-       padding: 0.75rem 1.5rem;
-       font-size: 1.1rem;
-       border-radius: 8px;
-       cursor: pointer;
-       transition: all 0.3s ease;
-       box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-     }
+#turnIndicator {
+  margin-bottom: 10px;
+  font-size: 1.2em;
+  font-weight: bold;
+}
 
-     #startScreen button:hover {
-       background: linear-gradient(to right, #357abd, #4a90e2);
-       transform: scale(1.05);
-       box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-     }
+.button-container {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
 
-     #startScreen button:active {
-       transform: scale(0.95);
-     }
+button {
+  padding: 10px 20px;
+  font-size: 1em;
+  cursor: pointer;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  margin: 5px;
+}
 
-     #gameContainer {
-       display: flex;
-       flex-direction: column;
-       align-items: center;
-       gap: 1rem;
-     }
+button:hover {
+  background-color: #45a049;
+}
 
-     #turnIndicator {
-       font-size: 1.2rem;
-       color: #333;
-     }
-
-     #chessboard {
-       font-family: Arial, sans-serif; /* Zurück zu Arial */
-     }
-
-     #controls {
-       display: flex;
-       gap: 0.5rem;
-     }
-
-     #controls button {
-       background: linear-gradient(to right, #48bb78, #68d391);
-       color: white;
-       border: none;
-       padding: 0.5rem 1rem;
-       font-size: 1rem;
-       border-radius: 8px;
-       cursor: pointer;
-       transition: all 0.3s ease;
-       box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-     }
-
-     #controls button:hover {
-       background: linear-gradient(to right, #38a169, #48bb78);
-       transform: scale(1.05);
-       box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-     }
-
-     #controls button:active {
-       transform: scale(0.95);
-     }
-
-     .hidden {
-       display: none !important;
-     }
-
-     @media (max-width: 600px) {
-       #startScreen h1 {
-         font-size: 1.5rem;
-       }
-
-       #startScreen button {
-         font-size: 0.9rem;
-         padding: 0.5rem 1rem;
-       }
-
-       #turnIndicator {
-         font-size: 1rem;
-       }
-
-       #controls button {
-         font-size: 0.8rem;
-         padding: 0.4rem 0.8rem;
-       }
-     }
+canvas {
+  border: 2px solid #333;
+  background-color: #fff;
+}
