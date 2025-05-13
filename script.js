@@ -27,9 +27,9 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // Spielvariablen
-  let size = Math.min((window.innerWidth * 0.9 - 40) / 8, 45);
-  let offsetX = size / 2;
-  let offsetY = size / 2;
+  let size = 0;
+  let offsetX = 0;
+  let offsetY = 0;
   let selected = null;
   let currentPlayer = "white";
   let gameStarted = false;
@@ -56,7 +56,6 @@ document.addEventListener("DOMContentLoaded", () => {
     ["R", "N", "B", "Q", "K", "B", "N", "R"]
   ];
 
-  // Grundlegende Funktionen
   function drawBoard() {
     console.log("Drawing board...");
     ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -111,11 +110,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function resizeCanvas() {
     console.log("Resizing canvas...");
-    size = Math.min((window.innerWidth * 0.9 - 40) / 8, 45);
+    size = Math.min((window.innerWidth * 0.9 - 40) / 8, window.innerHeight < 600 ? 35 : 45);
     offsetX = size / 2;
     offsetY = size / 2;
     canvas.width = size * 8 + offsetX * 2;
     canvas.height = size * 8 + offsetY * 2;
+    console.log("New canvas size:", canvas.width, "x", canvas.height);
     if (gameStarted) {
       drawBoard();
     }
@@ -167,6 +167,130 @@ document.addEventListener("DOMContentLoaded", () => {
       [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
     }
     return shuffled;
+  }
+
+  function getLegalMoves(x, y) {
+    const moves = [];
+    const piece = board[y][x];
+    if (!piece) return moves;
+
+    if (piece.toLowerCase() === "p") {
+      const direction = piece === piece.toUpperCase() ? -1 : 1;
+      const startRow = piece === piece.toUpperCase() ? 6 : 1;
+      if (y + direction >= 0 && y + direction < 8 && !board[y + direction][x]) {
+        moves.push({ toX: x, toY: y + direction });
+        if (y === startRow && !board[y + 2 * direction][x]) {
+          moves.push({ toX: x, toY: y + 2 * direction });
+        }
+      }
+      const attackDirs = [-1, 1];
+      attackDirs.forEach(dx => {
+        const newX = x + dx;
+        const newY = y + direction;
+        if (newX >= 0 && newX < 8 && newY >= 0 && newY < 8) {
+          const targetPiece = board[newY][newX];
+          if (targetPiece && (targetPiece === targetPiece.toUpperCase()) !== (piece === piece.toUpperCase())) {
+            moves.push({ toX: newX, toY: newY });
+          }
+        }
+      });
+    } else if (piece.toLowerCase() === "r") {
+      const directions = [[0, 1], [0, -1], [1, 0], [-1, 0]];
+      directions.forEach(([dx, dy]) => {
+        let newX = x;
+        let newY = y;
+        while (true) {
+          newX += dx;
+          newY += dy;
+          if (newX < 0 || newX >= 8 || newY < 0 || newY >= 8) break;
+          const targetPiece = board[newY][newX];
+          if (targetPiece) {
+            if ((targetPiece === targetPiece.toUpperCase()) !== (piece === piece.toUpperCase())) {
+              moves.push({ toX: newX, toY: newY });
+            }
+            break;
+          }
+          moves.push({ toX: newX, toY: newY });
+        }
+      });
+    } else if (piece.toLowerCase() === "n") {
+      const knightMoves = [
+        [-2, -1], [-2, 1], [-1, -2], [-1, 2],
+        [1, -2], [1, 2], [2, -1], [2, 1]
+      ];
+      knightMoves.forEach(([dx, dy]) => {
+        const newX = x + dx;
+        const newY = y + dy;
+        if (newX >= 0 && newX < 8 && newY >= 0 && newY < 8) {
+          const targetPiece = board[newY][newX];
+          if (!targetPiece || (targetPiece === targetPiece.toUpperCase()) !== (piece === piece.toUpperCase())) {
+            moves.push({ toX: newX, toY: newY });
+          }
+        }
+      });
+    }
+
+    console.log("Legal moves for", piece, "at", x, y, ":", moves);
+    return moves;
+  }
+
+  function handleCanvasClick(event) {
+    if (!gameStarted) return;
+    console.log("Canvas clicked/touched");
+    const rect = canvas.getBoundingClientRect();
+    const clientX = event.clientX || (event.touches && event.touches[0]?.clientX);
+    const clientY = event.clientY || (event.touches && event.touches[0]?.clientY);
+    if (!clientX || !clientY) {
+      console.error("Client coordinates not found.");
+      return;
+    }
+
+    let x = Math.floor((clientX - rect.left - offsetX) / size);
+    let y = Math.floor((clientY - rect.top - offsetY) / size);
+
+    let effectiveRotation = rotateBoard;
+    if (smartphoneMode) {
+      effectiveRotation = currentPlayer === "black";
+    }
+
+    if (effectiveRotation) {
+      x = 7 - x;
+      y = 7 - y;
+    }
+
+    if (x < 0 || x >= 8 || y < 0 || y >= 8) {
+      console.log("Click outside board:", x, y);
+      return;
+    }
+
+    if (!selected) {
+      const piece = board[y][x];
+      if (piece && (piece === piece.toUpperCase()) === (currentPlayer === "white")) {
+        console.log("Piece selected:", piece, "at", x, y);
+        selected = { x, y, piece };
+        legalMoves = getLegalMoves(x, y);
+        drawBoard();
+      } else {
+        console.log("No valid piece selected at", x, y);
+      }
+    } else {
+      const move = legalMoves.find(m => m.toX === x && m.toY === y);
+      if (move) {
+        console.log("Moving piece from", selected.x, selected.y, "to", x, y);
+        const newBoard = board.map(row => [...row]);
+        newBoard[y][x] = selected.piece;
+        newBoard[selected.y][selected.x] = "";
+        moveHistory.push({ board: board.map(row => [...row]), currentPlayer });
+        lastMove = { fromX: selected.x, fromY: selected.y, toX: x, toY: y };
+        board = newBoard;
+        currentPlayer = currentPlayer === "white" ? "black" : "white";
+      } else {
+        console.log("Invalid move to", x, y);
+      }
+      selected = null;
+      legalMoves = [];
+      drawBoard();
+    }
   }
 
   // Event-Listener
@@ -236,67 +360,16 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
+  canvas.addEventListener("click", handleCanvasClick);
+  canvas.addEventListener("touchstart", (e) => {
+    e.preventDefault();
+    handleCanvasClick(e);
+  });
+
   window.addEventListener("resize", () => {
     console.log("Window resized");
     resizeCanvas();
   });
-
-  // Vereinfachte Bewegungslogik (für Testzwecke)
-  canvas.addEventListener("click", (event) => {
-    if (!gameStarted) return;
-    const rect = canvas.getBoundingClientRect();
-    let x = Math.floor((event.clientX - rect.left - offsetX) / size);
-    let y = Math.floor((event.clientY - rect.top - offsetY) / size);
-
-    let effectiveRotation = rotateBoard;
-    if (smartphoneMode) {
-      effectiveRotation = currentPlayer === "black";
-    }
-
-    if (effectiveRotation) {
-      x = 7 - x;
-      y = 7 - y;
-    }
-
-    if (x < 0 || x >= 8 || y < 0 || y >= 8) return;
-
-    if (!selected) {
-      const piece = board[y][x];
-      if (piece && (piece === piece.toUpperCase()) === (currentPlayer === "white")) {
-        selected = { x, y, piece };
-        legalMoves = getSimpleLegalMoves(x, y);
-        drawBoard();
-      }
-    } else {
-      if (legalMoves.some(move => move.toX === x && move.toY === y)) {
-        moveHistory.push({ board: board.map(row => [...row]), currentPlayer });
-        lastMove = { fromX: selected.x, fromY: selected.y, toX: x, toY: y };
-        board[y][x] = selected.piece;
-        board[selected.y][selected.x] = "";
-        currentPlayer = currentPlayer === "white" ? "black" : "white";
-      }
-      selected = null;
-      legalMoves = [];
-      drawBoard();
-    }
-  });
-
-  // Vereinfachte Funktion für legale Züge (für Testzwecke)
-  function getSimpleLegalMoves(x, y) {
-    const moves = [];
-    const piece = board[y][x];
-    if (piece.toLowerCase() === "p") {
-      const direction = piece === piece.toUpperCase() ? -1 : 1;
-      const startRow = piece === piece.toUpperCase() ? 6 : 1;
-      if (y + direction >= 0 && y + direction < 8 && !board[y + direction][x]) {
-        moves.push({ toX: x, toY: y + direction });
-        if (y === startRow && !board[y + 2 * direction][x]) {
-          moves.push({ toX: x, toY: y + 2 * direction });
-        }
-      }
-    }
-    return moves;
-  }
 
   // Initialisierung
   console.log("Initializing game...");
