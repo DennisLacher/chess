@@ -393,10 +393,14 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    const x = Math.floor((clientX - rect.left - offsetX) / size);
-    const y = Math.floor((clientY - rect.top - offsetY) / size);
+    // Verbesserte Koordinatenberechnung
+    const x = Math.floor((clientX - rect.left) / size);
+    const y = Math.floor((clientY - rect.top) / size);
     if (DEBUG.enableLogging && DEBUG.logLevel === "debug") {
-      console.log("Raw coordinates:", clientX, clientY, "Converted to:", x, y);
+      console.log("Raw coordinates:", clientX, clientY);
+      console.log("Canvas rect:", rect);
+      console.log("Converted to:", x, y);
+      console.log("size:", size, "offsetX:", offsetX, "offsetY:", offsetY);
     }
 
     let boardX = x;
