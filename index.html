@@ -47,7 +47,6 @@
 
     #startScreen button, #gameContainer button {
       padding: 10px 20px;
-      margin: 5px;
       font-size: 1em;
       cursor: pointer;
       border: none;
@@ -55,6 +54,16 @@
       background-color: #4CAF50;
       color: white;
       transition: background-color 0.3s, transform 0.1s;
+    }
+
+    #startScreen button {
+      margin: 2px; /* Reduziert von 5px auf 2px für kompakteres Layout */
+    }
+
+    #startScreen .button-group {
+      display: flex;
+      justify-content: center;
+      gap: 2px; /* Kleiner Abstand zwischen Buttons */
     }
 
     #startScreen button:hover, #gameContainer button:hover {
@@ -153,7 +162,7 @@
       #moveList {
         order: 2;
         width: 200px;
-        margin: 0 0 0 5px; /* Reduziert von 20px auf 5px, um die Liste näher ans Brett zu bringen */
+        margin: 0 0 0 5px;
         max-height: 400px;
       }
     }
@@ -174,9 +183,11 @@
 <body>
   <div id="startScreen">
     <h1>Schachspiel</h1>
-    <button id="startButton">Spiel starten</button>
-    <button id="startFreestyleButton">Freestyle-Modus</button>
-    <button id="darkmodeToggleButton">Darkmode</button>
+    <div class="button-group">
+      <button id="startButton">Spiel starten</button>
+      <button id="startFreestyleButton">Freestyle-Modus</button>
+      <button id="darkmodeToggleButton">Darkmode</button>
+    </div>
   </div>
 
   <div id="gameContainer" class="hidden">
