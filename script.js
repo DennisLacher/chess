@@ -16,7 +16,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const SOUND = {
     enabledByDefault: true,
     moveSound: "move.mp3",
-    checkSound: "check.mp3", // Neuer Sound für Schach
+    checkSound: "check.mp3",
   };
 
   if (DEBUG.enableLogging) {
@@ -146,7 +146,6 @@ document.addEventListener("DOMContentLoaded", () => {
         const displayY = effectiveRotation ? 7 - y : y;
         const displayX = effectiveRotation ? 7 - x : x;
 
-        // Standardfarben und Hervorhebungen
         ctx.fillStyle = (displayX + displayY) % 2 === 0 ? "#f0d9b5" : "#b58863";
         if (lastMove && ((lastMove.fromX === x && lastMove.fromY === y) || (lastMove.toX === x && lastMove.toY === y))) {
           ctx.fillStyle = "#d4e4d2";
@@ -154,10 +153,9 @@ document.addEventListener("DOMContentLoaded", () => {
         if (legalMoves.some(move => move.toX === x && move.toY === y)) {
           ctx.fillStyle = "#a3e635";
         }
-        // Rote Unterlegung für König im Schach
         if ((isWhiteInCheck && kingPositions.white && kingPositions.white.x === x && kingPositions.white.y === y) ||
             (isBlackInCheck && kingPositions.black && kingPositions.black.x === x && kingPositions.black.y === y)) {
-          ctx.fillStyle = "#ff0000"; // Rote Farbe für Schach
+          ctx.fillStyle = "#ff0000";
         }
         ctx.fillRect(offsetX + displayX * size, offsetY + displayY * size, size, size);
 
@@ -318,7 +316,6 @@ document.addEventListener("DOMContentLoaded", () => {
     isWhiteInCheck = isInCheck("white");
     isBlackInCheck = isInCheck("black");
 
-    // Sound abspielen, wenn Schach neu erkannt wird
     if ((isWhiteInCheck && !whiteWasInCheck) || (isBlackInCheck && !blackWasInCheck)) {
       if (soundEnabled) {
         const audio = new Audio(SOUND.checkSound);
@@ -435,14 +432,12 @@ document.addEventListener("DOMContentLoaded", () => {
     if (piece.toLowerCase() === "p") {
       const direction = isWhite ? -1 : 1;
       const startRow = isWhite ? 6 : 1;
-      // Forward moves
       if (y + direction >= 0 && y + direction < 8 && !board[y + direction][x]) {
         moves.push({ toX: x, toY: y + direction, promotion: y + direction === (isWhite ? 0 : 7) });
         if (y === startRow && !board[y + 2 * direction][x] && !board[y + direction][x]) {
           moves.push({ toX: x, toY: y + 2 * direction });
         }
       }
-      // Capture moves
       const attackDirs = [-1, 1];
       attackDirs.forEach(dx => {
         const newX = x + dx;
@@ -453,10 +448,6 @@ document.addEventListener("DOMContentLoaded", () => {
             moves.push({ toX: newX, toY: newY, promotion: newY === (isWhite ? 0 : 7) });
             if (DEBUG.enableLogging && DEBUG.logLevel === "debug") {
               console.log(`Pawn at ${x},${y} can capture ${targetPiece} at ${newX},${newY}`);
-            }
-          } else {
-            if (DEBUG.enableLogging && DEBUG.logLevel === "debug") {
-              console.log(`Pawn at ${x},${y} cannot capture at ${newX},${newY}: no enemy piece`);
             }
           }
         }
@@ -549,9 +540,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       });
 
-      // Castling für Weiß
       if (isWhite && y === 7 && x === 4) {
-        // Kingside castling (kurze Rochade)
         if (
           castlingAvailability.white.kingside &&
           !board[7][5] &&
@@ -583,7 +572,6 @@ document.addEventListener("DOMContentLoaded", () => {
             }
           }
         }
-        // Queenside castling (lange Rochade)
         if (
           castlingAvailability.white.queenside &&
           !board[7][1] &&
@@ -616,10 +604,7 @@ document.addEventListener("DOMContentLoaded", () => {
             }
           }
         }
-      }
-      // Castling für Schwarz
-      else if (!isWhite && y === 0 && x === 4) {
-        // Kingside castling (kurze Rochade)
+      } else if (!isWhite && y === 0 && x === 4) {
         if (
           castlingAvailability.black.kingside &&
           !board[0][5] &&
@@ -651,7 +636,6 @@ document.addEventListener("DOMContentLoaded", () => {
             }
           }
         }
-        // Queenside castling (lange Rochade)
         if (
           castlingAvailability.black.queenside &&
           !board[0][1] &&
@@ -687,7 +671,6 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     }
 
-    // Filter moves that would put the king in check
     const validMoves = [];
     for (const move of moves) {
       const tempBoard = board.map(row => [...row]);
@@ -705,12 +688,8 @@ document.addEventListener("DOMContentLoaded", () => {
       updateKingPositions(tempBoard);
       if (!isInCheck(isWhite ? "white" : "black", tempBoard)) {
         validMoves.push(move);
-      } else {
-        if (DEBUG.enableLogging && DEBUG.logLevel === "debug") {
-          console.log(`Move to ${move.toX},${move.toY} rejected: puts ${isWhite ? "white" : "black"} king in check`);
-        }
       }
-      updateKingPositions(board); // Restore original king positions
+      updateKingPositions(board);
     }
 
     if (DEBUG.enableLogging && DEBUG.logLevel === "debug") {
@@ -777,10 +756,10 @@ document.addEventListener("DOMContentLoaded", () => {
         document.body.removeChild(promotionChoices);
         updateKingPositions();
         currentPlayer = currentPlayer === "white" ? "black" : "white";
-        selectedPiece = null; // Reset, um weiteren Zug zu verhindern
-        legalMoves = []; // Reset, um weiteren Zug zu verhindern
+        selectedPiece = null;
+        legalMoves = [];
         updateMoveHistory();
-        updateCheckStatus(); // Prüfe Schach nach der Umwandlung
+        updateCheckStatus();
         if (soundEnabled) {
           const audio = new Audio(SOUND.moveSound);
           audio.play().catch(e => console.error("Audio play failed:", e));
@@ -861,21 +840,10 @@ document.addEventListener("DOMContentLoaded", () => {
           selectedPiece = null;
         }
         drawBoard();
-      } else {
-        if (DEBUG.enableLogging && DEBUG.logLevel === "debug") {
-          console.log("No valid piece selected at", boardX, boardY, "Piece:", piece, "Current player:", currentPlayer);
-        }
       }
     } else {
-      if (DEBUG.enableLogging && DEBUG.logLevel === "debug") {
-        console.log("Selected piece:", selectedPiece.piece, "at", selectedPiece.x, selectedPiece.y);
-        console.log("Legal moves:", legalMoves);
-      }
       const move = legalMoves.find(m => m.toX === boardX && m.toY === boardY);
       if (move) {
-        if (DEBUG.enableLogging && DEBUG.logLevel === "debug") {
-          console.log("Moving piece from", selectedPiece.x, selectedPiece.y, "to", boardX, boardY);
-        }
         const newBoard = board.map(row => [...row]);
         newBoard[boardY][boardX] = selectedPiece.piece;
         newBoard[selectedPiece.y][selectedPiece.x] = "";
@@ -925,18 +893,11 @@ document.addEventListener("DOMContentLoaded", () => {
         board = newBoard;
         updateKingPositions();
         currentPlayer = currentPlayer === "white" ? "black" : "white";
-        if (DEBUG.enableLogging && DEBUG.logLevel === "debug") {
-          console.log("Move executed. New current player:", currentPlayer);
-        }
         updateMoveHistory();
-        updateCheckStatus(); // Prüfe Schach nach jedem Zug
+        updateCheckStatus();
         if (soundEnabled) {
           const audio = new Audio(SOUND.moveSound);
           audio.play().catch(e => console.error("Audio play failed:", e));
-        }
-      } else {
-        if (DEBUG.enableLogging && DEBUG.logLevel === "debug") {
-          console.log("Invalid move to", boardX, boardY);
         }
       }
       selectedPiece = null;
@@ -1065,6 +1026,5 @@ document.addEventListener("DOMContentLoaded", () => {
   }
   resizeCanvas();
 
-  // Sicherstellen, dass das StartScreen sichtbar ist
   startScreen.style.display = "block";
 });
