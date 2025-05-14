@@ -157,22 +157,6 @@ body.darkmode #moveList {
   }
 }
 
-@media (min-width: 641px) {
-  #controls .button-row {
-    display: flex;
-    flex-wrap: nowrap;
-    overflow-x: auto;
-    gap: 5px;
-    padding: 5px 0;
-    -webkit-overflow-scrolling: touch; /* Für besseres Scrollen auf iOS */
-    scrollbar-width: none; /* Firefox */
-  }
-
-  #controls .button-row::-webkit-scrollbar {
-    display: none; /* Chrome/Safari */
-  }
-}
-
 /* Farbanpassungen für das Schachbrett */
 #chessboard {
   --last-move-color: #a3e4a3; /* Subtiles Grün für den letzten Zug */
