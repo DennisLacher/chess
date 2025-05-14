@@ -164,7 +164,7 @@ body.darkmode #moveList {
   }
 }
 
-/* Farbanpassungen für das Schachbrett */
+/* Farbanpassungen für das Board */
 #chessboard {
   --last-move-color: #a3e4a3; /* Subtiles Grün für den letzten Zug */
   --legal-move-color: #e6b800; /* Dunkles Gold für legale Züge */
