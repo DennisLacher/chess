@@ -126,7 +126,28 @@ body.darkmode #moveList {
     align-items: center;
   }
 
+  #controls button {
+    padding: 5px 8px;
+    font-size: 0.9em;
+    margin: 2px;
+  }
+
+  /* Buttons horizontal anordnen */
+  #controls > *:not(#moveList):not(#openingDisplay):not(#turnIndicator) {
+    display: inline-block;
+  }
+
   #moveList {
     width: 80%;
+    max-height: 150px;
+  }
+
+  #turnIndicator {
+    font-size: 1em;
+    margin-bottom: 5px;
+  }
+
+  #openingDisplay {
+    font-size: 0.9em;
   }
 }
