@@ -36,8 +36,12 @@ document.addEventListener("DOMContentLoaded", () => {
   const moveList = document.getElementById("moveList");
 
   console.log("Checking DOM elements...");
+  console.log("startScreen:", startScreen);
   console.log("startButton:", startButton);
   console.log("startFreestyleButton:", startFreestyleButton);
+  console.log("gameContainer:", gameContainer);
+  console.log("turnIndicator:", turnIndicator);
+  console.log("moveList:", moveList);
   if (!canvas || !startScreen || !startButton || !startFreestyleButton || !gameContainer || !turnIndicator || !moveList) {
     console.error("One or more DOM elements are missing. Check index.html for correct IDs.");
     return;
@@ -240,7 +244,7 @@ document.addEventListener("DOMContentLoaded", () => {
     for (let y = 0; y < 8; y++) {
       for (let x = 0; x < 8; x++) {
         const piece = tempBoard[y][x];
-        const isOpponent = piece && ((piece === piece.toUpperCase() &&K = piece === piece.toUpperCase();
+        const isOpponent = piece && ((piece === piece.toUpperCase() && opponentColor === "white") || (piece !== piece.toUpperCase() && opponentColor === "black"));
         if (isOpponent) {
           const moves = getLegalMovesForCheck(x, y, tempBoard);
           if (moves.some(m => m.toX === kingPos.x && m.toY === kingPos.y)) {
@@ -843,19 +847,27 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   console.log("Adding event listeners...");
-  startButton.addEventListener("click", () => {
-    if (DEBUG.enableLogging && DEBUG.logLevel === "debug") {
-      console.log("Start button clicked");
-    }
-    startGame();
-  });
+  if (startButton) {
+    startButton.addEventListener("click", () => {
+      if (DEBUG.enableLogging && DEBUG.logLevel === "debug") {
+        console.log("Start button clicked");
+      }
+      startGame();
+    });
+  } else {
+    console.error("startButton not found in DOM.");
+  }
 
-  startFreestyleButton.addEventListener("click", () => {
-    if (DEBUG.enableLogging && DEBUG.logLevel === "debug") {
-      console.log("Freestyle button clicked");
-    }
-    startGame(true);
-  });
+  if (startFreestyleButton) {
+    startFreestyleButton.addEventListener("click", () => {
+      if (DEBUG.enableLogging && DEBUG.logLevel === "debug") {
+        console.log("Freestyle button clicked");
+      }
+      startGame(true);
+    });
+  } else {
+    console.error("startFreestyleButton not found in DOM.");
+  }
 
   if (rotateButton) {
     rotateButton.addEventListener("click", () => {
