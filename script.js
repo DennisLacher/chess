@@ -90,16 +90,43 @@ document.addEventListener("DOMContentLoaded", () => {
   ];
 
   const openings = [
-    { name: "Italienische Eröffnung", white: "1. e4 e5 2. Nf3 Nc6 3. Bc4", black: "3...Bc5 oder 3...Nf6" },
-    { name: "Sizilianische Verteidigung", white: "1. e4 c5", black: "2...Nc6 oder 2...e6" },
-    { name: "Französische Verteidigung", white: "1. e4 e6", black: "2...d5" },
-    { name: "Skandinavische Verteidigung", white: "1. e4 d5", black: "2...exd5" },
-    { name: "Spanische Eröffnung", white: "1. e4 e5 2. Nf3 Nc6 3. Bb5", black: "3...a6" },
-    { name: "Englische Eröffnung", white: "1. c4", black: "1...e5 oder 1...c5" },
-    { name: "Königsgambit", white: "1. e4 e5 2. f4", black: "2...exf4 oder 2...d5" },
-    { name: "Damenbauernspiel", white: "1. d4 d5 2. c4", black: "2...e6 oder 2...dxc4" },
-    { name: "Niederländische Verteidigung", white: "1. d4 f5", black: "2...e6" },
-    { name: "Katalanische Eröffnung", white: "1. d4 Nf6 2. c4 e6 3. g3", black: "3...d5" }
+    { name: "Italienische Eröffnung", moves: ["e4", "e5", "Nf3", "Nc6", "Bc4"], blackResponses: ["Bc5", "Nf6"] },
+    { name: "Sizilianische Verteidigung", moves: ["e4", "c5"], blackResponses: ["Nc6", "e6"] },
+    { name: "Französische Verteidigung", moves: ["e4", "e6"], blackResponses: ["d5"] },
+    { name: "Skandinavische Verteidigung", moves: ["e4", "d5"], blackResponses: ["exd5"] },
+    { name: "Spanische Eröffnung", moves: ["e4", "e5", "Nf3", "Nc6", "Bb5"], blackResponses: ["a6"] },
+    { name: "Englische Eröffnung", moves: ["c4"], blackResponses: ["e5", "c5"] },
+    { name: "Königsgambit", moves: ["e4", "e5", "f4"], blackResponses: ["exf4", "d5"] },
+    { name: "Damenbauernspiel", moves: ["d4", "d5", "c4"], blackResponses: ["e6", "dxc4"] },
+    { name: "Niederländische Verteidigung", moves: ["d4", "f5"], blackResponses: ["e6"] },
+    { name: "Katalanische Eröffnung", moves: ["d4", "Nf6", "c4", "e6", "g3"], blackResponses: ["d5"] },
+    { name: "Russische Verteidigung", moves: ["e4", "e5", "Nf3", "Nf6"], blackResponses: ["Nxe4"] },
+    { name: "Philidor-Verteidigung", moves: ["e4", "e5", "Nf3", "d6"], blackResponses: ["Nf6"] },
+    { name: "Aljechin-Verteidigung", moves: ["e4", "Nf6"], blackResponses: ["e5"] },
+    { name: "Pirc-Verteidigung", moves: ["e4", "d6"], blackResponses: ["Nf6"] },
+    { name: "Moderne Verteidigung", moves: ["e4", "g6"], blackResponses: ["d6"] },
+    { name: "Caro-Kann-Verteidigung", moves: ["e4", "c6"], blackResponses: ["d5"] },
+    { name: "Schottische Eröffnung", moves: ["e4", "e5", "Nf3", "Nc6", "d4"], blackResponses: ["exd4"] },
+    { name: "Wiener Partie", moves: ["e4", "e5", "Nc3"], blackResponses: ["Nf6"] },
+    { name: "Zweispringer-Verteidigung", moves: ["e4", "e5", "Nf3", "Nc6", "Bc4", "Nf6"], blackResponses: ["d4"] },
+    { name: "Dre Springer-Spiel", moves: ["e4", "e5", "Nf3", "Nf6", "Nc3"], blackResponses: ["d4"] },
+    { name: "Boden-Kieseritzky-Gambit", moves: ["e4", "e5", "Nf3", "Nf6", "Bc4", "Nxe4", "Nc3"], blackResponses: ["Nxc3"] },
+    { name: "Budapester Gambit", moves: ["d4", "Nf6", "c4", "e5"], blackResponses: ["dxe5"] },
+    { name: "Benoni-Verteidigung", moves: ["d4", "Nf6", "c4", "c5"], blackResponses: ["d5"] },
+    { name: "Grünfeld-Verteidigung", moves: ["d4", "Nf6", "c4", "g6", "Nc3", "d5"], blackResponses: ["cxd5"] },
+    { name: "Königsindische Verteidigung", moves: ["d4", "Nf6", "c4", "g6"], blackResponses: ["d6"] },
+    { name: "Nimzo-Indische Verteidigung", moves: ["d4", "Nf6", "c4", "e6", "Nc3", "Bb4"], blackResponses: ["d5"] },
+    { name: "Slawische Verteidigung", moves: ["d4", "d5", "c4", "c6"], blackResponses: ["Nf6"] },
+    { name: "Tschechische Verteidigung", moves: ["d4", "d5", "c4", "c6", "Nf3", "Nf6", "Nc3", "e6"], blackResponses: ["d5"] },
+    { name: "Alte Indische Verteidigung", moves: ["d4", "Nf6", "c4", "d6"], blackResponses: ["e5"] },
+    { name: "Trompowsky-Angriff", moves: ["d4", "Nf6", "Bg5"], blackResponses: ["e6"] },
+    { name: "Londoner System", moves: ["d4", "Nf6", "Nf3", "d5", "Bf4"], blackResponses: ["e6"] },
+    { name: "Colle-System", moves: ["d4", "Nf6", "Nf3", "d5", "e3"], blackResponses: ["e6"] },
+    { name: "Richter-Veresov-Angriff", moves: ["d4", "Nf6", "Nc3", "d5", "Bg5"], blackResponses: ["e6"] },
+    { name: "Italienische Eröffnung (Traxler-Gegenangriff)", moves: ["e4", "e5", "Nf3", "Nc6", "Bc4", "Nf6", "d4", "exd4", "Ng5"], blackResponses: ["Bc5"] },
+    { name: "Schottisches Gambit", moves: ["e4", "e5", "Nf3", "Nc6", "d4", "exd4", "Bc4"], blackResponses: ["Nf6"] },
+    { name: "Königsgambit (Falkbeer-Gegengambit)", moves: ["e4", "e5", "f4", "d5"], blackResponses: ["exd5"] },
+    { name: "Königsgambit (Muzio-Gambit)", moves: ["e4", "e5", "f4", "exf4", "Nf3", "g5", "Bc4", "g4", "O-O"], blackResponses: ["gxf3"] }
   ];
 
   let openingDisplay = document.createElement("div");
@@ -114,16 +141,28 @@ document.addEventListener("DOMContentLoaded", () => {
   document.body.appendChild(openingDisplay);
 
   function updateOpeningDisplay() {
-    const moves = moveNotations.map(m => m.notation).join(" ");
-    let opening = "Keine Eröffnung erkannt";
-    for (let o of openings) {
-      const whiteMoves = o.white.split(" ").slice(0, moveNotations.length).join(" ");
-      if (moves.startsWith(whiteMoves)) {
-        opening = `${o.name}: Weiß ${o.white} | Schwarz ${o.black}`;
+    const moves = moveNotations.map(m => m.notation).filter(n => !n.includes("-"));
+    let displayText = `Zug: ${moves[moves.length - 1] || "Kein Zug"}`;
+
+    for (let opening of openings) {
+      const openingMoves = opening.moves;
+      let matches = true;
+      for (let i = 0; i < Math.min(moves.length, openingMoves.length); i++) {
+        if (moves[i] !== openingMoves[i]) {
+          matches = false;
+          break;
+        }
+      }
+      if (matches) {
+        displayText = `${opening.name}`;
+        if (moves.length >= openingMoves.length && opening.blackResponses.length > 0) {
+          displayText += ` (Schwarz: ${opening.blackResponses.join(" oder ")})`;
+        }
         break;
       }
     }
-    openingDisplay.textContent = opening;
+
+    openingDisplay.textContent = displayText;
   }
 
   function drawBoard() {
@@ -705,21 +744,36 @@ document.addEventListener("DOMContentLoaded", () => {
     const rankTo = 8 - toY;
     const piece = board[fromY][fromX]?.toLowerCase() || "";
     const pieceSymbol = piece === "p" ? "" : piece.toUpperCase();
-    return `${pieceSymbol}${fileFrom}${rankFrom}-${fileTo}${rankTo}`;
+    const simpleNotation = pieceSymbol === "" ? `${fileTo}${rankTo}` : `${pieceSymbol}${fileTo}${rankTo}`;
+    const fullNotation = `${pieceSymbol}${fileFrom}${rankFrom}-${fileTo}${rankTo}`;
+    return { simple: simpleNotation, full: fullNotation };
   }
 
   function updateMoveHistory() {
     if (lastMove) {
       const notation = getMoveNotation(lastMove.fromX, lastMove.fromY, lastMove.toX, lastMove.toY);
-      moveNotations.push({ moveCount, notation });
+      moveNotations.push({ moveCount, notation: notation.simple });
+      
+      // Update moveList with full notation
       moveList.innerHTML = "";
-      moveNotations.forEach(({ moveCount, notation }) => {
+      let currentMoveCount = 1;
+      let movePairs = [];
+      for (let i = 0; i < moveNotations.length; i++) {
+        if (i % 2 === 0) {
+          movePairs.push({ white: moveNotations[i].notation });
+        } else {
+          movePairs[movePairs.length - 1].black = moveNotations[i].notation;
+        }
+      }
+      movePairs.forEach((pair, index) => {
         const moveItem = document.createElement("li");
-        moveItem.textContent = `${moveCount}. ${notation}`;
+        moveItem.textContent = `${index + 1}. ${pair.white}${pair.black ? " " + pair.black : ""}`;
         moveList.appendChild(moveItem);
       });
       if (currentPlayer === "black") moveCount++;
       moveList.scrollTop = moveList.scrollHeight;
+
+      // Update opening display after each move
       updateOpeningDisplay();
     }
   }
@@ -755,7 +809,7 @@ document.addEventListener("DOMContentLoaded", () => {
         board[y][x] = p;
         document.body.removeChild(promotionChoices);
         updateKingPositions();
-        currentPlayer = currentPlayer === "white" ? "black" : "white";
+        currentPlayer = currentPlayer === "white" ? "black" : "white"; // Ensure player switch
         selectedPiece = null;
         legalMoves = [];
         updateMoveHistory();
@@ -764,7 +818,7 @@ document.addEventListener("DOMContentLoaded", () => {
           const audio = new Audio(SOUND.moveSound);
           audio.play().catch(e => console.error("Audio play failed:", e));
         }
-        drawBoard();
+        drawBoard(); // Redraw to reflect player switch
       });
       promotionChoices.appendChild(button);
     });
@@ -981,15 +1035,24 @@ document.addEventListener("DOMContentLoaded", () => {
         castlingAvailability = lastState.castlingAvailability;
         moveNotations.pop();
         moveList.innerHTML = "";
-        moveNotations.forEach(({ moveCount, notation }) => {
+        let movePairs = [];
+        for (let i = 0; i < moveNotations.length; i++) {
+          if (i % 2 === 0) {
+            movePairs.push({ white: moveNotations[i].notation });
+          } else {
+            movePairs[movePairs.length - 1].black = moveNotations[i].notation;
+          }
+        }
+        movePairs.forEach((pair, index) => {
           const moveItem = document.createElement("li");
-          moveItem.textContent = `${moveCount}. ${notation}`;
+          moveItem.textContent = `${index + 1}. ${pair.white}${pair.black ? " " + pair.black : ""}`;
           moveList.appendChild(moveItem);
         });
         selectedPiece = null;
         legalMoves = [];
         updateKingPositions();
         updateCheckStatus();
+        updateOpeningDisplay();
         drawBoard();
       }
     });
