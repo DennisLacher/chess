@@ -126,15 +126,27 @@ body.darkmode #moveList {
     align-items: center;
   }
 
-  #controls button {
-    padding: 5px 8px;
-    font-size: 0.9em;
-    margin: 2px;
+  #controls .button-row {
+    display: flex;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    gap: 5px;
+    padding: 5px 0;
+    -webkit-overflow-scrolling: touch; /* Für besseres Scrollen auf iOS */
+    scrollbar-width: none; /* Firefox */
   }
 
-  /* Buttons horizontal anordnen */
-  #controls > *:not(#moveList):not(#openingDisplay):not(#turnIndicator) {
-    display: inline-block;
+  #controls .button-row::-webkit-scrollbar {
+    display: none; /* Chrome/Safari */
+  }
+
+  #controls button {
+    padding: 6px 10px;
+    font-size: 0.9em;
+    margin: 2px;
+    white-space: nowrap;
+    min-width: 80px;
+    text-align: center;
   }
 
   #moveList {
@@ -150,4 +162,11 @@ body.darkmode #moveList {
   #openingDisplay {
     font-size: 0.9em;
   }
+}
+
+/* Farbanpassungen für das Schachbrett */
+#chessboard {
+  --last-move-color: #a3e4a3; /* Subtiles Grün für den letzten Zug */
+  --legal-move-color: #e6b800; /* Dunkles Gold für legale Züge */
+  --check-color: #d32f2f; /* Kräftiges Rot für Schach */
 }
