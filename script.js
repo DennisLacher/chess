@@ -1,5 +1,5 @@
 document.addEventListener("DOMContentLoaded", () => {
-  console.log("Script loaded and DOMContentLoaded event fired.");
+  console.log("Script loaded and DOMContentLoaded event fired at", new Date().toISOString());
 
   const CONFIG = {
     defaultBoardSize: 45,
@@ -81,8 +81,10 @@ document.addEventListener("DOMContentLoaded", () => {
   let isWhiteInCheck = false;
   let isBlackInCheck = false;
 
-  // isDarkmode wird nur einmal global deklariert
+  // Einzige Deklaration von isDarkmode
   let isDarkmode = localStorage.getItem("darkmode") === "true";
+  console.log("Initial darkmode state:", isDarkmode);
+
   window.boardColors = isDarkmode
     ? { light: "#4a4a4a", dark: "#1f1f1f" }
     : { light: "#e0e0e0", dark: "#4a4a4a" };
@@ -168,6 +170,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function toggleDarkmodeHandler() {
     isDarkmode = !isDarkmode;
+    console.log("Darkmode toggled to:", isDarkmode);
     document.body.classList.toggle("darkmode", isDarkmode);
     const darkmodeToggleButtons = document.querySelectorAll("#darkmodeToggleButton");
     darkmodeToggleButtons.forEach(btn => {
