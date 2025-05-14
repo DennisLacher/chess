@@ -81,6 +81,7 @@ document.addEventListener("DOMContentLoaded", () => {
   let isWhiteInCheck = false;
   let isBlackInCheck = false;
 
+  // isDarkmode wird nur einmal global deklariert
   let isDarkmode = localStorage.getItem("darkmode") === "true";
   window.boardColors = isDarkmode
     ? { light: "#4a4a4a", dark: "#1f1f1f" }
@@ -149,7 +150,6 @@ document.addEventListener("DOMContentLoaded", () => {
     { name: "Königsgambit (Muzio-Gambit)", moves: ["e4", "e5", "f4", "exf4", "Nf3", "g5", "Bc4", "g4", "O-O"], blackResponses: ["gxf3"] }
   ];
 
-  let isDarkmode = localStorage.getItem("darkmode") === "true";
   document.body.classList.toggle("darkmode", isDarkmode);
 
   function initializeDarkmodeToggle() {
@@ -1010,7 +1010,8 @@ document.addEventListener("DOMContentLoaded", () => {
     if (startButton) {
       startButton.removeEventListener("click", startGameNormalHandler); // Entferne vorhandene Listener
       startButton.addEventListener("click", startGameNormalHandler);
-      console.log("Start button initialized successfully.");
+      console.log("Start button initialized successfully and event listener added.");
+      startButton.style.pointerEvents = "auto"; // Sicherstellen, dass Klicks erkannt werden
     } else {
       console.error("Start button not found in DOM. Check if ID 'startButton' exists in index.html.");
       alert("Fehler: Start-Button nicht gefunden. Bitte überprüfe die Konsole.");
@@ -1019,7 +1020,8 @@ document.addEventListener("DOMContentLoaded", () => {
     if (startFreestyleButton) {
       startFreestyleButton.removeEventListener("click", startGameFreestyleHandler); // Entferne vorhandene Listener
       startFreestyleButton.addEventListener("click", startGameFreestyleHandler);
-      console.log("Freestyle button initialized successfully.");
+      console.log("Freestyle button initialized successfully and event listener added.");
+      startFreestyleButton.style.pointerEvents = "auto"; // Sicherstellen, dass Klicks erkannt werden
     } else {
       console.error("Freestyle button not found in DOM. Check if ID 'startFreestyleButton' exists in index.html.");
       alert("Fehler: Freestyle-Button nicht gefunden. Bitte überprüfe die Konsole.");
