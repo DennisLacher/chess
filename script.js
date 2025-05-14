@@ -240,7 +240,7 @@ document.addEventListener("DOMContentLoaded", () => {
     for (let y = 0; y < 8; y++) {
       for (let x = 0; x < 8; x++) {
         const piece = tempBoard[y][x];
-        const isOpponent = piece && ((piece === piece.toUpperCase() && opponentColor === "white") || (piece !== piece.toUpperCase() && opponentColor === "black"));
+        const isOpponent = piece && ((piece === piece.toUpperCase() &&K = piece === piece.toUpperCase();
         if (isOpponent) {
           const moves = getLegalMovesForCheck(x, y, tempBoard);
           if (moves.some(m => m.toX === kingPos.x && m.toY === kingPos.y)) {
@@ -363,12 +363,14 @@ document.addEventListener("DOMContentLoaded", () => {
     if (piece.toLowerCase() === "p") {
       const direction = isWhite ? -1 : 1;
       const startRow = isWhite ? 6 : 1;
+      // Forward moves
       if (y + direction >= 0 && y + direction < 8 && !board[y + direction][x]) {
         moves.push({ toX: x, toY: y + direction, promotion: y + direction === (isWhite ? 0 : 7) });
-        if (y === startRow && !board[y + 2 * direction][x]) {
+        if (y === startRow && !board[y + 2 * direction][x] && !board[y + direction][x]) {
           moves.push({ toX: x, toY: y + 2 * direction });
         }
       }
+      // Capture moves
       const attackDirs = [-1, 1];
       attackDirs.forEach(dx => {
         const newX = x + dx;
@@ -377,6 +379,13 @@ document.addEventListener("DOMContentLoaded", () => {
           const targetPiece = board[newY][newX];
           if (targetPiece && (targetPiece === targetPiece.toUpperCase()) !== isWhite) {
             moves.push({ toX: newX, toY: newY, promotion: newY === (isWhite ? 0 : 7) });
+            if (DEBUG.enableLogging && DEBUG.logLevel === "debug") {
+              console.log(`Pawn at ${x},${y} can capture ${targetPiece} at ${newX},${newY}`);
+            }
+          } else {
+            if (DEBUG.enableLogging && DEBUG.logLevel === "debug") {
+              console.log(`Pawn at ${x},${y} cannot capture at ${newX},${newY}: no enemy piece`);
+            }
           }
         }
       });
@@ -469,122 +478,132 @@ document.addEventListener("DOMContentLoaded", () => {
       });
 
       // Castling
-      if (isWhite && y === 7 && x === 4 && !isInCheck("white")) {
+      if (isWhite && y === 7 && x === 4) {
         // Kingside castling (short)
-        if (castlingAvailability.white.kingside && !moveHistory.some(m => m.fromY === 7 && (m.fromX === 4 || m.fromX === 7))) {
-          if (!board[7][5] && !board[7][6] && board[7][7] === "R") {
-            let canCastle = true;
-            const originalKingPos = { ...kingPositions.white };
-            for (let i = 4; i <= 6; i++) {
-              const tempBoard = board.map(row => [...row]);
-              if (i !== 4) {
-                tempBoard[7][i] = "K";
-                tempBoard[7][i - 1] = "";
-              }
-              const tempKingPos = { x: i, y: 7 };
-              if (isInCheck("white", tempBoard, tempKingPos)) {
-                canCastle = false;
-                if (DEBUG.enableLogging && DEBUG.logLevel === "debug") {
-                  console.log(`Kingside castling for white blocked: square ${i},7 is under attack`);
-                }
-                break;
-              }
+        if (
+          castlingAvailability.white.kingside &&
+          !moveHistory.some(m => m.fromY === 7 && (m.fromX === 4 || m.fromX === 7)) &&
+          !board[7][5] &&
+          !board[7][6] &&
+          board[7][7] === "R" &&
+          !isInCheck("white")
+        ) {
+          let canCastle = true;
+          for (let i = 4; i <= 6; i++) {
+            const tempBoard = board.map(row => [...row]);
+            if (i > 4) {
+              tempBoard[7][i] = "K";
+              tempBoard[7][i - 1] = "";
             }
-            if (canCastle) {
-              moves.push({ toX: 6, toY: 7, castling: "kingside" });
+            if (isInCheck("white", tempBoard, { x: i, y: 7 })) {
+              canCastle = false;
               if (DEBUG.enableLogging && DEBUG.logLevel === "debug") {
-                console.log("Kingside castling for white is legal");
+                console.log(`Kingside castling for white blocked: square ${i},7 is under attack`);
               }
+              break;
             }
-            kingPositions.white = originalKingPos;
+          }
+          if (canCastle) {
+            moves.push({ toX: 6, toY: 7, castling: "kingside" });
+            if (DEBUG.enableLogging && DEBUG.logLevel === "debug") {
+              console.log("Kingside castling for white is legal");
+            }
           }
         }
         // Queenside castling (long)
-        if (castlingAvailability.white.queenside && !moveHistory.some(m => m.fromY === 7 && (m.fromX === 4 || m.fromX === 0))) {
-          if (!board[7][3] && !board[7][2] && !board[7][1] && board[7][0] === "R") {
-            let canCastle = true;
-            const originalKingPos = { ...kingPositions.white };
-            for (let i = 4; i >= 2; i--) {
-              const tempBoard = board.map(row => [...row]);
-              if (i !== 4) {
-                tempBoard[7][i] = "K";
-                tempBoard[7][i + 1] = "";
-              }
-              const tempKingPos = { x: i, y: 7 };
-              if (isInCheck("white", tempBoard, tempKingPos)) {
-                canCastle = false;
-                if (DEBUG.enableLogging && DEBUG.logLevel === "debug") {
-                  console.log(`Queenside castling for white blocked: square ${i},7 is under attack`);
-                }
-                break;
-              }
+        if (
+          castlingAvailability.white.queenside &&
+          !moveHistory.some(m => m.fromY === 7 && (m.fromX === 4 || m.fromX === 0)) &&
+          !board[7][1] &&
+          !board[7][2] &&
+          !board[7][3] &&
+          board[7][0] === "R" &&
+          !isInCheck("white")
+        ) {
+          let canCastle = true;
+          for (let i = 4; i >= 2; i--) {
+            const tempBoard = board.map(row => [...row]);
+            if (i < 4) {
+              tempBoard[7][i] = "K";
+              tempBoard[7][i + 1] = "";
             }
-            if (canCastle) {
-              moves.push({ toX: 2, toY: 7, castling: "queenside" });
+            if (isInCheck("white", tempBoard, { x: i, y: 7 })) {
+              canCastle = false;
               if (DEBUG.enableLogging && DEBUG.logLevel === "debug") {
-                console.log("Queenside castling for white is legal");
+                console.log(`Queenside castling for white blocked: square ${i},7 is under attack`);
               }
+              break;
             }
-            kingPositions.white = originalKingPos;
+          }
+          if (canCastle) {
+            moves.push({ toX: 2, toY: 7, castling: "queenside" });
+            if (DEBUG.enableLogging && DEBUG.logLevel === "debug") {
+              console.log("Queenside castling for white is legal");
+            }
           }
         }
-      } else if (!isWhite && y === 0 && x === 4 && !isInCheck("black")) {
+      } else if (!isWhite && y === 0 && x === 4) {
         // Kingside castling (short)
-        if (castlingAvailability.black.kingside && !moveHistory.some(m => m.fromY === 0 && (m.fromX === 4 || m.fromX === 7))) {
-          if (!board[0][5] && !board[0][6] && board[0][7] === "r") {
-            let canCastle = true;
-            const originalKingPos = { ...kingPositions.black };
-            for (let i = 4; i <= 6; i++) {
-              const tempBoard = board.map(row => [...row]);
-              if (i !== 4) {
-                tempBoard[0][i] = "k";
-                tempBoard[0][i - 1] = "";
-              }
-              const tempKingPos = { x: i, y: 0 };
-              if (isInCheck("black", tempBoard, tempKingPos)) {
-                canCastle = false;
-                if (DEBUG.enableLogging && DEBUG.logLevel === "debug") {
-                  console.log(`Kingside castling for black blocked: square ${i},0 is under attack`);
-                }
-                break;
-              }
+        if (
+          castlingAvailability.black.kingside &&
+          !moveHistory.some(m => m.fromY === 0 && (m.fromX === 4 || m.fromX === 7)) &&
+          !board[0][5] &&
+          !board[0][6] &&
+          board[0][7] === "r" &&
+          !isInCheck("black")
+        ) {
+          let canCastle = true;
+          for (let i = 4; i <= 6; i++) {
+            const tempBoard = board.map(row => [...row]);
+            if (i > 4) {
+              tempBoard[0][i] = "k";
+              tempBoard[0][i - 1] = "";
             }
-            if (canCastle) {
-              moves.push({ toX: 6, toY: 0, castling: "kingside" });
+            if (isInCheck("black", tempBoard, { x: i, y: 0 })) {
+              canCastle = false;
               if (DEBUG.enableLogging && DEBUG.logLevel === "debug") {
-                console.log("Kingside castling for black is legal");
+                console.log(`Kingside castling for black blocked: square ${i},0 is under attack`);
               }
+              break;
             }
-            kingPositions.black = originalKingPos;
+          }
+          if (canCastle) {
+            moves.push({ toX: 6, toY: 0, castling: "kingside" });
+            if (DEBUG.enableLogging && DEBUG.logLevel === "debug") {
+              console.log("Kingside castling for black is legal");
+            }
           }
         }
         // Queenside castling (long)
-        if (castlingAvailability.black.queenside && !moveHistory.some(m => m.fromY === 0 && (m.fromX === 4 || m.fromX === 0))) {
-          if (!board[0][3] && !board[0][2] && !board[0][1] && board[0][0] === "r") {
-            let canCastle = true;
-            const originalKingPos = { ...kingPositions.black };
-            for (let i = 4; i >= 2; i--) {
-              const tempBoard = board.map(row => [...row]);
-              if (i !== 4) {
-                tempBoard[0][i] = "k";
-                tempBoard[0][i + 1] = "";
-              }
-              const tempKingPos = { x: i, y: 0 };
-              if (isInCheck("black", tempBoard, tempKingPos)) {
-                canCastle = false;
-                if (DEBUG.enableLogging && DEBUG.logLevel === "debug") {
-                  console.log(`Queenside castling for black blocked: square ${i},0 is under attack`);
-                }
-                break;
-              }
+        if (
+          castlingAvailability.black.queenside &&
+          !moveHistory.some(m => m.fromY === 0 && (m.fromX === 4 || m.fromX === 0)) &&
+          !board[0][1] &&
+          !board[0][2] &&
+          !board[0][3] &&
+          board[0][0] === "r" &&
+          !isInCheck("black")
+        ) {
+          let canCastle = true;
+          for (let i = 4; i >= 2; i--) {
+            const tempBoard = board.map(row => [...row]);
+            if (i < 4) {
+              tempBoard[0][i] = "k";
+              tempBoard[0][i + 1] = "";
             }
-            if (canCastle) {
-              moves.push({ toX: 2, toY: 0, castling: "queenside" });
+            if (isInCheck("black", tempBoard, { x: i, y: 0 })) {
+              canCastle = false;
               if (DEBUG.enableLogging && DEBUG.logLevel === "debug") {
-                console.log("Queenside castling for black is legal");
+                console.log(`Queenside castling for black blocked: square ${i},0 is under attack`);
               }
+              break;
             }
-            kingPositions.black = originalKingPos;
+          }
+          if (canCastle) {
+            moves.push({ toX: 2, toY: 0, castling: "queenside" });
+            if (DEBUG.enableLogging && DEBUG.logLevel === "debug") {
+              console.log("Queenside castling for black is legal");
+            }
           }
         }
       }
@@ -593,24 +612,23 @@ document.addEventListener("DOMContentLoaded", () => {
     // Filter moves that would put the king in check
     const validMoves = [];
     for (const move of moves) {
-      const newBoard = board.map(row => [...row]);
-      newBoard[move.toY][move.toX] = piece;
-      newBoard[y][x] = "";
+      const tempBoard = board.map(row => [...row]);
+      tempBoard[move.toY][move.toX] = piece;
+      tempBoard[y][x] = "";
       if (move.castling) {
         if (move.castling === "kingside") {
-          newBoard[move.toY][move.toX - 1] = isWhite ? "R" : "r";
-          newBoard[move.toY][7] = "";
+          tempBoard[move.toY][move.toX - 1] = isWhite ? "R" : "r";
+          tempBoard[move.toY][7] = "";
         } else if (move.castling === "queenside") {
-          newBoard[move.toY][move.toX + 1] = isWhite ? "R" : "r";
-          newBoard[move.toY][0] = "";
+          tempBoard[move.toY][move.toX + 1] = isWhite ? "R" : "r";
+          tempBoard[move.toY][0] = "";
         }
       }
-      const originalKingPos = { ...kingPositions };
-      updateKingPositions(newBoard);
-      if (!isInCheck(isWhite ? "white" : "black", newBoard)) {
+      updateKingPositions(tempBoard);
+      if (!isInCheck(isWhite ? "white" : "black", tempBoard)) {
         validMoves.push(move);
       }
-      kingPositions = originalKingPos;
+      updateKingPositions(board); // Restore original king positions
     }
 
     if (DEBUG.enableLogging && DEBUG.logLevel === "debug") {
