@@ -63,6 +63,8 @@ document.addEventListener("DOMContentLoaded", () => {
   let lastMove = null;
   let moveCount = 1;
   let moveNotations = [];
+  let kingPositions = { white: null, black: null };
+  let castlingAvailability = { white: { kingside: true, queenside: true }, black: { kingside: true, queenside: true } };
 
   const pieces = {
     r: "♜", n: "♞", b: "♝", q: "♛", k: "♚", p: "♟",
@@ -172,6 +174,8 @@ document.addEventListener("DOMContentLoaded", () => {
     moveNotations = [];
     lastMove = null;
     moveCount = 1;
+    kingPositions = { white: null, black: null };
+    castlingAvailability = { white: { kingside: true, queenside: true }, black: { kingside: true, queenside: true } };
     moveList.innerHTML = "";
     startScreen.style.display = "none";
     gameContainer.classList.remove("hidden");
@@ -201,7 +205,7 @@ document.addEventListener("DOMContentLoaded", () => {
         ["R", "N", "B", "Q", "K", "B", "N", "R"]
       ];
     }
-
+    updateKingPositions();
     resizeCanvas();
     drawBoard();
   }
@@ -213,6 +217,126 @@ document.addEventListener("DOMContentLoaded", () => {
       [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
     }
     return shuffled;
+  }
+
+  function updateKingPositions(tempBoard = board) {
+    for (let y = 0; y < 8; y++) {
+      for (let x = 0; x < 8; x++) {
+        const piece = tempBoard[y][x];
+        if (piece === "k") kingPositions.black = { x, y };
+        if (piece === "K") kingPositions.white = { x, y };
+      }
+    }
+    if (DEBUG.enableLogging && DEBUG.logLevel === "debug") {
+      console.log("Updated king positions:", kingPositions);
+    }
+  }
+
+  function isInCheck(color, tempBoard = board) {
+    const kingPos = color === "white" ? kingPositions.white : kingPositions.black;
+    if (!kingPos) return false;
+
+    const opponentColor = color === "white" ? "black" : "white";
+    for (let y = 0; y < 8; y++) {
+      for (let x = 0; x < 8; x++) {
+        const piece = tempBoard[y][x];
+        const isOpponent = piece && ((piece === piece.toUpperCase() && opponentColor === "white") || (piece !== piece.toUpperCase() && opponentColor === "black"));
+        if (isOpponent) {
+          const moves = getLegalMovesForCheck(x, y, tempBoard);
+          if (moves.some(m => m.toX === kingPos.x && m.toY === kingPos.y)) {
+            if (DEBUG.enableLogging && DEBUG.logLevel === "debug") {
+              console.log(`${color} king at ${kingPos.x},${kingPos.y} is in check by piece at ${x},${y}`);
+            }
+            return true;
+          }
+        }
+      }
+    }
+    return false;
+  }
+
+  function getLegalMovesForCheck(x, y, tempBoard = board) {
+    const moves = [];
+    const piece = tempBoard[y][x];
+    if (!piece) return moves;
+
+    const isWhite = piece === piece.toUpperCase();
+
+    if (piece.toLowerCase() === "p") {
+      const direction = isWhite ? -1 : 1;
+      const attackDirs = [-1, 1];
+      attackDirs.forEach(dx => {
+        const newX = x + dx;
+        const newY = y + direction;
+        if (newX >= 0 && newX < 8 && newY >= 0 && newY < 8) {
+          moves.push({ toX: newX, toY: newY });
+        }
+      });
+    } else if (piece.toLowerCase() === "r") {
+      const directions = [[0, 1], [0, -1], [1, 0], [-1, 0]];
+      directions.forEach(([dx, dy]) => {
+        let newX = x;
+        let newY = y;
+        while (true) {
+          newX += dx;
+          newY += dy;
+          if (newX < 0 || newX >= 8 || newY < 0 || newY >= 8) break;
+          moves.push({ toX: newX, toY: newY });
+          if (tempBoard[newY][newX]) break;
+        }
+      });
+    } else if (piece.toLowerCase() === "n") {
+      const knightMoves = [
+        [-2, -1], [-2, 1], [-1, -2], [-1, 2],
+        [1, -2], [1, 2], [2, -1], [2, 1]
+      ];
+      knightMoves.forEach(([dx, dy]) => {
+        const newX = x + dx;
+        const newY = y + dy;
+        if (newX >= 0 && newX < 8 && newY >= 0 && newY < 8) {
+          moves.push({ toX: newX, toY: newY });
+        }
+      });
+    } else if (piece.toLowerCase() === "b") {
+      const directions = [[1, 1], [1, -1], [-1, 1], [-1, -1]];
+      directions.forEach(([dx, dy]) => {
+        let newX = x;
+        let newY = y;
+        while (true) {
+          newX += dx;
+          newY += dy;
+          if (newX < 0 || newX >= 8 || newY < 0 || newY >= 8) break;
+          moves.push({ toX: newX, toY: newY });
+          if (tempBoard[newY][newX]) break;
+        }
+      });
+    } else if (piece.toLowerCase() === "q") {
+      const directions = [[0, 1], [0, -1], [1, 0], [-1, 0], [1, 1], [1, -1], [-1, 1], [-1, -1]];
+      directions.forEach(([dx, dy]) => {
+        let newX = x;
+        let newY = y;
+        while (true) {
+          newX += dx;
+          newY += dy;
+          if (newX < 0 || newX >= 8 || newY < 0 || newY >= 8) break;
+          moves.push({ toX: newX, toY: newY });
+          if (tempBoard[newY][newX]) break;
+        }
+      });
+    } else if (piece.toLowerCase() === "k") {
+      const kingMoves = [
+        [0, 1], [0, -1], [1, 0], [-1, 0],
+        [1, 1], [1, -1], [-1, 1], [-1, -1]
+      ];
+      kingMoves.forEach(([dx, dy]) => {
+        const newX = x + dx;
+        const newY = y + dy;
+        if (newX >= 0 && newX < 8 && newY >= 0 && newY < 8) {
+          moves.push({ toX: newX, toY: newY });
+        }
+      });
+    }
+    return moves;
   }
 
   function getLegalMoves(x, y) {
@@ -240,7 +364,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const direction = isWhite ? -1 : 1;
       const startRow = isWhite ? 6 : 1;
       if (y + direction >= 0 && y + direction < 8 && !board[y + direction][x]) {
-        moves.push({ toX: x, toY: y + direction });
+        moves.push({ toX: x, toY: y + direction, promotion: y + direction === (isWhite ? 0 : 7) });
         if (y === startRow && !board[y + 2 * direction][x]) {
           moves.push({ toX: x, toY: y + 2 * direction });
         }
@@ -252,7 +376,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (newX >= 0 && newX < 8 && newY >= 0 && newY < 8) {
           const targetPiece = board[newY][newX];
           if (targetPiece && (targetPiece === targetPiece.toUpperCase()) !== isWhite) {
-            moves.push({ toX: newX, toY: newY });
+            moves.push({ toX: newX, toY: newY, promotion: newY === (isWhite ? 0 : 7) });
           }
         }
       });
@@ -343,12 +467,106 @@ document.addEventListener("DOMContentLoaded", () => {
           }
         }
       });
+
+      // Castling
+      if (isWhite && y === 7 && x === 4 && !isInCheck("white")) {
+        // Kingside castling (short)
+        if (castlingAvailability.white.kingside && !board[7][5] && !board[7][6] && board[7][7] === "R") {
+          let canCastle = true;
+          for (let i = 5; i <= 6; i++) {
+            const tempBoard = board.map(row => [...row]);
+            tempBoard[7][i] = "K";
+            tempBoard[7][4] = "";
+            updateKingPositions(tempBoard);
+            if (isInCheck("white", tempBoard)) {
+              canCastle = false;
+              break;
+            }
+          }
+          if (canCastle && !moveHistory.some(m => m.fromY === 7 && (m.fromX === 4 || m.fromX === 7))) {
+            moves.push({ toX: 6, toY: 7, castling: "kingside" });
+          }
+        }
+        // Queenside castling (long)
+        if (castlingAvailability.white.queenside && !board[7][3] && !board[7][2] && !board[7][1] && board[7][0] === "R") {
+          let canCastle = true;
+          for (let i = 2; i <= 3; i++) {
+            const tempBoard = board.map(row => [...row]);
+            tempBoard[7][i] = "K";
+            tempBoard[7][4] = "";
+            updateKingPositions(tempBoard);
+            if (isInCheck("white", tempBoard)) {
+              canCastle = false;
+              break;
+            }
+          }
+          if (canCastle && !moveHistory.some(m => m.fromY === 7 && (m.fromX === 4 || m.fromX === 0))) {
+            moves.push({ toX: 2, toY: 7, castling: "queenside" });
+          }
+        }
+      } else if (!isWhite && y === 0 && x === 4 && !isInCheck("black")) {
+        // Kingside castling (short)
+        if (castlingAvailability.black.kingside && !board[0][5] && !board[0][6] && board[0][7] === "r") {
+          let canCastle = true;
+          for (let i = 5; i <= 6; i++) {
+            const tempBoard = board.map(row => [...row]);
+            tempBoard[0][i] = "k";
+            tempBoard[0][4] = "";
+            updateKingPositions(tempBoard);
+            if (isInCheck("black", tempBoard)) {
+              canCastle = false;
+              break;
+            }
+          }
+          if (canCastle && !moveHistory.some(m => m.fromY === 0 && (m.fromX === 4 || m.fromX === 7))) {
+            moves.push({ toX: 6, toY: 0, castling: "kingside" });
+          }
+        }
+        // Queenside castling (long)
+        if (castlingAvailability.black.queenside && !board[0][3] && !board[0][2] && !board[0][1] && board[0][0] === "r") {
+          let canCastle = true;
+          for (let i = 2; i <= 3; i++) {
+            const tempBoard = board.map(row => [...row]);
+            tempBoard[0][i] = "k";
+            tempBoard[0][4] = "";
+            updateKingPositions(tempBoard);
+            if (isInCheck("black", tempBoard)) {
+              canCastle = false;
+              break;
+            }
+          }
+          if (canCastle && !moveHistory.some(m => m.fromY === 0 && (m.fromX === 4 || m.fromX === 0))) {
+            moves.push({ toX: 2, toY: 0, castling: "queenside" });
+          }
+        }
+      }
+    }
+
+    // Filter moves that would put the king in check
+    const validMoves = [];
+    for (const move of moves) {
+      const newBoard = board.map(row => [...row]);
+      newBoard[move.toY][move.toX] = piece;
+      newBoard[y][x] = "";
+      if (move.castling) {
+        if (move.castling === "kingside") {
+          newBoard[move.toY][move.toX - 1] = isWhite ? "R" : "r";
+          newBoard[move.toY][7] = "";
+        } else if (move.castling === "queenside") {
+          newBoard[move.toY][move.toX + 1] = isWhite ? "R" : "r";
+          newBoard[move.toY][0] = "";
+        }
+      }
+      updateKingPositions(newBoard);
+      if (!isInCheck(isWhite ? "white" : "black", newBoard)) {
+        validMoves.push(move);
+      }
     }
 
     if (DEBUG.enableLogging && DEBUG.logLevel === "debug") {
-      console.log("Legal moves calculated:", moves);
+      console.log("Legal moves calculated:", validMoves);
     }
-    return moves;
+    return validMoves;
   }
 
   function getMoveNotation(fromX, fromY, toX, toY) {
@@ -376,6 +594,41 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
+  function showPromotionChoice(x, y, isWhite) {
+    const promotionChoices = document.createElement("div");
+    promotionChoices.id = "promotionChoices";
+    promotionChoices.style.position = "absolute";
+    promotionChoices.style.top = `${offsetY + y * size}px`;
+    promotionChoices.style.left = `${offsetX + x * size}px`;
+    promotionChoices.style.backgroundColor = "rgba(0, 0, 0, 0.8)";
+    promotionChoices.style.padding = "10px";
+    promotionChoices.style.borderRadius = "5px";
+    promotionChoices.style.zIndex = "1000";
+
+    const choices = isWhite ? ["Q", "R", "B", "N"] : ["q", "r", "b", "n"];
+    choices.forEach(p => {
+      const button = document.createElement("button");
+      button.textContent = pieces[p];
+      button.style.margin = "5px";
+      button.style.fontSize = "24px";
+      button.addEventListener("click", () => {
+        board[y][x] = p;
+        document.body.removeChild(promotionChoices);
+        updateKingPositions();
+        currentPlayer = currentPlayer === "white" ? "black" : "white";
+        updateMoveHistory();
+        if (soundEnabled) {
+          const audio = new Audio(SOUND.moveSound);
+          audio.play().catch(e => console.error("Audio play failed:", e));
+        }
+        drawBoard();
+      });
+      promotionChoices.appendChild(button);
+    });
+
+    document.body.appendChild(promotionChoices);
+  }
+
   function handleCanvasClick(event) {
     if (!gameStarted) {
       if (DEBUG.enableLogging && DEBUG.logLevel === "debug") {
@@ -399,8 +652,8 @@ document.addEventListener("DOMContentLoaded", () => {
     if (DEBUG.enableLogging && DEBUG.logLevel === "debug") {
       console.log("Raw coordinates:", clientX, clientY);
       console.log("Canvas rect:", rect);
-      console.log("size:", size, "offsetX:", offsetX, "offsetY:", offsetY);
       console.log("Converted to grid coordinates:", x, y);
+      console.log("size:", size, "offsetX:", offsetX, "offsetY:", offsetY);
     }
 
     let boardX = x;
@@ -451,7 +704,7 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     } else {
       if (DEBUG.enableLogging && DEBUG.logLevel === "debug") {
-        console.logFPGA("Selected piece:", selectedPiece.piece, "at", selectedPiece.x, selectedPiece.y);
+        console.log("Selected piece:", selectedPiece.piece, "at", selectedPiece.x, selectedPiece.y);
         console.log("Legal moves:", legalMoves);
       }
       const move = legalMoves.find(m => m.toX === boardX && m.toY === boardY);
@@ -462,14 +715,53 @@ document.addEventListener("DOMContentLoaded", () => {
         const newBoard = board.map(row => [...row]);
         newBoard[boardY][boardX] = selectedPiece.piece;
         newBoard[selectedPiece.y][selectedPiece.x] = "";
-        moveHistory.push({ board: board.map(row => [...row]), currentPlayer, moveCount });
+        const isWhite = selectedPiece.piece === selectedPiece.piece.toUpperCase();
+        if (move.castling) {
+          if (move.castling === "kingside") {
+            newBoard[boardY][boardX - 1] = isWhite ? "R" : "r";
+            newBoard[boardY][7] = "";
+            if (isWhite) castlingAvailability.white.kingside = false;
+            else castlingAvailability.black.kingside = false;
+          } else if (move.castling === "queenside") {
+            newBoard[boardY][boardX + 1] = isWhite ? "R" : "r";
+            newBoard[boardY][0] = "";
+            if (isWhite) castlingAvailability.white.queenside = false;
+            else castlingAvailability.black.queenside = false;
+          }
+        } else if (move.promotion) {
+          showPromotionChoice(boardX, boardY, isWhite);
+          board = newBoard;
+          updateKingPositions();
+          return;
+        } else {
+          if (selectedPiece.piece.toLowerCase() === "k") {
+            if (isWhite) {
+              castlingAvailability.white.kingside = false;
+              castlingAvailability.white.queenside = false;
+            } else {
+              castlingAvailability.black.kingside = false;
+              castlingAvailability.black.queenside = false;
+            }
+          } else if (selectedPiece.piece.toLowerCase() === "r") {
+            if (isWhite && selectedPiece.y === 7 && selectedPiece.x === 0) castlingAvailability.white.queenside = false;
+            else if (isWhite && selectedPiece.y === 7 && selectedPiece.x === 7) castlingAvailability.white.kingside = false;
+            else if (!isWhite && selectedPiece.y === 0 && selectedPiece.x === 0) castlingAvailability.black.queenside = false;
+            else if (!isWhite && selectedPiece.y === 0 && selectedPiece.x === 7) castlingAvailability.black.kingside = false;
+          }
+        }
+        moveHistory.push({ board: board.map(row => [...row]), currentPlayer, moveCount, castlingAvailability: { ...castlingAvailability } });
         lastMove = { fromX: selectedPiece.x, fromY: selectedPiece.y, toX: boardX, toY: boardY };
         board = newBoard;
+        updateKingPositions();
         currentPlayer = currentPlayer === "white" ? "black" : "white";
         if (DEBUG.enableLogging && DEBUG.logLevel === "debug") {
           console.log("Move executed. New current player:", currentPlayer);
         }
         updateMoveHistory();
+        if (soundEnabled) {
+          const audio = new Audio(SOUND.moveSound);
+          audio.play().catch(e => console.error("Audio play failed:", e));
+        }
       } else {
         if (DEBUG.enableLogging && DEBUG.logLevel === "debug") {
           console.log("Invalid move to", boardX, boardY);
@@ -545,6 +837,7 @@ document.addEventListener("DOMContentLoaded", () => {
         currentPlayer = lastState.currentPlayer;
         moveCount = lastState.moveCount;
         lastMove = moveHistory.length > 0 ? moveHistory[moveHistory.length - 1].lastMove : null;
+        castlingAvailability = lastState.castlingAvailability;
         moveNotations.pop();
         moveList.innerHTML = "";
         moveNotations.forEach(({ moveCount, notation }) => {
@@ -554,6 +847,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
         selectedPiece = null;
         legalMoves = [];
+        updateKingPositions();
         drawBoard();
       }
     });
