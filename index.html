@@ -28,6 +28,15 @@
       left: 50%;
       transform: translate(-50%, -50%);
       z-index: 10;
+      padding: 20px;
+      background-color: #fff;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    body.darkmode #startScreen {
+      background-color: #2a2a2a;
+      box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
     }
 
     #startScreen h1 {
@@ -45,6 +54,8 @@
       background-color: #4CAF50;
       color: white;
       transition: background-color 0.2s;
+      width: 200px; /* Festgelegte Breite für Konsistenz */
+      display: block; /* Sicherstellen, dass sie nicht überlagert werden */
     }
 
     #startScreen button:hover {
@@ -157,6 +168,11 @@
         width: 100%;
         max-width: 200px;
       }
+
+      #startScreen button {
+        width: 100%;
+        max-width: 200px;
+      }
     }
   </style>
 </head>
@@ -182,6 +198,12 @@
     </div>
   </div>
 
+  <script>
+    if (typeof document.getElementById("startButton") === "undefined") {
+      console.error("Script oder DOM nicht korrekt geladen. Überprüfe die Konsole.");
+      alert("Fehler: Script konnte nicht geladen werden. Bitte überprüfe die Konsole.");
+    }
+  </script>
   <script src="script.js"></script>
 </body>
 </html>
