@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Schachspiel</title>
+  <title>Schachbrett</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -11,29 +11,22 @@
     <h1>Schachspiel</h1>
     <button id="startButton">Spiel starten</button>
     <button id="startFreestyleButton">Freestyle-Modus</button>
-    <button id="darkmodeToggleButton">Darkmode</button>
   </div>
-
   <div id="gameContainer" class="hidden">
-    <div id="turnIndicator">Am Zug: Weiß</div>
     <canvas id="chessboard"></canvas>
-    <div id="moveList"></div>
-    <div id="openingDisplay">Zug: Kein Zug</div>
-    <div id="controlButtons">
-      <button id="rotateButton">Brett drehen</button>
+    <div id="controls">
+      <div id="turnIndicator"></div>
+      <button id="rotateButton">Drehen</button>
       <button id="smartphoneModeButton">Smartphone-Modus</button>
       <button id="soundToggleButton">Sound ausschalten</button>
-      <button id="undoButton">Zug zurück</button>
+      <button id="undoButton">Rückgängig</button>
       <button id="restartButton" class="hidden">Neustart</button>
+      <button id="designButton">Design wechseln</button>
+      <button id="darkmodeToggleButton">Darkmode</button>
+      <div id="moveList"></div>
+      <div id="openingDisplay"></div>
     </div>
   </div>
-
-  <script>
-    if (typeof document.getElementById("startButton") === "undefined") {
-      console.error("Script oder DOM nicht korrekt geladen. Überprüfe die Konsole.");
-      alert("Fehler: Script konnte nicht geladen werden. Bitte überprüfe die Konsole.");
-    }
-  </script>
   <script src="script.js"></script>
 </body>
 </html>
