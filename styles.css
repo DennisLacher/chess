@@ -81,6 +81,7 @@ document.addEventListener("DOMContentLoaded", () => {
   let isWhiteInCheck = false;
   let isBlackInCheck = false;
 
+  // isDarkmode wird nur einmal global deklariert
   let isDarkmode = localStorage.getItem("darkmode") === "true";
   window.boardColors = isDarkmode
     ? { light: "#4a4a4a", dark: "#1f1f1f" }
@@ -149,7 +150,6 @@ document.addEventListener("DOMContentLoaded", () => {
     { name: "Königsgambit (Muzio-Gambit)", moves: ["e4", "e5", "f4", "exf4", "Nf3", "g5", "Bc4", "g4", "O-O"], blackResponses: ["gxf3"] }
   ];
 
-  let isDarkmode = localStorage.getItem("darkmode") === "true";
   document.body.classList.toggle("darkmode", isDarkmode);
 
   function initializeDarkmodeToggle() {
