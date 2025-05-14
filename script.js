@@ -77,12 +77,13 @@ document.addEventListener("DOMContentLoaded", () => {
   let isBlackInCheck = false;
 
   // Initialize board colors based on darkmode preference
-  window.boardColors = localStorage.getItem("darkmode") === "true"
+  let isDarkmode = localStorage.getItem("darkmode") === "true";
+  window.boardColors = isDarkmode
     ? { light: "#4a4a4a", dark: "#1f1f1f" }
     : { light: "#e0e0e0", dark: "#4a4a4a" };
 
-  window.updateBoardColors = function(isDarkmode) {
-    window.boardColors = isDarkmode
+  window.updateBoardColors = function(isDark) {
+    window.boardColors = isDark
       ? { light: "#4a4a4a", dark: "#1f1f1f" }
       : { light: "#e0e0e0", dark: "#4a4a4a" };
     drawBoard();
@@ -146,23 +147,24 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Darkmode Toggle Functionality for all buttons
   const darkmodeToggleButtons = document.querySelectorAll("#darkmodeToggleButton");
-  darkmodeToggleButtons.forEach(button => {
-    if (localStorage.getItem("darkmode") === "true") {
-      button.textContent = "Lightmode";
-    }
-    button.addEventListener("click", () => {
-      const body = document.body;
-      body.classList.toggle("darkmode");
-      const isDarkmode = body.classList.contains("darkmode");
-      darkmodeToggleButtons.forEach(btn => {
-        btn.textContent = isDarkmode ? "Lightmode" : "Darkmode";
-      });
-      localStorage.setItem("darkmode", isDarkmode);
-      if (window.updateBoardColors) {
+  if (darkmodeToggleButtons.length > 0) {
+    isDarkmode = localStorage.getItem("darkmode") === "true";
+    document.body.classList.toggle("darkmode", isDarkmode);
+    darkmodeToggleButtons.forEach(button => {
+      button.textContent = isDarkmode ? "Lightmode" : "Darkmode";
+      button.addEventListener("click", () => {
+        isDarkmode = !isDarkmode;
+        document.body.classList.toggle("darkmode", isDarkmode);
+        darkmodeToggleButtons.forEach(btn => {
+          btn.textContent = isDarkmode ? "Lightmode" : "Darkmode";
+        });
+        localStorage.setItem("darkmode", isDarkmode);
         window.updateBoardColors(isDarkmode);
-      }
+      });
     });
-  });
+  } else {
+    console.warn("No darkmodeToggleButton found in the DOM.");
+  }
 
   function updateOpeningDisplay() {
     const moves = moveNotations.map(m => m.notation).filter(n => !n.includes("-"));
@@ -422,7 +424,7 @@ document.addEventListener("DOMContentLoaded", () => {
         [-2, -1], [-2, 1], [-1, -2], [-1, 2],
         [1, -2], [1, 2], [2, -1], [2, 1]
       ];
-      knightMoves.forEach(([dx, dy]) => {
+      knightMoves.forEach([dx, dy] => {
         const newX = x + dx;
         const newY = y + dy;
         if (newX >= 0 && newX < 8 && newY >= 0 && newY < 8) {
@@ -444,7 +446,7 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     } else if (piece.toLowerCase() === "q") {
       const directions = [[0, 1], [0, -1], [1, 0], [-1, 0], [1, 1], [1, -1], [-1, 1], [-1, -1]];
-      directions.forEach(([dx, dy]) => {
+      directions.forEach([dx, dy] => {
         let newX = x;
         let newY = y;
         while (true) {
@@ -460,7 +462,7 @@ document.addEventListener("DOMContentLoaded", () => {
         [0, 1], [0, -1], [1, 0], [-1, 0],
         [1, 1], [1, -1], [-1, 1], [-1, -1]
       ];
-      kingMoves.forEach(([dx, dy]) => {
+      kingMoves.forEach([dx, dy] => {
         const newX = x + dx;
         const newY = y + dy;
         if (newX >= 0 && newX < 8 && newY >= 0 && newY < 8) {
@@ -517,7 +519,7 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     } else if (piece.toLowerCase() === "r") {
       const directions = [[0, 1], [0, -1], [1, 0], [-1, 0]];
-      directions.forEach(([dx, dy]) => {
+      directions.forEach([dx, dy] => {
         let newX = x;
         let newY = y;
         while (true) {
@@ -539,7 +541,7 @@ document.addEventListener("DOMContentLoaded", () => {
         [-2, -1], [-2, 1], [-1, -2], [-1, 2],
         [1, -2], [1, 2], [2, -1], [2, 1]
       ];
-      knightMoves.forEach(([dx, dy]) => {
+      knightMoves.forEach([dx, dy] => {
         const newX = x + dx;
         const newY = y + dy;
         if (newX >= 0 && newX < 8 && newY >= 0 && newY < 8) {
@@ -551,7 +553,7 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     } else if (piece.toLowerCase() === "b") {
       const directions = [[1, 1], [1, -1], [-1, 1], [-1, -1]];
-      directions.forEach(([dx, dy]) => {
+      directions.forEach([dx, dy] => {
         let newX = x;
         let newY = y;
         while (true) {
@@ -570,7 +572,7 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     } else if (piece.toLowerCase() === "q") {
       const directions = [[0, 1], [0, -1], [1, 0], [-1, 0], [1, 1], [1, -1], [-1, 1], [-1, -1]];
-      directions.forEach(([dx, dy]) => {
+      directions.forEach([dx, dy] => {
         let newX = x;
         let newY = y;
         while (true) {
@@ -592,7 +594,7 @@ document.addEventListener("DOMContentLoaded", () => {
         [0, 1], [0, -1], [1, 0], [-1, 0],
         [1, 1], [1, -1], [-1, 1], [-1, -1]
       ];
-      kingMoves.forEach(([dx, dy]) => {
+      kingMoves.forEach([dx, dy] => {
         const newX = x + dx;
         const newY = y + dy;
         if (newX >= 0 && newX < 8 && newY >= 0 && newY < 8) {
@@ -778,7 +780,6 @@ document.addEventListener("DOMContentLoaded", () => {
       const notation = getMoveNotation(lastMove.fromX, lastMove.fromY, lastMove.toX, lastMove.toY);
       moveNotations.push({ moveCount, notation: notation.simple });
       
-      // Update moveList with full notation
       moveList.innerHTML = "";
       let currentMoveCount = 1;
       let movePairs = [];
@@ -797,7 +798,6 @@ document.addEventListener("DOMContentLoaded", () => {
       if (currentPlayer === "black") moveCount++;
       moveList.scrollTop = moveList.scrollHeight;
 
-      // Update opening display after each move
       updateOpeningDisplay();
     }
   }
@@ -833,16 +833,16 @@ document.addEventListener("DOMContentLoaded", () => {
         board[y][x] = p;
         document.body.removeChild(promotionChoices);
         updateKingPositions();
-        currentPlayer = currentPlayer === "white" ? "black" : "white"; // Ensure player switch
+        currentPlayer = currentPlayer === "white" ? "black" : "white";
         selectedPiece = null;
         legalMoves = [];
         updateMoveHistory();
         updateCheckStatus();
         if (soundEnabled) {
           const audio = new Audio(SOUND.moveSound);
-          audio.play().catch(e => console.error("Audio play failed:", e));
+          audio.play().catch(e => console.error("Promotion audio play failed:", e));
         }
-        drawBoard(); // Redraw to reflect player switch
+        drawBoard();
       });
       promotionChoices.appendChild(button);
     });
@@ -924,7 +924,7 @@ document.addEventListener("DOMContentLoaded", () => {
       if (move) {
         const newBoard = board.map(row => [...row]);
         const targetPiece = newBoard[boardY][boardX];
-        const isCapture = targetPiece && (targetPiece === targetPiece.toUpperCase()) !== (selectedPiece.piece === selectedPiece.piece.toUpperCase());
+        const isCapture = targetPiece && (targetPiece.toLowerCase() !== selectedPiece.piece.toLowerCase()) && ((targetPiece === targetPiece.toUpperCase()) !== (selectedPiece.piece === selectedPiece.piece.toUpperCase()));
         newBoard[boardY][boardX] = selectedPiece.piece;
         newBoard[selectedPiece.y][selectedPiece.x] = "";
         const isWhite = selectedPiece.piece === selectedPiece.piece.toUpperCase();
@@ -962,12 +962,12 @@ document.addEventListener("DOMContentLoaded", () => {
           updateKingPositions();
           return;
         }
-        moveHistory.push({ 
-          board: board.map(row => [...row]), 
-          currentPlayer, 
-          moveCount, 
-          castlingAvailability: { ...castlingAvailability }, 
-          piece: selectedPiece.piece 
+        moveHistory.push({
+          board: board.map(row => [...row]),
+          currentPlayer,
+          moveCount,
+          castlingAvailability: { ...castlingAvailability },
+          piece: selectedPiece.piece
         });
         lastMove = { fromX: selectedPiece.x, fromY: selectedPiece.y, toX: boardX, toY: boardY };
         board = newBoard;
@@ -1118,6 +1118,10 @@ document.addEventListener("DOMContentLoaded", () => {
     console.log("Initializing game...");
   }
   resizeCanvas();
+
+  if (isDarkmode) {
+    window.updateBoardColors(true);
+  }
 
   startScreen.style.display = "block";
 });
