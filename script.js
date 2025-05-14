@@ -17,6 +17,7 @@ document.addEventListener("DOMContentLoaded", () => {
     enabledByDefault: true,
     moveSound: "move.mp3",
     checkSound: "check.mp3",
+    captureSound: "clap.mp3",
   };
 
   if (DEBUG.enableLogging) {
@@ -35,6 +36,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const undoButton = document.getElementById("undoButton");
   const restartButton = document.getElementById("restartButton");
   const moveList = document.getElementById("moveList");
+  const openingDisplay = document.getElementById("openingDisplay");
 
   console.log("Checking DOM elements...");
   console.log("startScreen:", startScreen);
@@ -43,8 +45,11 @@ document.addEventListener("DOMContentLoaded", () => {
   console.log("gameContainer:", gameContainer);
   console.log("turnIndicator:", turnIndicator);
   console.log("moveList:", moveList);
-  if (!canvas || !startScreen || !startButton || !startFreestyleButton || !gameContainer || !turnIndicator || !moveList) {
-    console.error("One or more DOM elements are missing. Check index.html for correct IDs.");
+  console.log("openingDisplay:", openingDisplay);
+  if (!canvas || !startScreen || !startButton || !startFreestyleButton || !gameContainer || !turnIndicator || !moveList || !openingDisplay) {
+    console.error("One or more DOM elements are missing. Check index.html for correct IDs:", {
+      canvas, startScreen, startButton, startFreestyleButton, gameContainer, turnIndicator, moveList, openingDisplay
+    });
     return;
   }
 
@@ -72,6 +77,18 @@ document.addEventListener("DOMContentLoaded", () => {
   let castlingAvailability = { white: { kingside: true, queenside: true }, black: { kingside: true, queenside: true } };
   let isWhiteInCheck = false;
   let isBlackInCheck = false;
+
+  let isDarkmode = localStorage.getItem("darkmode") === "true";
+  window.boardColors = isDarkmode
+    ? { light: "#4a4a4a", dark: "#1f1f1f" }
+    : { light: "#e0e0e0", dark: "#4a4a4a" };
+
+  window.updateBoardColors = function(isDark) {
+    window.boardColors = isDark
+      ? { light: "#4a4a4a", dark: "#1f1f1f" }
+      : { light: "#e0e0e0", dark: "#4a4a4a" };
+    drawBoard();
+  };
 
   const pieces = {
     r: "♜", n: "♞", b: "♝", q: "♛", k: "♚", p: "♟",
@@ -129,16 +146,25 @@ document.addEventListener("DOMContentLoaded", () => {
     { name: "Königsgambit (Muzio-Gambit)", moves: ["e4", "e5", "f4", "exf4", "Nf3", "g5", "Bc4", "g4", "O-O"], blackResponses: ["gxf3"] }
   ];
 
-  let openingDisplay = document.createElement("div");
-  openingDisplay.id = "openingDisplay";
-  openingDisplay.style.position = "absolute";
-  openingDisplay.style.bottom = "10px";
-  openingDisplay.style.left = "50%";
-  openingDisplay.style.transform = "translateX(-50%)";
-  openingDisplay.style.fontSize = "12px";
-  openingDisplay.style.color = "#333";
-  openingDisplay.style.textAlign = "center";
-  document.body.appendChild(openingDisplay);
+  const darkmodeToggleButtons = document.querySelectorAll("#darkmodeToggleButton");
+  if (darkmodeToggleButtons.length > 0) {
+    isDarkmode = localStorage.getItem("darkmode") === "true";
+    document.body.classList.toggle("darkmode", isDarkmode);
+    darkmodeToggleButtons.forEach(button => {
+      button.textContent = isDarkmode ? "Lightmode" : "Darkmode";
+      button.addEventListener("click", () => {
+        isDarkmode = !isDarkmode;
+        document.body.classList.toggle("darkmode", isDarkmode);
+        darkmodeToggleButtons.forEach(btn => {
+          btn.textContent = isDarkmode ? "Lightmode" : "Darkmode";
+        });
+        localStorage.setItem("darkmode", isDarkmode);
+        window.updateBoardColors(isDarkmode);
+      });
+    });
+  } else {
+    console.warn("No darkmodeToggleButton found in the DOM.");
+  }
 
   function updateOpeningDisplay() {
     const moves = moveNotations.map(m => m.notation).filter(n => !n.includes("-"));
@@ -185,23 +211,23 @@ document.addEventListener("DOMContentLoaded", () => {
         const displayY = effectiveRotation ? 7 - y : y;
         const displayX = effectiveRotation ? 7 - x : x;
 
-        ctx.fillStyle = (displayX + displayY) % 2 === 0 ? "#f0d9b5" : "#b58863";
+        ctx.fillStyle = (displayX + displayY) % 2 === 0 ? window.boardColors.light : window.boardColors.dark;
         if (lastMove && ((lastMove.fromX === x && lastMove.fromY === y) || (lastMove.toX === x && lastMove.toY === y))) {
-          ctx.fillStyle = "#d4e4d2";
+          ctx.fillStyle = "#b2f0b2"; // Sanftes Grün für letzten Zug
         }
         if (legalMoves.some(move => move.toX === x && move.toY === y)) {
-          ctx.fillStyle = "#a3e635";
+          ctx.fillStyle = "#ffd700"; // Goldgelb für legale Züge
         }
         if ((isWhiteInCheck && kingPositions.white && kingPositions.white.x === x && kingPositions.white.y === y) ||
             (isBlackInCheck && kingPositions.black && kingPositions.black.x === x && kingPositions.black.y === y)) {
-          ctx.fillStyle = "#ff0000";
+          ctx.fillStyle = "#ff4444"; // Weicheres Rot für Schach
         }
         ctx.fillRect(offsetX + displayX * size, offsetY + displayY * size, size, size);
 
         const piece = board[y][x];
         if (piece) {
           const isWhite = piece === piece.toUpperCase();
-          ctx.fillStyle = isWhite ? "#ffffff" : "#000000";
+          ctx.fillStyle = isWhite ? "#ffffff" : "#000000"; // Weiße/schwarze Figuren
           ctx.font = `${size * 0.7}px sans-serif`;
           ctx.textAlign = "center";
           ctx.textBaseline = "middle";
@@ -210,7 +236,7 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     }
 
-    ctx.fillStyle = "#333";
+    ctx.fillStyle = "#555555"; // Mittleres Grau für Koordinaten
     ctx.font = `${size * 0.25}px Arial`;
     if (!effectiveRotation) {
       for (let i = 0; i < 8; i++) {
@@ -382,7 +408,7 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     } else if (piece.toLowerCase() === "r") {
       const directions = [[0, 1], [0, -1], [1, 0], [-1, 0]];
-      directions.forEach(([dx, dy]) => {
+      directions.forEach([dx, dy] => {
         let newX = x;
         let newY = y;
         while (true) {
@@ -398,7 +424,7 @@ document.addEventListener("DOMContentLoaded", () => {
         [-2, -1], [-2, 1], [-1, -2], [-1, 2],
         [1, -2], [1, 2], [2, -1], [2, 1]
       ];
-      knightMoves.forEach(([dx, dy]) => {
+      knightMoves.forEach([dx, dy] => {
         const newX = x + dx;
         const newY = y + dy;
         if (newX >= 0 && newX < 8 && newY >= 0 && newY < 8) {
@@ -407,7 +433,7 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     } else if (piece.toLowerCase() === "b") {
       const directions = [[1, 1], [1, -1], [-1, 1], [-1, -1]];
-      directions.forEach(([dx, dy]) => {
+      directions.forEach([dx, dy] => {
         let newX = x;
         let newY = y;
         while (true) {
@@ -420,7 +446,7 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     } else if (piece.toLowerCase() === "q") {
       const directions = [[0, 1], [0, -1], [1, 0], [-1, 0], [1, 1], [1, -1], [-1, 1], [-1, -1]];
-      directions.forEach(([dx, dy]) => {
+      directions.forEach([dx, dy] => {
         let newX = x;
         let newY = y;
         while (true) {
@@ -436,7 +462,7 @@ document.addEventListener("DOMContentLoaded", () => {
         [0, 1], [0, -1], [1, 0], [-1, 0],
         [1, 1], [1, -1], [-1, 1], [-1, -1]
       ];
-      kingMoves.forEach(([dx, dy]) => {
+      kingMoves.forEach([dx, dy] => {
         const newX = x + dx;
         const newY = y + dy;
         if (newX >= 0 && newX < 8 && newY >= 0 && newY < 8) {
@@ -493,7 +519,7 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     } else if (piece.toLowerCase() === "r") {
       const directions = [[0, 1], [0, -1], [1, 0], [-1, 0]];
-      directions.forEach(([dx, dy]) => {
+      directions.forEach([dx, dy] => {
         let newX = x;
         let newY = y;
         while (true) {
@@ -515,7 +541,7 @@ document.addEventListener("DOMContentLoaded", () => {
         [-2, -1], [-2, 1], [-1, -2], [-1, 2],
         [1, -2], [1, 2], [2, -1], [2, 1]
       ];
-      knightMoves.forEach(([dx, dy]) => {
+      knightMoves.forEach([dx, dy] => {
         const newX = x + dx;
         const newY = y + dy;
         if (newX >= 0 && newX < 8 && newY >= 0 && newY < 8) {
@@ -527,7 +553,7 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     } else if (piece.toLowerCase() === "b") {
       const directions = [[1, 1], [1, -1], [-1, 1], [-1, -1]];
-      directions.forEach(([dx, dy]) => {
+      directions.forEach([dx, dy] => {
         let newX = x;
         let newY = y;
         while (true) {
@@ -546,7 +572,7 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     } else if (piece.toLowerCase() === "q") {
       const directions = [[0, 1], [0, -1], [1, 0], [-1, 0], [1, 1], [1, -1], [-1, 1], [-1, -1]];
-      directions.forEach(([dx, dy]) => {
+      directions.forEach([dx, dy] => {
         let newX = x;
         let newY = y;
         while (true) {
@@ -568,7 +594,7 @@ document.addEventListener("DOMContentLoaded", () => {
         [0, 1], [0, -1], [1, 0], [-1, 0],
         [1, 1], [1, -1], [-1, 1], [-1, -1]
       ];
-      kingMoves.forEach(([dx, dy]) => {
+      kingMoves.forEach([dx, dy] => {
         const newX = x + dx;
         const newY = y + dy;
         if (newX >= 0 && newX < 8 && newY >= 0 && newY < 8) {
@@ -754,9 +780,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const notation = getMoveNotation(lastMove.fromX, lastMove.fromY, lastMove.toX, lastMove.toY);
       moveNotations.push({ moveCount, notation: notation.simple });
       
-      // Update moveList with full notation
       moveList.innerHTML = "";
-      let currentMoveCount = 1;
       let movePairs = [];
       for (let i = 0; i < moveNotations.length; i++) {
         if (i % 2 === 0) {
@@ -773,7 +797,6 @@ document.addEventListener("DOMContentLoaded", () => {
       if (currentPlayer === "black") moveCount++;
       moveList.scrollTop = moveList.scrollHeight;
 
-      // Update opening display after each move
       updateOpeningDisplay();
     }
   }
@@ -816,7 +839,7 @@ document.addEventListener("DOMContentLoaded", () => {
         updateCheckStatus();
         if (soundEnabled) {
           const audio = new Audio(SOUND.moveSound);
-          audio.play().catch(e => console.error("Audio play failed:", e));
+          audio.play().catch(e => console.error("Promotion audio play failed:", e));
         }
         drawBoard();
       });
@@ -899,6 +922,8 @@ document.addEventListener("DOMContentLoaded", () => {
       const move = legalMoves.find(m => m.toX === boardX && m.toY === boardY);
       if (move) {
         const newBoard = board.map(row => [...row]);
+        const targetPiece = newBoard[boardY][boardX];
+        const isCapture = targetPiece && (targetPiece.toLowerCase() !== selectedPiece.piece.toLowerCase()) && ((targetPiece === targetPiece.toUpperCase()) !== (selectedPiece.piece === selectedPiece.piece.toUpperCase()));
         newBoard[boardY][boardX] = selectedPiece.piece;
         newBoard[selectedPiece.y][selectedPiece.x] = "";
         const isWhite = selectedPiece.piece === selectedPiece.piece.toUpperCase();
@@ -936,12 +961,12 @@ document.addEventListener("DOMContentLoaded", () => {
           updateKingPositions();
           return;
         }
-        moveHistory.push({ 
-          board: board.map(row => [...row]), 
-          currentPlayer, 
-          moveCount, 
-          castlingAvailability: { ...castlingAvailability }, 
-          piece: selectedPiece.piece 
+        moveHistory.push({
+          board: board.map(row => [...row]),
+          currentPlayer,
+          moveCount,
+          castlingAvailability: { ...castlingAvailability },
+          piece: selectedPiece.piece
         });
         lastMove = { fromX: selectedPiece.x, fromY: selectedPiece.y, toX: boardX, toY: boardY };
         board = newBoard;
@@ -950,8 +975,12 @@ document.addEventListener("DOMContentLoaded", () => {
         updateMoveHistory();
         updateCheckStatus();
         if (soundEnabled) {
-          const audio = new Audio(SOUND.moveSound);
-          audio.play().catch(e => console.error("Audio play failed:", e));
+          const moveAudio = new Audio(SOUND.moveSound);
+          moveAudio.play().catch(e => console.error("Move audio play failed:", e));
+          if (isCapture) {
+            const captureAudio = new Audio(SOUND.captureSound);
+            captureAudio.play().catch(e => console.error("Capture audio play failed:", e));
+          }
         }
       }
       selectedPiece = null;
@@ -964,10 +993,13 @@ document.addEventListener("DOMContentLoaded", () => {
   try {
     startButton.addEventListener("click", () => {
       if (DEBUG.enableLogging && DEBUG.logLevel === "debug") {
-        console.log("Start button clicked");
+        console.log("Start button clicked, attempting to start game...");
       }
       startGame();
     });
+    if (DEBUG.enableLogging && DEBUG.logLevel === "debug") {
+      console.log("Start button event listener added successfully.");
+    }
   } catch (e) {
     console.error("Failed to add event listener to startButton:", e);
   }
@@ -975,10 +1007,13 @@ document.addEventListener("DOMContentLoaded", () => {
   try {
     startFreestyleButton.addEventListener("click", () => {
       if (DEBUG.enableLogging && DEBUG.logLevel === "debug") {
-        console.log("Freestyle button clicked");
+        console.log("Freestyle button clicked, attempting to start freestyle game...");
       }
       startGame(true);
     });
+    if (DEBUG.enableLogging && DEBUG.logLevel === "debug") {
+      console.log("Freestyle button event listener added successfully.");
+    }
   } catch (e) {
     console.error("Failed to add event listener to startFreestyleButton:", e);
   }
@@ -1088,6 +1123,10 @@ document.addEventListener("DOMContentLoaded", () => {
     console.log("Initializing game...");
   }
   resizeCanvas();
+
+  if (isDarkmode) {
+    window.updateBoardColors(true);
+  }
 
   startScreen.style.display = "block";
 });
