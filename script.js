@@ -765,3 +765,226 @@ document.addEventListener("DOMContentLoaded", () => {
       }
       updateKingPositions(tempBoard);
       if (!isInCheck(isWhite ? "white" : "black", tempBoard)) {
+        validMoves.push(move);
+      }
+      updateKingPositions(board);
+    }
+
+    if (DEBUG.enableLogging && DEBUG.logLevel === "debug") {
+      console.log("Legal moves calculated:", validMoves);
+    }
+    return validMoves;
+  }
+
+  function getMoveNotation(fromX, fromY, toX, toY) {
+    const fileFrom = String.fromCharCode(97 + fromX);
+    const rankFrom = 8 - fromY;
+    const fileTo = String.fromCharCode(97 + toX);
+    const rankTo = 8 - toY;
+    const piece = board[fromY][fromX]?.toLowerCase() || "";
+    const pieceSymbol = piece === "p" ? "" : piece.toUpperCase();
+    const simpleNotation = pieceSymbol === "" ? `${fileTo}${rankTo}` : `${pieceSymbol}${fileTo}${rankTo}`;
+    const fullNotation = `${pieceSymbol}${fileFrom}${rankFrom}-${fileTo}${rankTo}`;
+    return { simple: simpleNotation, full: fullNotation };
+  }
+
+  function updateMoveHistory() {
+    if (lastMove) {
+      const notation = getMoveNotation(lastMove.fromX, lastMove.fromY, lastMove.toX, lastMove.toY);
+      moveNotations.push({ moveCount, notation: notation.simple });
+      
+      moveList.innerHTML = "";
+      let movePairs = [];
+      for (let i = 0; i < moveNotations.length; i++) {
+        if (i % 2 === 0) {
+          movePairs.push({ white: moveNotations[i].notation });
+        } else {
+          movePairs[movePairs.length - 1].black = moveNotations[i].notation;
+        }
+      }
+      movePairs.forEach((pair, index) => {
+        const moveItem = document.createElement("li");
+        moveItem.textContent = `${index + 1}. ${pair.white}${pair.black ? " " + pair.black : ""}`;
+        moveList.appendChild(moveItem);
+      });
+      if (currentPlayer === "black") moveCount++;
+      moveList.scrollTop = moveList.scrollHeight;
+
+      updateOpeningDisplay();
+    }
+  }
+
+  function showPromotionChoice(x, y, isWhite) {
+    const promotionChoices = document.createElement("div");
+    promotionChoices.id = "promotionChoices";
+    promotionChoices.style.position = "absolute";
+    promotionChoices.style.top = `${offsetY + y * size}px`;
+    promotionChoices.style.left = `${offsetX + x * size}px`;
+    promotionChoices.style.backgroundColor = "#fff";
+    promotionChoices.style.border = "2px solid #333";
+    promotionChoices.style.borderRadius = "5px";
+    promotionChoices.style.padding = "5px";
+    promotionChoices.style.display = "flex";
+    promotionChoices.style.gap = "5px";
+    promotionChoices.style.zIndex = "1000";
+
+    const choices = isWhite ? ["Q", "R", "B", "N"] : ["q", "r", "b", "n"];
+    choices.forEach(p => {
+      const button = document.createElement("button");
+      button.textContent = pieces[p];
+      button.style.fontSize = `${size * 0.6}px`;
+      button.style.padding = "5px";
+      button.style.backgroundColor = "#f0d9b5";
+      button.style.border = "1px solid #b58863";
+      button.style.borderRadius = "3px";
+      button.style.cursor = "pointer";
+      button.style.transition = "background-color 0.2s";
+      button.onmouseover = () => (button.style.backgroundColor = "#d4e4d2");
+      button.onmouseout = () => (button.style.backgroundColor = "#f0d9b5");
+      button.addEventListener("click", () => {
+        board[y][x] = p;
+        document.body.removeChild(promotionChoices);
+        updateKingPositions();
+        currentPlayer = currentPlayer === "white" ? "black" : "white";
+        selectedPiece = null;
+        legalMoves = [];
+        updateMoveHistory();
+        updateCheckStatus();
+        if (soundEnabled) {
+          const audio = new Audio(SOUND.moveSound);
+          audio.play().catch(e => console.error("Promotion audio play failed:", e));
+        }
+        drawBoard();
+      });
+      promotionChoices.appendChild(button);
+    });
+
+    document.body.appendChild(promotionChoices);
+  }
+
+  function handleCanvasClick(event) {
+    if (!gameStarted) {
+      if (DEBUG.enableLogging && DEBUG.logLevel === "debug") {
+        console.log("Game not started yet.");
+      }
+      return;
+    }
+    if (DEBUG.enableLogging && DEBUG.logLevel === "debug") {
+      console.log("Canvas clicked/touched, event:", event.type);
+    }
+    const rect = canvas.getBoundingClientRect();
+    const clientX = event.clientX || (event.touches && event.touches[0]?.clientX);
+    const clientY = event.clientY || (event.touches && event.touches[0]?.clientY);
+    if (!clientX || !clientY) {
+      console.error("Client coordinates not found.");
+      return;
+    }
+
+    const x = Math.floor((clientX - rect.left - offsetX) / size);
+    const y = Math.floor((clientY - rect.top - offsetY) / size);
+    if (DEBUG.enableLogging && DEBUG.logLevel === "debug") {
+      console.log("Raw coordinates:", clientX, clientY);
+      console.log("Canvas rect:", rect);
+      console.log("Converted to grid coordinates:", x, y);
+      console.log("size:", size, "offsetX:", offsetX, "offsetY:", offsetY);
+    }
+
+    let boardX = x;
+    let boardY = y;
+
+    let effectiveRotation = rotateBoard;
+    if (smartphoneMode) {
+      effectiveRotation = currentPlayer === "black";
+    }
+
+    if (effectiveRotation) {
+      boardX = 7 - x;
+      boardY = 7 - y;
+    }
+
+    if (boardX < 0 || boardX >= 8 || boardY < 0 || boardY >= 8) {
+      if (DEBUG.enableLogging && DEBUG.logLevel === "debug") {
+        console.log("Click outside board:", boardX, boardY);
+      }
+      return;
+    }
+
+    if (DEBUG.enableLogging && DEBUG.logLevel === "debug") {
+      console.log("Clicked position on board:", boardX, boardY, "Piece:", board[boardY][boardX]);
+    }
+
+    const piece = board[boardY][boardX];
+    const isWhitePiece = piece && piece === piece.toUpperCase();
+
+    if (!selectedPiece) {
+      if (piece && (isWhitePiece === (currentPlayer === "white"))) {
+        if (DEBUG.enableLogging && DEBUG.logLevel === "debug") {
+          console.log("Piece selected:", piece, "at", boardX, boardY);
+        }
+        selectedPiece = { x: boardX, y: boardY, piece };
+        legalMoves = getLegalMoves(boardX, boardY);
+        if (legalMoves.length === 0) {
+          if (DEBUG.enableLogging && DEBUG.logLevel === "debug") {
+            console.log("No legal moves available for this piece.");
+          }
+          selectedPiece = null;
+        }
+        drawBoard();
+      }
+    } else {
+      const move = legalMoves.find(m => m.toX === boardX && m.toY === boardY);
+      if (move) {
+        const newBoard = board.map(row => [...row]);
+        const targetPiece = newBoard[boardY][boardX];
+        const isCapture = targetPiece && (targetPiece.toLowerCase() !== selectedPiece.piece.toLowerCase()) && ((targetPiece === targetPiece.toUpperCase()) !== (selectedPiece.piece === selectedPiece.piece.toUpperCase()));
+        newBoard[boardY][boardX] = selectedPiece.piece;
+        newBoard[selectedPiece.y][selectedPiece.x] = "";
+        const isWhite = selectedPiece.piece === selectedPiece.piece.toUpperCase();
+        if (move.castling) {
+          if (move.castling === "kingside") {
+            newBoard[boardY][boardX - 1] = isWhite ? "R" : "r";
+            newBoard[boardY][7] = "";
+            if (isWhite) castlingAvailability.white.kingside = false;
+            else castlingAvailability.black.kingside = false;
+          } else if (move.castling === "queenside") {
+            newBoard[boardY][boardX + 1] = isWhite ? "R" : "r";
+            newBoard[boardY][0] = "";
+            if (isWhite) castlingAvailability.white.queenside = false;
+            else castlingAvailability.black.queenside = false;
+          }
+        } else {
+          if (selectedPiece.piece.toLowerCase() === "k") {
+            if (isWhite) {
+              castlingAvailability.white.kingside = false;
+              castlingAvailability.white.queenside = false;
+            } else {
+              castlingAvailability.black.kingside = false;
+              castlingAvailability.black.queenside = false;
+            }
+          } else if (selectedPiece.piece.toLowerCase() === "r") {
+            if (isWhite && selectedPiece.y === 7 && selectedPiece.x === 0) castlingAvailability.white.queenside = false;
+            else if (isWhite && selectedPiece.y === 7 && selectedPiece.x === 7) castlingAvailability.white.kingside = false;
+            else if (!isWhite && selectedPiece.y === 0 && selectedPiece.x === 0) castlingAvailability.black.queenside = false;
+            else if (!isWhite && selectedPiece.y === 0 && selectedPiece.x === 7) castlingAvailability.black.kingside = false;
+          }
+        }
+        if (move.promotion) {
+          showPromotionChoice(boardX, boardY, isWhite);
+          board = newBoard;
+          updateKingPositions();
+          return;
+        }
+        moveHistory.push({
+          board: board.map(row => [...row]),
+          currentPlayer,
+          moveCount,
+          castlingAvailability: { ...castlingAvailability },
+          piece: selectedPiece.piece
+        });
+        lastMove = { fromX: selectedPiece.x, fromY: selectedPiece.y, toX: boardX, toY: boardY };
+        board = newBoard;
+        updateKingPositions();
+        currentPlayer = currentPlayer === "white" ? "black" : "white";
+        updateMoveHistory();
+        updateCheckStatus();
+        if (sound
