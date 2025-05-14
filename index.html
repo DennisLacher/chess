@@ -176,6 +176,11 @@
 
     #moveList li {
       margin: 5px 0;
+      color: #555;
+    }
+
+    body.darkmode #moveList li {
+      color: #ffffff;
     }
 
     #openingDisplay {
@@ -280,27 +285,5 @@
     <div id="openingDisplay"></div>
   </div>
   <script src="script.js"></script>
-  <script>
-    // Darkmode Toggle Functionality
-    const darkmodeToggleButton = document.getElementById("darkmodeToggleButton");
-    const body = document.body;
-
-    // Load darkmode preference from localStorage
-    if (localStorage.getItem("darkmode") === "true") {
-      body.classList.add("darkmode");
-      darkmodeToggleButton.textContent = "Lightmode";
-    }
-
-    darkmodeToggleButton.addEventListener("click", () => {
-      body.classList.toggle("darkmode");
-      const isDarkmode = body.classList.contains("darkmode");
-      darkmodeToggleButton.textContent = isDarkmode ? "Lightmode" : "Darkmode";
-      localStorage.setItem("darkmode", isDarkmode);
-      // Notify script.js to update board colors
-      if (window.updateBoardColors) {
-        window.updateBoardColors(isDarkmode);
-      }
-    });
-  </script>
 </body>
 </html>
