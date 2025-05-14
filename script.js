@@ -17,6 +17,7 @@ document.addEventListener("DOMContentLoaded", () => {
     enabledByDefault: true,
     moveSound: "move.mp3",
     checkSound: "check.mp3",
+    captureSound: "clap.mp3",
   };
 
   if (DEBUG.enableLogging) {
@@ -142,6 +143,26 @@ document.addEventListener("DOMContentLoaded", () => {
     { name: "Königsgambit (Falkbeer-Gegengambit)", moves: ["e4", "e5", "f4", "d5"], blackResponses: ["exd5"] },
     { name: "Königsgambit (Muzio-Gambit)", moves: ["e4", "e5", "f4", "exf4", "Nf3", "g5", "Bc4", "g4", "O-O"], blackResponses: ["gxf3"] }
   ];
+
+  // Darkmode Toggle Functionality for all buttons
+  const darkmodeToggleButtons = document.querySelectorAll("#darkmodeToggleButton");
+  darkmodeToggleButtons.forEach(button => {
+    if (localStorage.getItem("darkmode") === "true") {
+      button.textContent = "Lightmode";
+    }
+    button.addEventListener("click", () => {
+      const body = document.body;
+      body.classList.toggle("darkmode");
+      const isDarkmode = body.classList.contains("darkmode");
+      darkmodeToggleButtons.forEach(btn => {
+        btn.textContent = isDarkmode ? "Lightmode" : "Darkmode";
+      });
+      localStorage.setItem("darkmode", isDarkmode);
+      if (window.updateBoardColors) {
+        window.updateBoardColors(isDarkmode);
+      }
+    });
+  });
 
   function updateOpeningDisplay() {
     const moves = moveNotations.map(m => m.notation).filter(n => !n.includes("-"));
@@ -902,6 +923,8 @@ document.addEventListener("DOMContentLoaded", () => {
       const move = legalMoves.find(m => m.toX === boardX && m.toY === boardY);
       if (move) {
         const newBoard = board.map(row => [...row]);
+        const targetPiece = newBoard[boardY][boardX];
+        const isCapture = targetPiece && (targetPiece === targetPiece.toUpperCase()) !== (selectedPiece.piece === selectedPiece.piece.toUpperCase());
         newBoard[boardY][boardX] = selectedPiece.piece;
         newBoard[selectedPiece.y][selectedPiece.x] = "";
         const isWhite = selectedPiece.piece === selectedPiece.piece.toUpperCase();
@@ -953,8 +976,12 @@ document.addEventListener("DOMContentLoaded", () => {
         updateMoveHistory();
         updateCheckStatus();
         if (soundEnabled) {
-          const audio = new Audio(SOUND.moveSound);
-          audio.play().catch(e => console.error("Audio play failed:", e));
+          const moveAudio = new Audio(SOUND.moveSound);
+          moveAudio.play().catch(e => console.error("Move audio play failed:", e));
+          if (isCapture) {
+            const captureAudio = new Audio(SOUND.captureSound);
+            captureAudio.play().catch(e => console.error("Capture audio play failed:", e));
+          }
         }
       }
       selectedPiece = null;
