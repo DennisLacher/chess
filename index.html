@@ -3,179 +3,159 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Chess Game</title>
+  <title>Schachspiel</title>
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
     body {
       font-family: Arial, sans-serif;
       display: flex;
       justify-content: center;
       align-items: center;
-      min-height: 100vh;
+      height: 100vh;
+      margin: 0;
       background-color: #f0f0f0;
-      transition: background-color 0.3s, color 0.3s;
+      transition: background-color 0.3s;
     }
 
     body.darkmode {
-      background-color: #1f1f1f;
-      color: #ffffff;
+      background-color: #1a1a1a;
+      color: #e0e0e0;
     }
 
     #startScreen {
       text-align: center;
-      background-color: #ffffff;
-      padding: 20px;
-      border-radius: 10px;
-      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-      transition: background-color 0.3s, color 0.3s;
-    }
-
-    body.darkmode #startScreen {
-      background-color: #333333;
-      color: #ffffff;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 10;
     }
 
     #startScreen h1 {
+      font-size: 2.5em;
       margin-bottom: 20px;
-      font-size: 2em;
     }
 
-    #startScreen button, #gameContainer button {
-      padding: 10px 20px;
-      font-size: 1em;
+    #startScreen button {
+      padding: 15px 30px;
+      font-size: 1.2em;
+      margin: 10px;
       cursor: pointer;
       border: none;
       border-radius: 5px;
       background-color: #4CAF50;
       color: white;
-      transition: background-color 0.3s, transform 0.1s;
+      transition: background-color 0.2s;
     }
 
-    #startScreen button {
-      margin: 2px; /* Reduziert von 5px auf 2px für kompakteres Layout */
-    }
-
-    #startScreen .button-group {
-      display: flex;
-      justify-content: center;
-      gap: 2px; /* Kleiner Abstand zwischen Buttons */
-    }
-
-    #startScreen button:hover, #gameContainer button:hover {
+    #startScreen button:hover {
       background-color: #45a049;
-      transform: scale(1.05);
-    }
-
-    body.darkmode #startScreen button, body.darkmode #gameContainer button {
-      background-color: #666;
-    }
-
-    body.darkmode #startScreen button:hover, body.darkmode #gameContainer button:hover {
-      background-color: #555;
     }
 
     #gameContainer {
       display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 20px;
-      background-color: #ffffff;
-      border-radius: 10px;
-      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-      transition: background-color 0.3s, color 0.3s;
+      align-items: flex-start;
+      gap: 20px;
+      position: relative;
+      flex-wrap: wrap;
+      justify-content: center;
     }
 
-    body.darkmode #gameContainer {
-      background-color: #333333;
-      color: #ffffff;
-    }
-
-    #gameWrapper {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      width: 100%;
+    #gameContainer.hidden {
+      display: none;
     }
 
     #turnIndicator {
-      margin: 10px 0;
       font-size: 1.2em;
+      margin-bottom: 10px;
+      text-align: center;
+      width: 100%;
     }
 
     #moveList {
-      list-style: none;
-      margin: 10px 0;
-      padding: 10px;
-      max-height: 200px;
+      max-height: 400px;
       overflow-y: auto;
-      width: 100%;
-      max-width: 300px;
+      padding: 10px;
+      background-color: #fff;
       border: 1px solid #ccc;
       border-radius: 5px;
-      background-color: #f9f9f9;
-      transition: background-color 0.3s, color 0.3s;
+      width: 200px;
+      box-sizing: border-box;
     }
 
     body.darkmode #moveList {
-      background-color: #444;
-      border-color: #666;
-    }
-
-    body.darkmode #moveList li {
-      color: #ffffff;
+      background-color: #2a2a2a;
+      border-color: #444;
     }
 
     #moveList li {
-      padding: 5px;
-      color: #333;
+      list-style: none;
+      margin: 5px 0;
     }
 
     #openingDisplay {
+      font-size: 1em;
       margin-top: 10px;
-      font-style: italic;
-      color: #666;
-      transition: color 0.3s;
+      text-align: center;
+      width: 100%;
     }
 
-    body.darkmode #openingDisplay {
-      color: #bbb;
+    #controlButtons {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-top: 10px;
     }
 
-    .hidden {
-      display: none !important;
+    #controlButtons button {
+      padding: 10px 20px;
+      font-size: 1em;
+      cursor: pointer;
+      border: none;
+      border-radius: 5px;
+      background-color: #2196F3;
+      color: white;
+      transition: background-color 0.2s;
     }
 
-    @media (min-width: 641px) {
-      #gameWrapper {
-        flex-direction: row;
-        justify-content: center;
-        align-items: flex-start;
-      }
-      #gameWrapper > div:first-child {
-        order: 1;
-      }
-      #moveList {
-        order: 2;
-        width: 200px;
-        margin: 0 0 0 5px;
-        max-height: 400px;
-      }
+    #controlButtons button:hover {
+      background-color: #1e88e5;
+    }
+
+    #restartButton.hidden {
+      display: none;
+    }
+
+    canvas {
+      border: 2px solid #333;
+      border-radius: 5px;
+      background-color: #fff;
+    }
+
+    body.darkmode canvas {
+      border-color: #666;
+      background-color: #2a2a2a;
     }
 
     @media (max-width: 640px) {
-      #gameWrapper {
+      #gameContainer {
         flex-direction: column;
         align-items: center;
       }
+
       #moveList {
         width: 100%;
-        max-width: 300px;
-        margin: 10px 0;
+        max-height: 150px;
+      }
+
+      #controlButtons {
+        flex-direction: column;
+        align-items: center;
+      }
+
+      #controlButtons button {
+        width: 100%;
+        max-width: 200px;
       }
     }
   </style>
@@ -183,30 +163,23 @@
 <body>
   <div id="startScreen">
     <h1>Schachspiel</h1>
-    <div class="button-group">
-      <button id="startButton">Spiel starten</button>
-      <button id="startFreestyleButton">Freestyle-Modus</button>
-      <button id="darkmodeToggleButton">Darkmode</button>
-    </div>
+    <button id="startButton">Spiel starten</button>
+    <button id="startFreestyleButton">Freestyle-Modus</button>
+    <button id="darkmodeToggleButton">Darkmode</button>
   </div>
 
   <div id="gameContainer" class="hidden">
-    <div id="gameWrapper">
-      <div>
-        <canvas id="chessboard"></canvas>
-        <div id="turnIndicator">Am Zug: Weiß</div>
-        <div>
-          <button id="rotateButton">Brett drehen</button>
-          <button id="smartphoneModeButton">Smartphone-Modus</button>
-          <button id="soundToggleButton">Sound ausschalten</button>
-          <button id="undoButton">Rückgängig</button>
-          <button id="darkmodeToggleButton">Darkmode</button>
-        </div>
-      </div>
-      <ul id="moveList"></ul>
-    </div>
+    <div id="turnIndicator">Am Zug: Weiß</div>
+    <canvas id="chessboard"></canvas>
+    <div id="moveList"></div>
     <div id="openingDisplay">Zug: Kein Zug</div>
-    <button id="restartButton" class="hidden">Neustart</button>
+    <div id="controlButtons">
+      <button id="rotateButton">Brett drehen</button>
+      <button id="smartphoneModeButton">Smartphone-Modus</button>
+      <button id="soundToggleButton">Sound ausschalten</button>
+      <button id="undoButton">Zug zurück</button>
+      <button id="restartButton" class="hidden">Neustart</button>
+    </div>
   </div>
 
   <script src="script.js"></script>
