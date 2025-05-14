@@ -598,14 +598,8 @@ document.addEventListener("DOMContentLoaded", () => {
           newX += dx;
           newY += dy;
           if (newX < 0 || newX >= 8 || newY < 0 || newY >= 8) break;
-          const targetPiece = board[newY][newX];
-          if (targetPiece) {
-            if ((targetPiece === targetPiece.toUpperCase()) !== isWhite) {
-              moves.push({ toX: newX, toY: newY });
-            }
-            break;
-          }
           moves.push({ toX: newX, toY: newY });
+          if (tempBoard[newY][newX]) break;
         }
       });
     } else if (piece.toLowerCase() === "k") {
@@ -876,8 +870,11 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
     if (DEBUG.enableLogging && DEBUG.logLevel === "debug") {
-      console.log("Canvas clicked/touched, event:", event.type);
+      console.log("Canvas event triggered, type:", event.type);
     }
+
+    event.preventDefault(); // Verhindert Standardverhalten und doppelte Events
+
     const rect = canvas.getBoundingClientRect();
     const clientX = event.clientX || (event.touches && event.touches[0]?.clientX);
     const clientY = event.clientY || (event.touches && event.touches[0]?.clientY);
@@ -1045,10 +1042,10 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     if (soundToggleButton) {
-      soundToggleButton.textContent = soundEnabled ? "Sound ausschalten" : "Sound einschalten";
+      soundToggleButton.textContent = soundEnabled ? "Sound aus" : "Sound ein";
       soundToggleButton.addEventListener("click", () => {
         soundEnabled = !soundEnabled;
-        soundToggleButton.textContent = soundEnabled ? "Sound ausschalten" : "Sound einschalten";
+        soundToggleButton.textContent = soundEnabled ? "Sound aus" : "Sound ein";
       });
     }
 
@@ -1096,8 +1093,19 @@ document.addEventListener("DOMContentLoaded", () => {
 
   initializeGameButtons();
 
-  canvas.addEventListener("click", handleCanvasClick);
-  canvas.addEventListener("touchstart", handleCanvasClick, { passive: false });
+  // Touch- und Click-Handling
+  const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+  if (isTouchDevice) {
+    canvas.addEventListener("touchstart", handleCanvasClick, { passive: false });
+    if (DEBUG.enableLogging) {
+      console.log("Touch events enabled for canvas.");
+    }
+  } else {
+    canvas.addEventListener("click", handleCanvasClick);
+    if (DEBUG.enableLogging) {
+      console.log("Click events enabled for canvas.");
+    }
+  }
 
   window.addEventListener("resize", resizeCanvas);
   resizeCanvas();
