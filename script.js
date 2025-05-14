@@ -146,14 +146,15 @@ document.addEventListener("DOMContentLoaded", () => {
     { name: "Königsgambit (Muzio-Gambit)", moves: ["e4", "e5", "f4", "exf4", "Nf3", "g5", "Bc4", "g4", "O-O"], blackResponses: ["gxf3"] }
   ];
 
+  let isDarkmode = localStorage.getItem("darkmode") === "true";
+  document.body.classList.toggle("darkmode", isDarkmode);
+
   function initializeDarkmodeToggle() {
     const darkmodeToggleButtons = document.querySelectorAll("#darkmodeToggleButton");
     if (darkmodeToggleButtons.length > 0) {
-      isDarkmode = localStorage.getItem("darkmode") === "true";
-      document.body.classList.toggle("darkmode", isDarkmode);
       darkmodeToggleButtons.forEach(button => {
         button.textContent = isDarkmode ? "Lightmode" : "Darkmode";
-        button.removeEventListener("click", toggleDarkmodeHandler); // Entferne vorherige Listener, um Duplikate zu vermeiden
+        button.removeEventListener("click", toggleDarkmodeHandler); // Entferne vorhandene Listener
         button.addEventListener("click", toggleDarkmodeHandler);
       });
     } else {
@@ -172,7 +173,7 @@ document.addEventListener("DOMContentLoaded", () => {
     window.updateBoardColors(isDarkmode);
   }
 
-  // Initialisiere Darkmode beim Laden der Seite
+  // Initialisiere Darkmode beim Laden
   initializeDarkmodeToggle();
 
   function updateOpeningDisplay() {
@@ -333,7 +334,7 @@ document.addEventListener("DOMContentLoaded", () => {
     resizeCanvas();
     drawBoard();
 
-    // Initialisiere Darkmode-Toggle erneut, nachdem das Spiel gestartet wurde
+    // Aktualisiere Darkmode-Listener nach Spielstart
     initializeDarkmodeToggle();
   }
 
@@ -987,158 +988,92 @@ document.addEventListener("DOMContentLoaded", () => {
         updateMoveHistory();
         updateCheckStatus();
         if (soundEnabled) {
-          const moveAudio = new Audio(SOUND.moveSound);
-          moveAudio.play().catch(e => console.error("Move audio play failed:", e));
-          if (isCapture) {
-            const captureAudio = new Audio(SOUND.captureSound);
-            captureAudio.play().catch(e => console.error("Capture audio play failed:", e));
-          }
+          const audio = new Audio(isCapture ? SOUND.captureSound : SOUND.moveSound);
+          audio.play().catch(e => console.error("Move audio play failed:", e));
         }
-      }
-      selectedPiece = null;
-      legalMoves = [];
-      drawBoard();
-    }
-  }
-
-  console.log("Adding event listeners...");
-  try {
-    startButton.addEventListener("click", () => {
-      if (DEBUG.enableLogging && DEBUG.logLevel === "debug") {
-        console.log("Start button clicked, attempting to start game...");
-      }
-      startGame();
-    });
-    if (DEBUG.enableLogging && DEBUG.logLevel === "debug") {
-      console.log("Start button event listener added successfully.");
-    }
-  } catch (e) {
-    console.error("Failed to add event listener to startButton:", e);
-  }
-
-  try {
-    startFreestyleButton.addEventListener("click", () => {
-      if (DEBUG.enableLogging && DEBUG.logLevel === "debug") {
-        console.log("Freestyle button clicked, attempting to start freestyle game...");
-      }
-      startGame(true);
-    });
-    if (DEBUG.enableLogging && DEBUG.logLevel === "debug") {
-      console.log("Freestyle button event listener added successfully.");
-    }
-  } catch (e) {
-    console.error("Failed to add event listener to startFreestyleButton:", e);
-  }
-
-  if (rotateButton) {
-    rotateButton.addEventListener("click", () => {
-      if (gameStarted && !smartphoneMode) {
-        if (DEBUG.enableLogging && DEBUG.logLevel === "debug") {
-          console.log("Rotate button clicked");
-        }
-        rotateBoard = !rotateBoard;
-        drawBoard();
-      }
-    });
-  }
-
-  if (smartphoneModeButton) {
-    smartphoneModeButton.addEventListener("click", () => {
-      if (gameStarted) {
-        if (DEBUG.enableLogging && DEBUG.logLevel === "debug") {
-          console.log("Smartphone mode button clicked");
-        }
-        smartphoneMode = !smartphoneMode;
-        smartphoneModeButton.textContent = smartphoneMode ? "Smartphone-Modus aus" : "Smartphone-Modus";
-        if (smartphoneMode) {
-          rotateBoard = false;
-        }
-        drawBoard();
-      }
-    });
-  }
-
-  if (soundToggleButton) {
-    soundToggleButton.addEventListener("click", () => {
-      if (DEBUG.enableLogging && DEBUG.logLevel === "debug") {
-        console.log("Sound toggle button clicked");
-      }
-      soundEnabled = !soundEnabled;
-      soundToggleButton.textContent = soundEnabled ? "Sound ausschalten" : "Sound einschalten";
-    });
-  }
-
-  if (undoButton) {
-    undoButton.addEventListener("click", () => {
-      if (moveHistory.length > 0 && gameStarted) {
-        if (DEBUG.enableLogging && DEBUG.logLevel === "debug") {
-          console.log("Undo button clicked");
-        }
-        const lastState = moveHistory.pop();
-        board = lastState.board;
-        currentPlayer = lastState.currentPlayer;
-        moveCount = lastState.moveCount;
-        lastMove = moveHistory.length > 0 ? moveHistory[moveHistory.length - 1].lastMove : null;
-        castlingAvailability = lastState.castlingAvailability;
-        moveNotations.pop();
-        moveList.innerHTML = "";
-        let movePairs = [];
-        for (let i = 0; i < moveNotations.length; i++) {
-          if (i % 2 === 0) {
-            movePairs.push({ white: moveNotations[i].notation });
-          } else {
-            movePairs[movePairs.length - 1].black = moveNotations[i].notation;
-          }
-        }
-        movePairs.forEach((pair, index) => {
-          const moveItem = document.createElement("li");
-          moveItem.textContent = `${index + 1}. ${pair.white}${pair.black ? " " + pair.black : ""}`;
-          moveList.appendChild(moveItem);
-        });
         selectedPiece = null;
         legalMoves = [];
-        updateKingPositions();
-        updateCheckStatus();
-        updateOpeningDisplay();
+        drawBoard();
+      } else {
+        selectedPiece = null;
+        legalMoves = [];
         drawBoard();
       }
-    });
-  }
-
-  if (restartButton) {
-    restartButton.addEventListener("click", () => {
-      if (DEBUG.enableLogging && DEBUG.logLevel === "debug") {
-        console.log("Restart button clicked");
-      }
-      gameStarted = false;
-      startScreen.style.display = "block";
-      gameContainer.classList.add("hidden");
-      restartButton.classList.add("hidden");
-      resizeCanvas();
-    });
-  }
-
-  canvas.addEventListener("click", handleCanvasClick);
-  canvas.addEventListener("touchstart", (e) => {
-    e.preventDefault();
-    handleCanvasClick(e);
-  });
-
-  window.addEventListener("resize", () => {
-    if (DEBUG.enableLogging && DEBUG.logLevel === "debug") {
-      console.log("Window resized");
     }
-    resizeCanvas();
-  });
-
-  if (DEBUG.enableLogging && DEBUG.logLevel === "debug") {
-    console.log("Initializing game...");
   }
+
+  function initializeGameButtons() {
+    if (startButton) {
+      startButton.removeEventListener("click", () => startGame(false)); // Entferne vorhandene Listener
+      startButton.addEventListener("click", () => startGame(false));
+      console.log("Start button initialized.");
+    } else {
+      console.error("Start button not found in DOM.");
+    }
+
+    if (startFreestyleButton) {
+      startFreestyleButton.removeEventListener("click", () => startGame(true)); // Entferne vorhandene Listener
+      startFreestyleButton.addEventListener("click", () => startGame(true));
+      console.log("Freestyle button initialized.");
+    } else {
+      console.error("Freestyle button not found in DOM.");
+    }
+
+    if (rotateButton) {
+      rotateButton.addEventListener("click", () => {
+        rotateBoard = !rotateBoard;
+        drawBoard();
+      });
+    }
+
+    if (smartphoneModeButton) {
+      smartphoneModeButton.addEventListener("click", () => {
+        smartphoneMode = !smartphoneMode;
+        smartphoneModeButton.textContent = smartphoneMode ? "Smartphone-Modus aus" : "Smartphone-Modus";
+        drawBoard();
+      });
+    }
+
+    if (soundToggleButton) {
+      soundToggleButton.textContent = soundEnabled ? "Sound ausschalten" : "Sound einschalten";
+      soundToggleButton.addEventListener("click", () => {
+        soundEnabled = !soundEnabled;
+        soundToggleButton.textContent = soundEnabled ? "Sound ausschalten" : "Sound einschalten";
+      });
+    }
+
+    if (undoButton) {
+      undoButton.addEventListener("click", () => {
+        if (moveHistory.length > 0) {
+          const lastState = moveHistory.pop();
+          board = lastState.board;
+          currentPlayer = lastState.currentPlayer;
+          moveCount = lastState.moveCount;
+          castlingAvailability = lastState.castlingAvailability;
+          moveNotations.pop();
+          if (currentPlayer === "white" && moveNotations.length % 2 === 0) moveCount--;
+          lastMove = moveHistory.length > 0 ? moveHistory[moveHistory.length - 1] : null;
+          updateKingPositions();
+          updateCheckStatus();
+          updateMoveHistory();
+          drawBoard();
+        }
+      });
+    }
+
+    if (restartButton) {
+      restartButton.addEventListener("click", () => startGame(false));
+    }
+  }
+
+  // Initialisiere die Buttons
+  initializeGameButtons();
+
+  // Event-Listener für das Canvas
+  canvas.addEventListener("click", handleCanvasClick);
+  canvas.addEventListener("touchstart", handleCanvasClick, { passive: false });
+
+  // Event-Listener für das Resizing
+  window.addEventListener("resize", resizeCanvas);
   resizeCanvas();
-
-  if (isDarkmode) {
-    window.updateBoardColors(true);
-  }
-
-  startScreen.style.display = "block";
 });
