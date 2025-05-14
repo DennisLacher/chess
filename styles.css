@@ -31,9 +31,18 @@
     width: 100%;
     max-height: 200px;
     margin-left: 0;
+    margin-top: 2rem;
   }
 
   #chessboard {
     max-width: 100%;
+  }
+
+  #turnIndicator {
+    font-size: 1rem;
+  }
+
+  button {
+    font-size: 0.9rem;
   }
 }
