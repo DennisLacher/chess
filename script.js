@@ -81,7 +81,6 @@ document.addEventListener("DOMContentLoaded", () => {
   let isWhiteInCheck = false;
   let isBlackInCheck = false;
 
-  // Einzige Deklaration von isDarkmode
   let isDarkmode = localStorage.getItem("darkmode") === "true";
   console.log("Initial darkmode state:", isDarkmode);
 
@@ -158,8 +157,9 @@ document.addEventListener("DOMContentLoaded", () => {
     const darkmodeToggleButtons = document.querySelectorAll("#darkmodeToggleButton");
     if (darkmodeToggleButtons.length > 0) {
       darkmodeToggleButtons.forEach((button) => {
+        console.log("Setting up darkmode toggle button:", button);
         button.textContent = isDarkmode ? "Lightmode" : "Darkmode";
-        button.removeEventListener("click", toggleDarkmodeHandler); // Entferne vorhandene Listener
+        button.removeEventListener("click", toggleDarkmodeHandler);
         button.addEventListener("click", toggleDarkmodeHandler);
       });
       console.log("Darkmode toggle button initialized.");
@@ -180,7 +180,6 @@ document.addEventListener("DOMContentLoaded", () => {
     window.updateBoardColors(isDarkmode);
   }
 
-  // Initialisiere Darkmode beim Laden
   initializeDarkmodeToggle();
 
   function updateOpeningDisplay() {
@@ -230,21 +229,21 @@ document.addEventListener("DOMContentLoaded", () => {
 
         ctx.fillStyle = (displayX + displayY) % 2 === 0 ? window.boardColors.light : window.boardColors.dark;
         if (lastMove && ((lastMove.fromX === x && lastMove.fromY === y) || (lastMove.toX === x && lastMove.toY === y))) {
-          ctx.fillStyle = "#b2f0b2"; // Sanftes Grün für letzten Zug
+          ctx.fillStyle = "#b2f0b2";
         }
         if (legalMoves.some((move) => move.toX === x && move.toY === y)) {
-          ctx.fillStyle = "#ffd700"; // Goldgelb für legale Züge
+          ctx.fillStyle = "#ffd700";
         }
         if ((isWhiteInCheck && kingPositions.white && kingPositions.white.x === x && kingPositions.white.y === y) ||
             (isBlackInCheck && kingPositions.black && kingPositions.black.x === x && kingPositions.black.y === y)) {
-          ctx.fillStyle = "#ff4444"; // Weicheres Rot für Schach
+          ctx.fillStyle = "#ff4444";
         }
         ctx.fillRect(offsetX + displayX * size, offsetY + displayY * size, size, size);
 
         const piece = board[y][x];
         if (piece) {
           const isWhite = piece === piece.toUpperCase();
-          ctx.fillStyle = isWhite ? "#ffffff" : "#000000"; // Weiße/schwarze Figuren
+          ctx.fillStyle = isWhite ? "#ffffff" : "#000000";
           ctx.font = `${size * 0.7}px sans-serif`;
           ctx.textAlign = "center";
           ctx.textBaseline = "middle";
@@ -253,7 +252,7 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     }
 
-    ctx.fillStyle = "#555555"; // Mittleres Grau für Koordinaten
+    ctx.fillStyle = "#555555";
     ctx.font = `${size * 0.25}px Arial`;
     if (!effectiveRotation) {
       for (let i = 0; i < 8; i++) {
@@ -341,7 +340,6 @@ document.addEventListener("DOMContentLoaded", () => {
     resizeCanvas();
     drawBoard();
 
-    // Aktualisiere Darkmode-Listener nach Spielstart
     initializeDarkmodeToggle();
   }
 
@@ -420,6 +418,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const direction = isWhite ? -1 : 1;
       const attackDirs = [-1, 1];
       attackDirs.forEach((dx) => {
+        console.log("Processing pawn attack direction:", dx);
         const newX = x + dx;
         const newY = y + direction;
         if (newX >= 0 && newX < 8 && newY >= 0 && newY < 8) {
@@ -429,6 +428,7 @@ document.addEventListener("DOMContentLoaded", () => {
     } else if (piece.toLowerCase() === "r") {
       const directions = [[0, 1], [0, -1], [1, 0], [-1, 0]];
       directions.forEach(([dx, dy]) => {
+        console.log("Processing rook direction:", dx, dy);
         let newX = x;
         let newY = y;
         while (true) {
@@ -445,6 +445,7 @@ document.addEventListener("DOMContentLoaded", () => {
         [1, -2], [1, 2], [2, -1], [2, 1]
       ];
       knightMoves.forEach(([dx, dy]) => {
+        console.log("Processing knight move:", dx, dy);
         const newX = x + dx;
         const newY = y + dy;
         if (newX >= 0 && newX < 8 && newY >= 0 && newY < 8) {
@@ -454,6 +455,7 @@ document.addEventListener("DOMContentLoaded", () => {
     } else if (piece.toLowerCase() === "b") {
       const directions = [[1, 1], [1, -1], [-1, 1], [-1, -1]];
       directions.forEach(([dx, dy]) => {
+        console.log("Processing bishop direction:", dx, dy);
         let newX = x;
         let newY = y;
         while (true) {
@@ -467,6 +469,7 @@ document.addEventListener("DOMContentLoaded", () => {
     } else if (piece.toLowerCase() === "q") {
       const directions = [[0, 1], [0, -1], [1, 0], [-1, 0], [1, 1], [1, -1], [-1, 1], [-1, -1]];
       directions.forEach(([dx, dy]) => {
+        console.log("Processing queen direction:", dx, dy);
         let newX = x;
         let newY = y;
         while (true) {
@@ -483,6 +486,7 @@ document.addEventListener("DOMContentLoaded", () => {
         [1, 1], [1, -1], [-1, 1], [-1, -1]
       ];
       kingMoves.forEach(([dx, dy]) => {
+        console.log("Processing king move:", dx, dy);
         const newX = x + dx;
         const newY = y + dy;
         if (newX >= 0 && newX < 8 && newY >= 0 && newY < 8) {
@@ -1011,20 +1015,20 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function initializeGameButtons() {
     if (startButton) {
-      startButton.removeEventListener("click", startGameNormalHandler); // Entferne vorhandene Listener
+      startButton.removeEventListener("click", startGameNormalHandler);
       startButton.addEventListener("click", startGameNormalHandler);
       console.log("Start button initialized successfully and event listener added.");
-      startButton.style.pointerEvents = "auto"; // Sicherstellen, dass Klicks erkannt werden
+      startButton.style.pointerEvents = "auto";
     } else {
       console.error("Start button not found in DOM. Check if ID 'startButton' exists in index.html.");
       alert("Fehler: Start-Button nicht gefunden. Bitte überprüfe die Konsole.");
     }
 
     if (startFreestyleButton) {
-      startFreestyleButton.removeEventListener("click", startGameFreestyleHandler); // Entferne vorhandene Listener
+      startFreestyleButton.removeEventListener("click", startGameFreestyleHandler);
       startFreestyleButton.addEventListener("click", startGameFreestyleHandler);
       console.log("Freestyle button initialized successfully and event listener added.");
-      startFreestyleButton.style.pointerEvents = "auto"; // Sicherstellen, dass Klicks erkannt werden
+      startFreestyleButton.style.pointerEvents = "auto";
     } else {
       console.error("Freestyle button not found in DOM. Check if ID 'startFreestyleButton' exists in index.html.");
       alert("Fehler: Freestyle-Button nicht gefunden. Bitte überprüfe die Konsole.");
@@ -1087,14 +1091,11 @@ document.addEventListener("DOMContentLoaded", () => {
     startGame(true);
   }
 
-  // Initialisiere die Buttons
   initializeGameButtons();
 
-  // Event-Listener für das Canvas
   canvas.addEventListener("click", handleCanvasClick);
   canvas.addEventListener("touchstart", handleCanvasClick, { passive: false });
 
-  // Event-Listener für das Resizing
   window.addEventListener("resize", resizeCanvas);
   resizeCanvas();
 });
