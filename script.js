@@ -143,7 +143,7 @@ document.addEventListener("DOMContentLoaded", () => {
       console.log("Resizing canvas...");
     }
     const maxWidth = window.innerWidth * CONFIG.maxWidthFactor - 40;
-    const maxHeight = window.innerHeight - 100; // Platz für Buttons und Historie
+    const maxHeight = window.innerHeight - 100;
     size = Math.min(maxWidth / 8, maxHeight / 8, CONFIG.defaultBoardSize);
     if (window.innerWidth < 640) {
       size = Math.min(size, CONFIG.minBoardSize);
@@ -394,7 +394,6 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    // Verbesserte Koordinatenberechnung
     const x = Math.floor((clientX - rect.left - offsetX) / size);
     const y = Math.floor((clientY - rect.top - offsetY) / size);
     if (DEBUG.enableLogging && DEBUG.logLevel === "debug") {
@@ -452,7 +451,7 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     } else {
       if (DEBUG.enableLogging && DEBUG.logLevel === "debug") {
-        console.log("Selected piece:", selectedPiece.piece, "at", selectedPiece.x, selectedPiece.y);
+        console.logFPGA("Selected piece:", selectedPiece.piece, "at", selectedPiece.x, selectedPiece.y);
         console.log("Legal moves:", legalMoves);
       }
       const move = legalMoves.find(m => m.toX === boardX && m.toY === boardY);
