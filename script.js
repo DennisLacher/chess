@@ -37,6 +37,8 @@ document.addEventListener("DOMContentLoaded", () => {
   const restartButton = document.getElementById("restartButton");
   const moveList = document.getElementById("moveList");
   const openingDisplay = document.getElementById("openingDisplay");
+  const designButton = document.getElementById("designButton");
+  const darkmodeToggleButton = document.getElementById("darkmodeToggleButton");
 
   console.log("Checking DOM elements...");
   console.log("canvas:", canvas);
@@ -47,9 +49,11 @@ document.addEventListener("DOMContentLoaded", () => {
   console.log("turnIndicator:", turnIndicator);
   console.log("moveList:", moveList);
   console.log("openingDisplay:", openingDisplay);
-  if (!canvas || !startScreen || !startButton || !startFreestyleButton || !gameContainer || !turnIndicator || !moveList || !openingDisplay) {
+  console.log("designButton:", designButton);
+  console.log("darkmodeToggleButton:", darkmodeToggleButton);
+  if (!canvas || !startScreen || !startButton || !startFreestyleButton || !gameContainer || !turnIndicator || !moveList || !openingDisplay || !designButton) {
     console.error("One or more DOM elements are missing. Check index.html for correct IDs:", {
-      canvas, startScreen, startButton, startFreestyleButton, gameContainer, turnIndicator, moveList, openingDisplay
+      canvas, startScreen, startButton, startFreestyleButton, gameContainer, turnIndicator, moveList, openingDisplay, designButton
     });
     alert("Fehler: Ein oder mehrere DOM-Elemente fehlen. Bitte überprüfe die Konsole für Details.");
     return;
@@ -80,19 +84,24 @@ document.addEventListener("DOMContentLoaded", () => {
   let castlingAvailability = { white: { kingside: true, queenside: true }, black: { kingside: true, queenside: true } };
   let isWhiteInCheck = false;
   let isBlackInCheck = false;
-
+  let currentDesign = 1;
   let isDarkmode = localStorage.getItem("darkmode") === "true";
-  console.log("Initial darkmode state:", isDarkmode);
 
-  window.boardColors = isDarkmode
-    ? { light: "#4a4a4a", dark: "#1f1f1f" }
-    : { light: "#e0e0e0", dark: "#4a4a4a" };
+  const designs = {
+    1: { light: "#f0d9b5", dark: "#b58863" }, // Altes Design
+    2: { light: "#d7b899", dark: "#8b5a2b" }, // Holz
+    3: { light: "#f5f5f5", dark: "#a0a0a0" }, // Marmor
+    4: { light: "#c0c0c0", dark: "#404040" }, // Metall
+    5: { light: "#d4e4d2", dark: "#6b8e23" }  // Natur
+  };
 
-  window.updateBoardColors = function (isDark) {
-    window.boardColors = isDark
-      ? { light: "#4a4a4a", dark: "#1f1f1f" }
-      : { light: "#e0e0e0", dark: "#4a4a4a" };
-    drawBoard();
+  window.boardColors = designs[currentDesign];
+  console.log("Initial design and colors:", currentDesign, window.boardColors);
+
+  window.updateBoardColors = function (designNum) {
+    currentDesign = designNum;
+    window.boardColors = designs[currentDesign];
+    if (gameStarted) drawBoard();
   };
 
   const pieces = {
@@ -154,17 +163,14 @@ document.addEventListener("DOMContentLoaded", () => {
   document.body.classList.toggle("darkmode", isDarkmode);
 
   function initializeDarkmodeToggle() {
-    const darkmodeToggleButtons = document.querySelectorAll("#darkmodeToggleButton");
-    if (darkmodeToggleButtons.length > 0) {
-      darkmodeToggleButtons.forEach((button) => {
-        console.log("Setting up darkmode toggle button:", button);
-        button.textContent = isDarkmode ? "Lightmode" : "Darkmode";
-        button.removeEventListener("click", toggleDarkmodeHandler);
-        button.addEventListener("click", toggleDarkmodeHandler);
-      });
-      console.log("Darkmode toggle button initialized.");
-    } else {
-      console.warn("No darkmodeToggleButton found in the DOM.");
+    if (darkmodeToggleButton && gameStarted) {
+      darkmodeToggleButton.textContent = isDarkmode ? "Lightmode" : "Darkmode";
+      darkmodeToggleButton.removeEventListener("click", toggleDarkmodeHandler);
+      darkmodeToggleButton.addEventListener("click", toggleDarkmodeHandler);
+      console.log("Darkmode toggle button initialized on game page.");
+    } else if (darkmodeToggleButton && !gameStarted) {
+      darkmodeToggleButton.style.display = "none";
+      console.log("Darkmode toggle button hidden on start screen.");
     }
   }
 
@@ -172,15 +178,10 @@ document.addEventListener("DOMContentLoaded", () => {
     isDarkmode = !isDarkmode;
     console.log("Darkmode toggled to:", isDarkmode);
     document.body.classList.toggle("darkmode", isDarkmode);
-    const darkmodeToggleButtons = document.querySelectorAll("#darkmodeToggleButton");
-    darkmodeToggleButtons.forEach((btn) => {
-      btn.textContent = isDarkmode ? "Lightmode" : "Darkmode";
-    });
+    darkmodeToggleButton.textContent = isDarkmode ? "Lightmode" : "Darkmode";
     localStorage.setItem("darkmode", isDarkmode);
-    window.updateBoardColors(isDarkmode);
+    window.updateBoardColors(currentDesign);
   }
-
-  initializeDarkmodeToggle();
 
   function updateOpeningDisplay() {
     const moves = moveNotations.map((m) => m.notation).filter((n) => !n.includes("-"));
@@ -209,7 +210,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function drawBoard() {
     if (DEBUG.enableLogging && DEBUG.logLevel === "debug") {
-      console.log("Drawing board...");
+      console.log("Drawing board with design:", currentDesign);
     }
     if (!ctx) {
       console.error("Canvas context not available.");
@@ -311,6 +312,7 @@ document.addEventListener("DOMContentLoaded", () => {
     startScreen.style.display = "none";
     gameContainer.classList.remove("hidden");
     restartButton.classList.remove("hidden");
+    darkmodeToggleButton.style.display = "block";
 
     if (freestyle) {
       const shuffledRow = shuffleArray(["r", "n", "b", "q", "k", "b", "n", "r"]);
@@ -339,7 +341,6 @@ document.addEventListener("DOMContentLoaded", () => {
     updateKingPositions();
     resizeCanvas();
     drawBoard();
-
     initializeDarkmodeToggle();
   }
 
@@ -418,7 +419,6 @@ document.addEventListener("DOMContentLoaded", () => {
       const direction = isWhite ? -1 : 1;
       const attackDirs = [-1, 1];
       attackDirs.forEach((dx) => {
-        console.log("Processing pawn attack direction:", dx);
         const newX = x + dx;
         const newY = y + direction;
         if (newX >= 0 && newX < 8 && newY >= 0 && newY < 8) {
@@ -428,7 +428,6 @@ document.addEventListener("DOMContentLoaded", () => {
     } else if (piece.toLowerCase() === "r") {
       const directions = [[0, 1], [0, -1], [1, 0], [-1, 0]];
       directions.forEach(([dx, dy]) => {
-        console.log("Processing rook direction:", dx, dy);
         let newX = x;
         let newY = y;
         while (true) {
@@ -445,7 +444,6 @@ document.addEventListener("DOMContentLoaded", () => {
         [1, -2], [1, 2], [2, -1], [2, 1]
       ];
       knightMoves.forEach(([dx, dy]) => {
-        console.log("Processing knight move:", dx, dy);
         const newX = x + dx;
         const newY = y + dy;
         if (newX >= 0 && newX < 8 && newY >= 0 && newY < 8) {
@@ -455,7 +453,6 @@ document.addEventListener("DOMContentLoaded", () => {
     } else if (piece.toLowerCase() === "b") {
       const directions = [[1, 1], [1, -1], [-1, 1], [-1, -1]];
       directions.forEach(([dx, dy]) => {
-        console.log("Processing bishop direction:", dx, dy);
         let newX = x;
         let newY = y;
         while (true) {
@@ -469,7 +466,6 @@ document.addEventListener("DOMContentLoaded", () => {
     } else if (piece.toLowerCase() === "q") {
       const directions = [[0, 1], [0, -1], [1, 0], [-1, 0], [1, 1], [1, -1], [-1, 1], [-1, -1]];
       directions.forEach(([dx, dy]) => {
-        console.log("Processing queen direction:", dx, dy);
         let newX = x;
         let newY = y;
         while (true) {
@@ -486,7 +482,6 @@ document.addEventListener("DOMContentLoaded", () => {
         [1, 1], [1, -1], [-1, 1], [-1, -1]
       ];
       kingMoves.forEach(([dx, dy]) => {
-        console.log("Processing king move:", dx, dy);
         const newX = x + dx;
         const newY = y + dy;
         if (newX >= 0 && newX < 8 && newY >= 0 && newY < 8) {
@@ -1078,6 +1073,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (restartButton) {
       restartButton.addEventListener("click", () => startGame(false));
+    }
+
+    if (designButton) {
+      designButton.addEventListener("click", () => {
+        currentDesign = (currentDesign % 5) + 1;
+        console.log("Switched to design:", currentDesign);
+        window.updateBoardColors(currentDesign);
+      });
     }
   }
 
