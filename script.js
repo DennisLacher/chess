@@ -35,6 +35,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const undoButton = document.getElementById("undoButton");
   const restartButton = document.getElementById("restartButton");
   const moveList = document.getElementById("moveList");
+  const openingDisplay = document.getElementById("openingDisplay");
 
   console.log("Checking DOM elements...");
   console.log("startScreen:", startScreen);
@@ -43,7 +44,8 @@ document.addEventListener("DOMContentLoaded", () => {
   console.log("gameContainer:", gameContainer);
   console.log("turnIndicator:", turnIndicator);
   console.log("moveList:", moveList);
-  if (!canvas || !startScreen || !startButton || !startFreestyleButton || !gameContainer || !turnIndicator || !moveList) {
+  console.log("openingDisplay:", openingDisplay);
+  if (!canvas || !startScreen || !startButton || !startFreestyleButton || !gameContainer || !turnIndicator || !moveList || !openingDisplay) {
     console.error("One or more DOM elements are missing. Check index.html for correct IDs.");
     return;
   }
@@ -72,6 +74,18 @@ document.addEventListener("DOMContentLoaded", () => {
   let castlingAvailability = { white: { kingside: true, queenside: true }, black: { kingside: true, queenside: true } };
   let isWhiteInCheck = false;
   let isBlackInCheck = false;
+
+  // Initialize board colors based on darkmode preference
+  window.boardColors = localStorage.getItem("darkmode") === "true"
+    ? { light: "#4a4a4a", dark: "#1f1f1f" }
+    : { light: "#e0e0e0", dark: "#4a4a4a" };
+
+  window.updateBoardColors = function(isDarkmode) {
+    window.boardColors = isDarkmode
+      ? { light: "#4a4a4a", dark: "#1f1f1f" }
+      : { light: "#e0e0e0", dark: "#4a4a4a" };
+    drawBoard();
+  };
 
   const pieces = {
     r: "♜", n: "♞", b: "♝", q: "♛", k: "♚", p: "♟",
@@ -129,17 +143,6 @@ document.addEventListener("DOMContentLoaded", () => {
     { name: "Königsgambit (Muzio-Gambit)", moves: ["e4", "e5", "f4", "exf4", "Nf3", "g5", "Bc4", "g4", "O-O"], blackResponses: ["gxf3"] }
   ];
 
-  let openingDisplay = document.createElement("div");
-  openingDisplay.id = "openingDisplay";
-  openingDisplay.style.position = "absolute";
-  openingDisplay.style.bottom = "10px";
-  openingDisplay.style.left = "50%";
-  openingDisplay.style.transform = "translateX(-50%)";
-  openingDisplay.style.fontSize = "12px";
-  openingDisplay.style.color = "#333";
-  openingDisplay.style.textAlign = "center";
-  document.body.appendChild(openingDisplay);
-
   function updateOpeningDisplay() {
     const moves = moveNotations.map(m => m.notation).filter(n => !n.includes("-"));
     let displayText = `Zug: ${moves[moves.length - 1] || "Kein Zug"}`;
@@ -185,23 +188,23 @@ document.addEventListener("DOMContentLoaded", () => {
         const displayY = effectiveRotation ? 7 - y : y;
         const displayX = effectiveRotation ? 7 - x : x;
 
-        ctx.fillStyle = (displayX + displayY) % 2 === 0 ? "#f0d9b5" : "#b58863";
+        ctx.fillStyle = (displayX + displayY) % 2 === 0 ? window.boardColors.light : window.boardColors.dark;
         if (lastMove && ((lastMove.fromX === x && lastMove.fromY === y) || (lastMove.toX === x && lastMove.toY === y))) {
-          ctx.fillStyle = "#d4e4d2";
+          ctx.fillStyle = "#b2f0b2"; // Sanftes Grün für letzten Zug
         }
         if (legalMoves.some(move => move.toX === x && move.toY === y)) {
-          ctx.fillStyle = "#a3e635";
+          ctx.fillStyle = "#ffd700"; // Goldgelb für legale Züge
         }
         if ((isWhiteInCheck && kingPositions.white && kingPositions.white.x === x && kingPositions.white.y === y) ||
             (isBlackInCheck && kingPositions.black && kingPositions.black.x === x && kingPositions.black.y === y)) {
-          ctx.fillStyle = "#ff0000";
+          ctx.fillStyle = "#ff4444"; // Weicheres Rot für Schach
         }
         ctx.fillRect(offsetX + displayX * size, offsetY + displayY * size, size, size);
 
         const piece = board[y][x];
         if (piece) {
           const isWhite = piece === piece.toUpperCase();
-          ctx.fillStyle = isWhite ? "#ffffff" : "#000000";
+          ctx.fillStyle = isWhite ? "#ffffff" : "#000000"; // Weiße/schwarze Figuren
           ctx.font = `${size * 0.7}px sans-serif`;
           ctx.textAlign = "center";
           ctx.textBaseline = "middle";
@@ -210,7 +213,7 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     }
 
-    ctx.fillStyle = "#333";
+    ctx.fillStyle = "#555555"; // Mittleres Grau für Koordinaten
     ctx.font = `${size * 0.25}px Arial`;
     if (!effectiveRotation) {
       for (let i = 0; i < 8; i++) {
