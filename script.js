@@ -238,7 +238,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function isInCheck(color, tempBoard = board, tempKingPos = null) {
     const kingPos = tempKingPos || (color === "white" ? kingPositions.white : kingPositions.black);
-    if (!kingPos) return false;
+    if (!kingPos) {
+      if (DEBUG.enableLogging && DEBUG.logLevel === "debug") {
+        console.log(`No king position found for ${color}`);
+      }
+      return false;
+    }
 
     const opponentColor = color === "white" ? "black" : "white";
     for (let y = 0; y < 8; y++) {
@@ -486,11 +491,11 @@ document.addEventListener("DOMContentLoaded", () => {
         // Kingside castling (short)
         if (
           castlingAvailability.white.kingside &&
-          !moveHistory.some(m => m.fromY === 7 && (m.fromX === 4 || m.fromX === 7)) &&
           !board[7][5] &&
           !board[7][6] &&
           board[7][7] === "R" &&
-          !isInCheck("white")
+          !isInCheck("white") &&
+          !moveHistory.some(m => m.fromY === 7 && (m.fromX === 4 || m.fromX === 7))
         ) {
           let canCastle = true;
           for (let i = 4; i <= 6; i++) {
@@ -499,7 +504,8 @@ document.addEventListener("DOMContentLoaded", () => {
               tempBoard[7][i] = "K";
               tempBoard[7][i - 1] = "";
             }
-            if (isInCheck("white", tempBoard, { x: i, y: 7 })) {
+            const tempKingPos = { x: i, y: 7 };
+            if (isInCheck("white", tempBoard, tempKingPos)) {
               canCastle = false;
               if (DEBUG.enableLogging && DEBUG.logLevel === "debug") {
                 console.log(`Kingside castling for white blocked: square ${i},7 is under attack`);
@@ -517,12 +523,12 @@ document.addEventListener("DOMContentLoaded", () => {
         // Queenside castling (long)
         if (
           castlingAvailability.white.queenside &&
-          !moveHistory.some(m => m.fromY === 7 && (m.fromX === 4 || m.fromX === 0)) &&
           !board[7][1] &&
           !board[7][2] &&
           !board[7][3] &&
           board[7][0] === "R" &&
-          !isInCheck("white")
+          !isInCheck("white") &&
+          !moveHistory.some(m => m.fromY === 7 && (m.fromX === 4 || m.fromX === 0))
         ) {
           let canCastle = true;
           for (let i = 4; i >= 2; i--) {
@@ -531,7 +537,8 @@ document.addEventListener("DOMContentLoaded", () => {
               tempBoard[7][i] = "K";
               tempBoard[7][i + 1] = "";
             }
-            if (isInCheck("white", tempBoard, { x: i, y: 7 })) {
+            const tempKingPos = { x: i, y: 7 };
+            if (isInCheck("white", tempBoard, tempKingPos)) {
               canCastle = false;
               if (DEBUG.enableLogging && DEBUG.logLevel === "debug") {
                 console.log(`Queenside castling for white blocked: square ${i},7 is under attack`);
@@ -550,11 +557,11 @@ document.addEventListener("DOMContentLoaded", () => {
         // Kingside castling (short)
         if (
           castlingAvailability.black.kingside &&
-          !moveHistory.some(m => m.fromY === 0 && (m.fromX === 4 || m.fromX === 7)) &&
           !board[0][5] &&
           !board[0][6] &&
           board[0][7] === "r" &&
-          !isInCheck("black")
+          !isInCheck("black") &&
+          !moveHistory.some(m => m.fromY === 0 && (m.fromX === 4 || m.fromX === 7))
         ) {
           let canCastle = true;
           for (let i = 4; i <= 6; i++) {
@@ -563,7 +570,8 @@ document.addEventListener("DOMContentLoaded", () => {
               tempBoard[0][i] = "k";
               tempBoard[0][i - 1] = "";
             }
-            if (isInCheck("black", tempBoard, { x: i, y: 0 })) {
+            const tempKingPos = { x: i, y: 0 };
+            if (isInCheck("black", tempBoard, tempKingPos)) {
               canCastle = false;
               if (DEBUG.enableLogging && DEBUG.logLevel === "debug") {
                 console.log(`Kingside castling for black blocked: square ${i},0 is under attack`);
@@ -581,12 +589,12 @@ document.addEventListener("DOMContentLoaded", () => {
         // Queenside castling (long)
         if (
           castlingAvailability.black.queenside &&
-          !moveHistory.some(m => m.fromY === 0 && (m.fromX === 4 || m.fromX === 0)) &&
           !board[0][1] &&
           !board[0][2] &&
           !board[0][3] &&
           board[0][0] === "r" &&
-          !isInCheck("black")
+          !isInCheck("black") &&
+          !moveHistory.some(m => m.fromY === 0 && (m.fromX === 4 || m.fromX === 0))
         ) {
           let canCastle = true;
           for (let i = 4; i >= 2; i--) {
@@ -595,7 +603,8 @@ document.addEventListener("DOMContentLoaded", () => {
               tempBoard[0][i] = "k";
               tempBoard[0][i + 1] = "";
             }
-            if (isInCheck("black", tempBoard, { x: i, y: 0 })) {
+            const tempKingPos = { x: i, y: 0 };
+            if (isInCheck("black", tempBoard, tempKingPos)) {
               canCastle = false;
               if (DEBUG.enableLogging && DEBUG.logLevel === "debug") {
                 console.log(`Queenside castling for black blocked: square ${i},0 is under attack`);
@@ -631,6 +640,10 @@ document.addEventListener("DOMContentLoaded", () => {
       updateKingPositions(tempBoard);
       if (!isInCheck(isWhite ? "white" : "black", tempBoard)) {
         validMoves.push(move);
+      } else {
+        if (DEBUG.enableLogging && DEBUG.logLevel === "debug") {
+          console.log(`Move to ${move.toX},${move.toY} rejected: puts ${isWhite ? "white" : "black"} king in check`);
+        }
       }
       updateKingPositions(board); // Restore original king positions
     }
@@ -672,17 +685,29 @@ document.addEventListener("DOMContentLoaded", () => {
     promotionChoices.style.position = "absolute";
     promotionChoices.style.top = `${offsetY + y * size}px`;
     promotionChoices.style.left = `${offsetX + x * size}px`;
-    promotionChoices.style.backgroundColor = "rgba(0, 0, 0, 0.8)";
+    promotionChoices.style.backgroundColor = "rgba(255, 255, 255, 0.9)";
     promotionChoices.style.padding = "10px";
-    promotionChoices.style.borderRadius = "5px";
+    promotionChoices.style.borderRadius = "8px";
+    promotionChoices.style.boxShadow = "0 2px 10px rgba(0, 0, 0, 0.3)";
     promotionChoices.style.zIndex = "1000";
+    promotionChoices.style.display = "flex";
+    promotionChoices.style.gap = "10px";
 
     const choices = isWhite ? ["Q", "R", "B", "N"] : ["q", "r", "b", "n"];
     choices.forEach(p => {
       const button = document.createElement("button");
       button.textContent = pieces[p];
-      button.style.margin = "5px";
-      button.style.fontSize = "24px";
+      button.title = p.toLowerCase() === "q" ? "Dame" : p.toLowerCase() === "r" ? "Turm" : p.toLowerCase() === "b" ? "Läufer" : "Springer";
+      button.style.margin = "0";
+      button.style.padding = "8px";
+      button.style.fontSize = `${size * 0.6}px`;
+      button.style.cursor = "pointer";
+      button.style.backgroundColor = "#f0d9b5";
+      button.style.border = "2px solid #b58863";
+      button.style.borderRadius = "5px";
+      button.style.transition = "background-color 0.2s";
+      button.onmouseover = () => (button.style.backgroundColor = "#d4e4d2");
+      button.onmouseout = () => (button.style.backgroundColor = "#f0d9b5");
       button.addEventListener("click", () => {
         board[y][x] = p;
         document.body.removeChild(promotionChoices);
@@ -847,26 +872,26 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   console.log("Adding event listeners...");
-  if (startButton) {
+  try {
     startButton.addEventListener("click", () => {
       if (DEBUG.enableLogging && DEBUG.logLevel === "debug") {
         console.log("Start button clicked");
       }
       startGame();
     });
-  } else {
-    console.error("startButton not found in DOM.");
+  } catch (e) {
+    console.error("Failed to add event listener to startButton:", e);
   }
 
-  if (startFreestyleButton) {
+  try {
     startFreestyleButton.addEventListener("click", () => {
       if (DEBUG.enableLogging && DEBUG.logLevel === "debug") {
         console.log("Freestyle button clicked");
       }
       startGame(true);
     });
-  } else {
-    console.error("startFreestyleButton not found in DOM.");
+  } catch (e) {
+    console.error("Failed to add event listener to startFreestyleButton:", e);
   }
 
   if (rotateButton) {
@@ -964,4 +989,7 @@ document.addEventListener("DOMContentLoaded", () => {
     console.log("Initializing game...");
   }
   resizeCanvas();
+
+  // Sicherstellen, dass das StartScreen sichtbar ist
+  startScreen.style.display = "block";
 });
