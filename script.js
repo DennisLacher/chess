@@ -89,7 +89,7 @@ document.addEventListener("DOMContentLoaded", () => {
     ? { light: "#4a4a4a", dark: "#1f1f1f" }
     : { light: "#e0e0e0", dark: "#4a4a4a" };
 
-  window.updateBoardColors = function(isDark) {
+  window.updateBoardColors = function (isDark) {
     window.boardColors = isDark
       ? { light: "#4a4a4a", dark: "#1f1f1f" }
       : { light: "#e0e0e0", dark: "#4a4a4a" };
@@ -157,7 +157,7 @@ document.addEventListener("DOMContentLoaded", () => {
   function initializeDarkmodeToggle() {
     const darkmodeToggleButtons = document.querySelectorAll("#darkmodeToggleButton");
     if (darkmodeToggleButtons.length > 0) {
-      darkmodeToggleButtons.forEach(button => {
+      darkmodeToggleButtons.forEach((button) => {
         button.textContent = isDarkmode ? "Lightmode" : "Darkmode";
         button.removeEventListener("click", toggleDarkmodeHandler); // Entferne vorhandene Listener
         button.addEventListener("click", toggleDarkmodeHandler);
@@ -173,7 +173,7 @@ document.addEventListener("DOMContentLoaded", () => {
     console.log("Darkmode toggled to:", isDarkmode);
     document.body.classList.toggle("darkmode", isDarkmode);
     const darkmodeToggleButtons = document.querySelectorAll("#darkmodeToggleButton");
-    darkmodeToggleButtons.forEach(btn => {
+    darkmodeToggleButtons.forEach((btn) => {
       btn.textContent = isDarkmode ? "Lightmode" : "Darkmode";
     });
     localStorage.setItem("darkmode", isDarkmode);
@@ -184,7 +184,7 @@ document.addEventListener("DOMContentLoaded", () => {
   initializeDarkmodeToggle();
 
   function updateOpeningDisplay() {
-    const moves = moveNotations.map(m => m.notation).filter(n => !n.includes("-"));
+    const moves = moveNotations.map((m) => m.notation).filter((n) => !n.includes("-"));
     let displayText = `Zug: ${moves[moves.length - 1] || "Kein Zug"}`;
 
     for (let opening of openings) {
@@ -232,7 +232,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (lastMove && ((lastMove.fromX === x && lastMove.fromY === y) || (lastMove.toX === x && lastMove.toY === y))) {
           ctx.fillStyle = "#b2f0b2"; // Sanftes Grün für letzten Zug
         }
-        if (legalMoves.some(move => move.toX === x && move.toY === y)) {
+        if (legalMoves.some((move) => move.toX === x && move.toY === y)) {
           ctx.fillStyle = "#ffd700"; // Goldgelb für legale Züge
         }
         if ((isWhiteInCheck && kingPositions.white && kingPositions.white.x === x && kingPositions.white.y === y) ||
@@ -323,7 +323,7 @@ document.addEventListener("DOMContentLoaded", () => {
         ["", "", "", "", "", "", "", ""],
         ["", "", "", "", "", "", "", ""],
         ["P", "P", "P", "P", "P", "P", "P", "P"],
-        shuffledRow.map(p => p.toUpperCase())
+        shuffledRow.map((p) => p.toUpperCase())
       ];
     } else {
       board = [
@@ -383,7 +383,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const isOpponent = piece && ((piece === piece.toUpperCase() && opponentColor === "white") || (piece !== piece.toUpperCase() && opponentColor === "black"));
         if (isOpponent) {
           const moves = getLegalMovesForCheck(x, y, tempBoard);
-          if (moves.some(m => m.toX === kingPos.x && m.toY === kingPos.y)) {
+          if (moves.some((m) => m.toX === kingPos.x && m.toY === kingPos.y)) {
             if (DEBUG.enableLogging && DEBUG.logLevel === "debug") {
               console.log(`${color} king at ${kingPos.x},${kingPos.y} is in check by piece at ${x},${y}`);
             }
@@ -404,7 +404,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if ((isWhiteInCheck && !whiteWasInCheck) || (isBlackInCheck && !blackWasInCheck)) {
       if (soundEnabled) {
         const audio = new Audio(SOUND.checkSound);
-        audio.play().catch(e => console.error("Check audio play failed:", e));
+        audio.play().catch((e) => console.error("Check audio play failed:", e));
       }
     }
   }
@@ -419,7 +419,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (piece.toLowerCase() === "p") {
       const direction = isWhite ? -1 : 1;
       const attackDirs = [-1, 1];
-      attackDirs.forEach(dx => {
+      attackDirs.forEach((dx) => {
         const newX = x + dx;
         const newY = y + direction;
         if (newX >= 0 && newX < 8 && newY >= 0 && newY < 8) {
@@ -428,7 +428,7 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     } else if (piece.toLowerCase() === "r") {
       const directions = [[0, 1], [0, -1], [1, 0], [-1, 0]];
-      directions.forEach([dx, dy] => {
+      directions.forEach(([dx, dy]) => {
         let newX = x;
         let newY = y;
         while (true) {
@@ -444,7 +444,7 @@ document.addEventListener("DOMContentLoaded", () => {
         [-2, -1], [-2, 1], [-1, -2], [-1, 2],
         [1, -2], [1, 2], [2, -1], [2, 1]
       ];
-      knightMoves.forEach([dx, dy] => {
+      knightMoves.forEach(([dx, dy]) => {
         const newX = x + dx;
         const newY = y + dy;
         if (newX >= 0 && newX < 8 && newY >= 0 && newY < 8) {
@@ -453,7 +453,7 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     } else if (piece.toLowerCase() === "b") {
       const directions = [[1, 1], [1, -1], [-1, 1], [-1, -1]];
-      directions.forEach([dx, dy] => {
+      directions.forEach(([dx, dy]) => {
         let newX = x;
         let newY = y;
         while (true) {
@@ -466,7 +466,7 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     } else if (piece.toLowerCase() === "q") {
       const directions = [[0, 1], [0, -1], [1, 0], [-1, 0], [1, 1], [1, -1], [-1, 1], [-1, -1]];
-      directions.forEach([dx, dy] => {
+      directions.forEach(([dx, dy]) => {
         let newX = x;
         let newY = y;
         while (true) {
@@ -482,7 +482,7 @@ document.addEventListener("DOMContentLoaded", () => {
         [0, 1], [0, -1], [1, 0], [-1, 0],
         [1, 1], [1, -1], [-1, 1], [-1, -1]
       ];
-      kingMoves.forEach([dx, dy] => {
+      kingMoves.forEach(([dx, dy]) => {
         const newX = x + dx;
         const newY = y + dy;
         if (newX >= 0 && newX < 8 && newY >= 0 && newY < 8) {
@@ -524,7 +524,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       }
       const attackDirs = [-1, 1];
-      attackDirs.forEach(dx => {
+      attackDirs.forEach((dx) => {
         const newX = x + dx;
         const newY = y + direction;
         if (newX >= 0 && newX < 8 && newY >= 0 && newY < 8) {
@@ -539,7 +539,7 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     } else if (piece.toLowerCase() === "r") {
       const directions = [[0, 1], [0, -1], [1, 0], [-1, 0]];
-      directions.forEach([dx, dy] => {
+      directions.forEach(([dx, dy]) => {
         let newX = x;
         let newY = y;
         while (true) {
@@ -561,7 +561,7 @@ document.addEventListener("DOMContentLoaded", () => {
         [-2, -1], [-2, 1], [-1, -2], [-1, 2],
         [1, -2], [1, 2], [2, -1], [2, 1]
       ];
-      knightMoves.forEach([dx, dy] => {
+      knightMoves.forEach(([dx, dy]) => {
         const newX = x + dx;
         const newY = y + dy;
         if (newX >= 0 && newX < 8 && newY >= 0 && newY < 8) {
@@ -573,7 +573,7 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     } else if (piece.toLowerCase() === "b") {
       const directions = [[1, 1], [1, -1], [-1, 1], [-1, -1]];
-      directions.forEach([dx, dy] => {
+      directions.forEach(([dx, dy]) => {
         let newX = x;
         let newY = y;
         while (true) {
@@ -592,7 +592,7 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     } else if (piece.toLowerCase() === "q") {
       const directions = [[0, 1], [0, -1], [1, 0], [-1, 0], [1, 1], [1, -1], [-1, 1], [-1, -1]];
-      directions.forEach([dx, dy] => {
+      directions.forEach(([dx, dy]) => {
         let newX = x;
         let newY = y;
         while (true) {
@@ -614,7 +614,7 @@ document.addEventListener("DOMContentLoaded", () => {
         [0, 1], [0, -1], [1, 0], [-1, 0],
         [1, 1], [1, -1], [-1, 1], [-1, -1]
       ];
-      kingMoves.forEach([dx, dy] => {
+      kingMoves.forEach(([dx, dy]) => {
         const newX = x + dx;
         const newY = y + dy;
         if (newX >= 0 && newX < 8 && newY >= 0 && newY < 8) {
@@ -632,11 +632,11 @@ document.addEventListener("DOMContentLoaded", () => {
           !board[7][6] &&
           board[7][7] === "R" &&
           !isInCheck("white") &&
-          !moveHistory.some(m => m.piece === "K" || (m.piece === "R" && m.fromX === 7 && m.fromY === 7))
+          !moveHistory.some((m) => m.piece === "K" || (m.piece === "R" && m.fromX === 7 && m.fromY === 7))
         ) {
           let canCastle = true;
           for (let i = 4; i <= 6; i++) {
-            const tempBoard = board.map(row => [...row]);
+            const tempBoard = board.map((row) => [...row]);
             if (i > 4) {
               tempBoard[7][i] = "K";
               tempBoard[7][i - 1] = "";
@@ -664,11 +664,11 @@ document.addEventListener("DOMContentLoaded", () => {
           !board[7][3] &&
           board[7][0] === "R" &&
           !isInCheck("white") &&
-          !moveHistory.some(m => m.piece === "K" || (m.piece === "R" && m.fromX === 0 && m.fromY === 7))
+          !moveHistory.some((m) => m.piece === "K" || (m.piece === "R" && m.fromX === 0 && m.fromY === 7))
         ) {
           let canCastle = true;
           for (let i = 4; i >= 2; i--) {
-            const tempBoard = board.map(row => [...row]);
+            const tempBoard = board.map((row) => [...row]);
             if (i < 4) {
               tempBoard[7][i] = "K";
               tempBoard[7][i + 1] = "";
@@ -696,11 +696,11 @@ document.addEventListener("DOMContentLoaded", () => {
           !board[0][6] &&
           board[0][7] === "r" &&
           !isInCheck("black") &&
-          !moveHistory.some(m => m.piece === "k" || (m.piece === "r" && m.fromX === 7 && m.fromY === 0))
+          !moveHistory.some((m) => m.piece === "k" || (m.piece === "r" && m.fromX === 7 && m.fromY === 0))
         ) {
           let canCastle = true;
           for (let i = 4; i <= 6; i++) {
-            const tempBoard = board.map(row => [...row]);
+            const tempBoard = board.map((row) => [...row]);
             if (i > 4) {
               tempBoard[0][i] = "k";
               tempBoard[0][i - 1] = "";
@@ -728,11 +728,11 @@ document.addEventListener("DOMContentLoaded", () => {
           !board[0][3] &&
           board[0][0] === "r" &&
           !isInCheck("black") &&
-          !moveHistory.some(m => m.piece === "k" || (m.piece === "r" && m.fromX === 0 && m.fromY === 0))
+          !moveHistory.some((m) => m.piece === "k" || (m.piece === "r" && m.fromX === 0 && m.fromY === 0))
         ) {
           let canCastle = true;
           for (let i = 4; i >= 2; i--) {
-            const tempBoard = board.map(row => [...row]);
+            const tempBoard = board.map((row) => [...row]);
             if (i < 4) {
               tempBoard[0][i] = "k";
               tempBoard[0][i + 1] = "";
@@ -758,7 +758,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const validMoves = [];
     for (const move of moves) {
-      const tempBoard = board.map(row => [...row]);
+      const tempBoard = board.map((row) => [...row]);
       tempBoard[move.toY][move.toX] = piece;
       tempBoard[y][x] = "";
       if (move.castling) {
@@ -836,7 +836,7 @@ document.addEventListener("DOMContentLoaded", () => {
     promotionChoices.style.zIndex = "1000";
 
     const choices = isWhite ? ["Q", "R", "B", "N"] : ["q", "r", "b", "n"];
-    choices.forEach(p => {
+    choices.forEach((p) => {
       const button = document.createElement("button");
       button.textContent = pieces[p];
       button.style.fontSize = `${size * 0.6}px`;
@@ -859,7 +859,7 @@ document.addEventListener("DOMContentLoaded", () => {
         updateCheckStatus();
         if (soundEnabled) {
           const audio = new Audio(SOUND.moveSound);
-          audio.play().catch(e => console.error("Promotion audio play failed:", e));
+          audio.play().catch((e) => console.error("Promotion audio play failed:", e));
         }
         drawBoard();
       });
@@ -939,9 +939,9 @@ document.addEventListener("DOMContentLoaded", () => {
         drawBoard();
       }
     } else {
-      const move = legalMoves.find(m => m.toX === boardX && m.toY === boardY);
+      const move = legalMoves.find((m) => m.toX === boardX && m.toY === boardY);
       if (move) {
-        const newBoard = board.map(row => [...row]);
+        const newBoard = board.map((row) => [...row]);
         const targetPiece = newBoard[boardY][boardX];
         const isCapture = targetPiece && (targetPiece.toLowerCase() !== selectedPiece.piece.toLowerCase()) && ((targetPiece === targetPiece.toUpperCase()) !== (selectedPiece.piece === selectedPiece.piece.toUpperCase()));
         newBoard[boardY][boardX] = selectedPiece.piece;
@@ -982,7 +982,7 @@ document.addEventListener("DOMContentLoaded", () => {
           return;
         }
         moveHistory.push({
-          board: board.map(row => [...row]),
+          board: board.map((row) => [...row]),
           currentPlayer,
           moveCount,
           castlingAvailability: { ...castlingAvailability },
@@ -996,7 +996,7 @@ document.addEventListener("DOMContentLoaded", () => {
         updateCheckStatus();
         if (soundEnabled) {
           const audio = new Audio(isCapture ? SOUND.captureSound : SOUND.moveSound);
-          audio.play().catch(e => console.error("Move audio play failed:", e));
+          audio.play().catch((e) => console.error("Move audio play failed:", e));
         }
         selectedPiece = null;
         legalMoves = [];
