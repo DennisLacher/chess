@@ -39,6 +39,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const openingDisplay = document.getElementById("openingDisplay");
 
   console.log("Checking DOM elements...");
+  console.log("canvas:", canvas);
   console.log("startScreen:", startScreen);
   console.log("startButton:", startButton);
   console.log("startFreestyleButton:", startFreestyleButton);
@@ -50,12 +51,14 @@ document.addEventListener("DOMContentLoaded", () => {
     console.error("One or more DOM elements are missing. Check index.html for correct IDs:", {
       canvas, startScreen, startButton, startFreestyleButton, gameContainer, turnIndicator, moveList, openingDisplay
     });
+    alert("Fehler: Ein oder mehrere DOM-Elemente fehlen. Bitte überprüfe die Konsole für Details.");
     return;
   }
 
   const ctx = canvas.getContext("2d");
   if (!ctx) {
     console.error("Failed to initialize canvas context.");
+    alert("Fehler: Canvas-Kontext konnte nicht initialisiert werden.");
     return;
   }
 
@@ -157,6 +160,7 @@ document.addEventListener("DOMContentLoaded", () => {
         button.removeEventListener("click", toggleDarkmodeHandler); // Entferne vorhandene Listener
         button.addEventListener("click", toggleDarkmodeHandler);
       });
+      console.log("Darkmode toggle button initialized.");
     } else {
       console.warn("No darkmodeToggleButton found in the DOM.");
     }
@@ -1004,19 +1008,21 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function initializeGameButtons() {
     if (startButton) {
-      startButton.removeEventListener("click", () => startGame(false)); // Entferne vorhandene Listener
-      startButton.addEventListener("click", () => startGame(false));
-      console.log("Start button initialized.");
+      startButton.removeEventListener("click", startGameNormalHandler); // Entferne vorhandene Listener
+      startButton.addEventListener("click", startGameNormalHandler);
+      console.log("Start button initialized successfully.");
     } else {
-      console.error("Start button not found in DOM.");
+      console.error("Start button not found in DOM. Check if ID 'startButton' exists in index.html.");
+      alert("Fehler: Start-Button nicht gefunden. Bitte überprüfe die Konsole.");
     }
 
     if (startFreestyleButton) {
-      startFreestyleButton.removeEventListener("click", () => startGame(true)); // Entferne vorhandene Listener
-      startFreestyleButton.addEventListener("click", () => startGame(true));
-      console.log("Freestyle button initialized.");
+      startFreestyleButton.removeEventListener("click", startGameFreestyleHandler); // Entferne vorhandene Listener
+      startFreestyleButton.addEventListener("click", startGameFreestyleHandler);
+      console.log("Freestyle button initialized successfully.");
     } else {
-      console.error("Freestyle button not found in DOM.");
+      console.error("Freestyle button not found in DOM. Check if ID 'startFreestyleButton' exists in index.html.");
+      alert("Fehler: Freestyle-Button nicht gefunden. Bitte überprüfe die Konsole.");
     }
 
     if (rotateButton) {
@@ -1064,6 +1070,16 @@ document.addEventListener("DOMContentLoaded", () => {
     if (restartButton) {
       restartButton.addEventListener("click", () => startGame(false));
     }
+  }
+
+  function startGameNormalHandler() {
+    console.log("Start button clicked!");
+    startGame(false);
+  }
+
+  function startGameFreestyleHandler() {
+    console.log("Freestyle button clicked!");
+    startGame(true);
   }
 
   // Initialisiere die Buttons
