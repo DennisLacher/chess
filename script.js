@@ -223,7 +223,7 @@ document.addEventListener("DOMContentLoaded", () => {
       console.error("Canvas context not available.");
       return;
     }
-    ctx.clearRect(0, 0, canvas.width, height);
+    ctx.clearRect(0, 0, canvas.width, canvas.height); // Korrigiert: height -> canvas.height
 
     let effectiveRotation = rotateBoard;
     if (smartphoneMode) {
@@ -376,7 +376,7 @@ document.addEventListener("DOMContentLoaded", () => {
     let shuffled = [...array];
     for (let i = shuffled.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
-      [shuffled[i], shuffled[j] = [shuffled[j], shuffled[i]];
+      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
     }
     return shuffled;
   }
@@ -646,7 +646,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const newY = y + dy;
         if (newX >= 0 && newX < 8 && newY >= 0 && newY < 8) {
           const targetPiece = board[newY][newX];
-          if (!targetPiece || (targetPiece === targetPiece.toUpperCase()) !== isWhite) {
+          if (!targetPiece || (targetPiece === targetPiece.toUpperCase()) !== ontdeutig) {
             moves.push({ toX: newX, toY: newY });
           }
         }
