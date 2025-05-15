@@ -123,7 +123,7 @@ document.addEventListener("DOMContentLoaded", () => {
     ["", "", "", "", "", "", "", ""],
     ["", "", "", "", "", "", "", ""],
     ["", "", "", "", "", "", "", ""],
-    ["", "", "", "", "", "", "", ""],
+    ["", "", "", "", "", "", ""],
     ["P", "P", "P", "P", "P", "P", "P", "P"],
     ["R", "N", "B", "Q", "K", "B", "N", "R"]
   ];
@@ -290,25 +290,26 @@ document.addEventListener("DOMContentLoaded", () => {
       maxWidth = window.innerWidth * CONFIG.maxWidthFactor; // 90% der Breite
       maxHeight = window.innerHeight * CONFIG.maxHeightFactor; // 85% der Höhe
     } else {
-      maxWidth = window.innerWidth * CONFIG.maxWidthFactor - 40;
+      maxWidth = Math.min(window.innerWidth * CONFIG.maxWidthFactor - 40, 800); // Begrenze auf 800px
       maxHeight = window.innerHeight - 100;
     }
 
-    const boardAspectRatio = 8 / 8; // Quadratisches Brett
-    let newSize = Math.min(maxWidth / 8, maxHeight / 8, CONFIG.defaultBoardSize);
+    // Behalte das 1:1-Verhältnis für das 8x8-Brett
+    const boardSize = Math.min(maxWidth / 8, maxHeight / 8, CONFIG.defaultBoardSize);
+    size = Math.floor(Math.max(boardSize, CONFIG.minBoardSize));
 
-    if (window.innerWidth < 640 && !fullscreenMode) {
-      newSize = Math.min(newSize, CONFIG.minBoardSize);
-    }
+    // Berechne Offset, um das Brett zu zentrieren
+    const totalWidth = size * 8;
+    const totalHeight = size * 8;
+    offsetX = (maxWidth - totalWidth) / 2;
+    offsetY = (maxHeight - totalHeight) / 2;
 
-    size = Math.floor(newSize);
-    offsetX = size * CONFIG.offset;
-    offsetY = size * CONFIG.offset;
-    canvas.width = size * 8 + offsetX * 2;
-    canvas.height = size * 8 + offsetY * 2;
+    // Setze Canvas-Größe basierend auf der verfügbaren Fläche
+    canvas.width = totalWidth + offsetX * 2;
+    canvas.height = totalHeight + offsetY * 2;
 
     if (DEBUG.enableLogging && DEBUG.logLevel === "debug") {
-      console.log("New canvas size:", canvas.width, "x", canvas.height, "Calculated size:", size);
+      console.log("New canvas size:", canvas.width, "x", canvas.height, "Calculated size:", size, "Offsets:", offsetX, offsetY);
     }
     if (gameStarted) {
       drawBoard();
@@ -465,7 +466,7 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     } else if (piece.toLowerCase() === "r") {
       const directions = [[0, 1], [0, -1], [1, 0], [-1, 0]];
-      directions.forEach(([dx, dy]) => {
+      directions.forEach([dx, dy]) => {
         let newX = x;
         let newY = y;
         while (true) {
@@ -481,7 +482,7 @@ document.addEventListener("DOMContentLoaded", () => {
         [-2, -1], [-2, 1], [-1, -2], [-1, 2],
         [1, -2], [1, 2], [2, -1], [2, 1]
       ];
-      knightMoves.forEach(([dx, dy]) => {
+      knightMoves.forEach([dx, dy]) => {
         const newX = x + dx;
         const newY = y + dy;
         if (newX >= 0 && newX < 8 && newY >= 0 && newY < 8) {
@@ -490,7 +491,7 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     } else if (piece.toLowerCase() === "b") {
       const directions = [[1, 1], [1, -1], [-1, 1], [-1, -1]];
-      directions.forEach(([dx, dy]) => {
+      directions.forEach([dx, dy]) => {
         let newX = x;
         let newY = y;
         while (true) {
@@ -503,7 +504,7 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     } else if (piece.toLowerCase() === "q") {
       const directions = [[0, 1], [0, -1], [1, 0], [-1, 0], [1, 1], [1, -1], [-1, 1], [-1, -1]];
-      directions.forEach(([dx, dy]) => {
+      directions.forEach([dx, dy]) => {
         let newX = x;
         let newY = y;
         while (true) {
@@ -519,7 +520,7 @@ document.addEventListener("DOMContentLoaded", () => {
         [0, 1], [0, -1], [1, 0], [-1, 0],
         [1, 1], [1, -1], [-1, 1], [-1, -1]
       ];
-      kingMoves.forEach(([dx, dy]) => {
+      kingMoves.forEach([dx, dy]) => {
         const newX = x + dx;
         const newY = y + dy;
         if (newX >= 0 && newX < 8 && newY >= 0 && newY < 8) {
@@ -576,7 +577,7 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     } else if (piece.toLowerCase() === "r") {
       const directions = [[0, 1], [0, -1], [1, 0], [-1, 0]];
-      directions.forEach(([dx, dy]) => {
+      directions.forEach([dx, dy]) => {
         let newX = x;
         let newY = y;
         while (true) {
@@ -598,7 +599,7 @@ document.addEventListener("DOMContentLoaded", () => {
         [-2, -1], [-2, 1], [-1, -2], [-1, 2],
         [1, -2], [1, 2], [2, -1], [2, 1]
       ];
-      knightMoves.forEach(([dx, dy]) => {
+      knightMoves.forEach([dx, dy]) => {
         const newX = x + dx;
         const newY = y + dy;
         if (newX >= 0 && newX < 8 && newY >= 0 && newY < 8) {
@@ -610,7 +611,7 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     } else if (piece.toLowerCase() === "b") {
       const directions = [[1, 1], [1, -1], [-1, 1], [-1, -1]];
-      directions.forEach(([dx, dy]) => {
+      directions.forEach([dx, dy]) => {
         let newX = x;
         let newY = y;
         while (true) {
@@ -629,7 +630,7 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     } else if (piece.toLowerCase() === "q") {
       const directions = [[0, 1], [0, -1], [1, 0], [-1, 0], [1, 1], [1, -1], [-1, 1], [-1, -1]];
-      directions.forEach(([dx, dy]) => {
+      directions.forEach([dx, dy]) => {
         let newX = x;
         let newY = y;
         while (true) {
@@ -651,7 +652,7 @@ document.addEventListener("DOMContentLoaded", () => {
         [0, 1], [0, -1], [1, 0], [-1, 0],
         [1, 1], [1, -1], [-1, 1], [-1, -1]
       ];
-      kingMoves.forEach(([dx, dy]) => {
+      kingMoves.forEach([dx, dy]) => {
         const newX = x + dx;
         const newY = y + dy;
         if (newX >= 0 && newX < 8 && newY >= 0 && newY < 8) {
