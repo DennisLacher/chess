@@ -2,8 +2,8 @@ document.addEventListener("DOMContentLoaded", () => {
   console.log("Script loaded and DOMContentLoaded event fired at", new Date().toISOString());
 
   const CONFIG = {
-    defaultBoardSize: 45,
-    minBoardSize: 35,
+    defaultBoardSize: 50,
+    minBoardSize: 40,
     maxWidthFactor: 1.0,
     maxHeightFactor: 1.0,
     offset: 0.5,
@@ -23,10 +23,6 @@ document.addEventListener("DOMContentLoaded", () => {
     captureSound: "clap.mp3",
   };
 
-  if (DEBUG.enableLogging) {
-    console.log("Initializing game with CONFIG:", CONFIG);
-  }
-
   const canvas = document.getElementById("chessboard");
   const startScreen = document.getElementById("startScreen");
   const startButton = document.getElementById("startButton");
@@ -45,18 +41,11 @@ document.addEventListener("DOMContentLoaded", () => {
   const fullscreenButton = document.getElementById("fullscreenButton");
   const exitFullscreenButton = document.getElementById("exitFullscreenButton");
 
-  console.log("Checking DOM elements...");
-  console.log("canvas:", canvas);
-  console.log("startScreen:", startScreen);
-  console.log("startButton:", startButton);
-  console.log("startFreestyleButton:", startFreestyleButton);
-  console.log("gameContainer:", gameContainer);
-
   if (!canvas || !startScreen || !startButton || !startFreestyleButton || !gameContainer) {
     console.error("One or more DOM elements are missing. Check index.html for correct IDs:", {
       canvas, startScreen, startButton, startFreestyleButton, gameContainer
     });
-    alert("Fehler: Ein oder mehrere DOM-Elemente fehlen. Bitte überprüfe die Konsole für Details.");
+    alert("Fehler: Ein oder mehrere DOM-Elemente fehlen. Bitte überprüfe die Konsole.");
     return;
   }
 
@@ -95,11 +84,11 @@ document.addEventListener("DOMContentLoaded", () => {
   let timerInterval = null;
 
   const designs = {
-    1: { light: "#f0d9b5", dark: "#b58863" },
-    2: { light: "#d7b899", dark: "#8b5a2b" },
-    3: { light: "#f5f5f5", dark: "#a0a0a0" },
-    4: { light: "#c0c0c0", dark: "#404040" },
-    5: { light: "#d4e4d2", dark: "#6b8e23" }
+    1: { light: "#f0f0f0", dark: "#b0b0b0" },
+    2: { light: "#e0e0e0", dark: "#808080" },
+    3: { light: "#ffffff", dark: "#606060" },
+    4: { light: "#d0d0d0", dark: "#404040" },
+    5: { light: "#e8ecef", dark: "#4a4e57" }
   };
 
   window.boardColors = designs[currentDesign];
@@ -136,21 +125,18 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function initializeDarkmodeToggle() {
     if (darkmodeToggleButton && gameStarted) {
-      darkmodeToggleButton.textContent = isDarkmode ? "Lightmode" : "Darkmode";
+      darkmodeToggleButton.textContent = isDarkmode ? "Light" : "Dark";
       darkmodeToggleButton.removeEventListener("click", toggleDarkmodeHandler);
       darkmodeToggleButton.addEventListener("click", toggleDarkmodeHandler);
-      console.log("Darkmode toggle button initialized on game page.");
     } else if (darkmodeToggleButton && !gameStarted) {
       darkmodeToggleButton.style.display = "none";
-      console.log("Darkmode toggle button hidden on start screen.");
     }
   }
 
   function toggleDarkmodeHandler() {
     isDarkmode = !isDarkmode;
-    console.log("Darkmode toggled to:", isDarkmode);
     document.body.classList.toggle("darkmode", isDarkmode);
-    darkmodeToggleButton.textContent = isDarkmode ? "Lightmode" : "Darkmode";
+    darkmodeToggleButton.textContent = isDarkmode ? "Light" : "Dark";
     localStorage.setItem("darkmode", isDarkmode);
     window.updateBoardColors(currentDesign);
     drawBoard();
@@ -236,9 +222,6 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function drawBoard() {
-    if (DEBUG.enableLogging && DEBUG.logLevel === "debug") {
-      console.log("Drawing board with design:", currentDesign);
-    }
     if (!ctx) {
       console.error("Canvas context not available.");
       return;
@@ -254,23 +237,23 @@ document.addEventListener("DOMContentLoaded", () => {
         const displayX = effectiveRotation ? 7 - x : x;
         ctx.fillStyle = (displayX + displayY) % 2 === 0 ? window.boardColors.light : window.boardColors.dark;
         if (lastMove && ((lastMove.fromX === x && lastMove.fromY === y) || (lastMove.toX === x && lastMove.toY === y))) {
-          ctx.fillStyle = "#a3e4a3";
+          ctx.fillStyle = isDarkmode ? "#606060" : "#d3d3d3";
         }
         if (selectedPiece && selectedPiece.x === x && selectedPiece.y === y) {
-          ctx.fillStyle = "#42a5f5";
+          ctx.fillStyle = isDarkmode ? "#505050" : "#c0c0c0";
         }
         if (legalMoves.some((move) => move.toX === x && move.toY === y)) {
-          ctx.fillStyle = isDarkmode ? "#808080" : "#d3d3d3"; // Grau statt Gelb
+          ctx.fillStyle = isDarkmode ? "#404040" : "#e0e0e0";
         }
         if ((isWhiteInCheck && kingPositions.white && kingPositions.white.x === x && kingPositions.white.y === y) ||
             (isBlackInCheck && kingPositions.black && kingPositions.black.x === x && kingPositions.black.y === y)) {
-          ctx.fillStyle = gameOver ? "#c62828" : "#d32f2f";
+          ctx.fillStyle = gameOver ? "#a94442" : "#d9534f";
         }
         ctx.fillRect(offsetX + displayX * size, offsetY + displayY * size, size, size);
         const piece = board[y][x];
         if (piece) {
           const isWhite = piece === piece.toUpperCase();
-          ctx.fillStyle = isWhite ? "#ffffff" : "#000000";
+          ctx.fillStyle = isWhite ? "#000000" : "#ffffff";
           ctx.font = `${size * 0.7}px sans-serif`;
           ctx.textAlign = "center";
           ctx.textBaseline = "middle";
@@ -278,7 +261,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       }
     }
-    ctx.fillStyle = "#ffffff";
+    ctx.fillStyle = isDarkmode ? "#e0e0e0" : "#333";
     ctx.font = `${size * 0.25}px Arial`;
     if (!effectiveRotation) {
       for (let i = 0; i < 8; i++) {
@@ -295,9 +278,6 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function resizeCanvas() {
-    if (DEBUG.enableLogging && DEBUG.logLevel === "debug") {
-      console.log("Resizing canvas...");
-    }
     let maxWidth = window.innerWidth * CONFIG.maxWidthFactor * 0.7;
     let maxHeight = window.innerHeight * CONFIG.maxHeightFactor * 0.9;
     if (window.innerWidth <= 768) {
@@ -312,9 +292,6 @@ document.addEventListener("DOMContentLoaded", () => {
     offsetY = (maxHeight - totalHeight) / 2;
     canvas.width = totalWidth + offsetX * 2;
     canvas.height = totalHeight + offsetY * 2;
-    if (DEBUG.enableLogging && DEBUG.logLevel === "debug") {
-      console.log("New canvas size:", canvas.width, "x", canvas.height, "Calculated size:", size, "Offsets:", offsetX, offsetY);
-    }
     if (gameStarted) {
       drawBoard();
     }
@@ -323,16 +300,13 @@ document.addEventListener("DOMContentLoaded", () => {
   function toggleFullscreenMode() {
     fullscreenMode = !fullscreenMode;
     document.body.classList.toggle("fullscreen", fullscreenMode);
-    fullscreenButton.textContent = fullscreenMode ? "Normalmodus" : "Vollbildmodus";
+    fullscreenButton.textContent = fullscreenMode ? "Normal" : "Vollbild";
     exitFullscreenButton.style.display = fullscreenMode ? "block" : "none";
     resizeCanvas();
     drawBoard();
   }
 
   function startGame(freestyle = false) {
-    if (DEBUG.enableLogging && DEBUG.logLevel === "debug") {
-      console.log("Starting game, freestyle mode:", freestyle);
-    }
     currentPlayer = "white";
     gameStarted = true;
     gameOver = false;
@@ -351,7 +325,7 @@ document.addEventListener("DOMContentLoaded", () => {
     whiteTime = CONFIG.initialTime;
     blackTime = CONFIG.initialTime;
     document.body.classList.remove("fullscreen");
-    fullscreenButton.textContent = "Vollbildmodus";
+    fullscreenButton.textContent = "Vollbild";
     exitFullscreenButton.style.display = "none";
     moveList.innerHTML = "";
     startScreen.style.display = "none";
@@ -388,11 +362,6 @@ document.addEventListener("DOMContentLoaded", () => {
     drawBoard();
     startTimer();
     initializeDarkmodeToggle();
-    console.log("Game started, checking UI states:");
-    console.log("startScreen display:", window.getComputedStyle(startScreen).display);
-    console.log("gameContainer display:", window.getComputedStyle(gameContainer).display);
-    console.log("canvas display:", window.getComputedStyle(canvas).display);
-    console.log("Game status:", { gameStarted, gameOver });
   }
 
   function shuffleArray(array) {
@@ -412,19 +381,11 @@ document.addEventListener("DOMContentLoaded", () => {
         if (piece === "K") kingPositions.white = { x, y };
       }
     }
-    if (DEBUG.enableLogging && DEBUG.logLevel === "debug") {
-      console.log("Updated king positions:", kingPositions);
-    }
   }
 
   function isInCheck(color, tempBoard = board, tempKingPos = null) {
     const kingPos = tempKingPos || (color === "white" ? kingPositions.white : kingPositions.black);
-    if (!kingPos) {
-      if (DEBUG.enableLogging && DEBUG.logLevel === "debug") {
-        console.log(`No king position found for ${color}`);
-      }
-      return false;
-    }
+    if (!kingPos) return false;
     const opponentColor = color === "white" ? "black" : "white";
     for (let y = 0; y < 8; y++) {
       for (let x = 0; x < 8; x++) {
@@ -433,9 +394,6 @@ document.addEventListener("DOMContentLoaded", () => {
         if (isOpponent) {
           const moves = getLegalMovesForCheck(x, y, tempBoard);
           if (moves.some((m) => m.toX === kingPos.x && m.toY === kingPos.y)) {
-            if (DEBUG.enableLogging && DEBUG.logLevel === "debug") {
-              console.log(`${color} king at ${kingPos.x},${kingPos.y} is in check by piece at ${x},${y}`);
-            }
             return true;
           }
         }
@@ -540,24 +498,11 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function getLegalMoves(x, y) {
-    if (DEBUG.enableLogging && DEBUG.logLevel === "debug") {
-      console.log("Calculating legal moves for position:", x, y, "Piece:", board[y][x], "Current Player:", currentPlayer);
-    }
     const moves = [];
     const piece = board[y][x];
-    if (!piece) {
-      if (DEBUG.enableLogging && DEBUG.logLevel === "debug") {
-        console.log("No piece at", x, y);
-      }
-      return moves;
-    }
+    if (!piece) return moves;
     const isWhite = piece === piece.toUpperCase();
-    if ((isWhite && currentPlayer !== "white") || (!isWhite && currentPlayer !== "black")) {
-      if (DEBUG.enableLogging && DEBUG.logLevel === "debug") {
-        console.log("Not the current player's turn for this piece.");
-      }
-      return moves;
-    }
+    if ((isWhite && currentPlayer !== "white") || (!isWhite && currentPlayer !== "black")) return moves;
     if (piece.toLowerCase() === "p") {
       const direction = isWhite ? -1 : 1;
       const startRow = isWhite ? 6 : 1;
@@ -575,9 +520,6 @@ document.addEventListener("DOMContentLoaded", () => {
           const targetPiece = board[newY][newX];
           if (targetPiece && (targetPiece === targetPiece.toUpperCase()) !== isWhite) {
             moves.push({ toX: newX, toY: newY, promotion: newY === (isWhite ? 0 : 7) });
-            if (DEBUG.enableLogging && DEBUG.logLevel === "debug") {
-              console.log(`Pawn at ${x},${y} can capture ${targetPiece} at ${newX},${newY}`);
-            }
           }
         }
       });
@@ -669,17 +611,10 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       });
       if (isWhite && y === 7 && x === 4) {
-        if (
-          castlingAvailability.white.kingside &&
-          !board[7][5] &&
-          !board[7][6] &&
-          board[7][7] === "R" &&
-          !isInCheck("white") &&
-          !moveHistory.some((m) => m.piece === "K" || (m.piece === "R" && m.fromX === 7 && m.fromY === 7))
-        ) {
+        if (castlingAvailability.white.kingside && !board[7][5] && !board[7][6] && board[7][7] === "R" && !isInCheck("white") && !moveHistory.some(m => m.piece === "K" || (m.piece === "R" && m.fromX === 7 && m.fromY === 7))) {
           let canCastle = true;
           for (let i = 4; i <= 6; i++) {
-            const tempBoard = board.map((row) => [...row]);
+            const tempBoard = board.map(row => [...row]);
             if (i > 4) {
               tempBoard[7][i] = "K";
               tempBoard[7][i - 1] = "";
@@ -690,22 +625,12 @@ document.addEventListener("DOMContentLoaded", () => {
               break;
             }
           }
-          if (canCastle) {
-            moves.push({ toX: 6, toY: 7, castling: "kingside" });
-          }
+          if (canCastle) moves.push({ toX: 6, toY: 7, castling: "kingside" });
         }
-        if (
-          castlingAvailability.white.queenside &&
-          !board[7][1] &&
-          !board[7][2] &&
-          !board[7][3] &&
-          board[7][0] === "R" &&
-          !isInCheck("white") &&
-          !moveHistory.some((m) => m.piece === "K" || (m.piece === "R" && m.fromX === 0 && m.fromY === 7))
-        ) {
+        if (castlingAvailability.white.queenside && !board[7][1] && !board[7][2] && !board[7][3] && board[7][0] === "R" && !isInCheck("white") && !moveHistory.some(m => m.piece === "K" || (m.piece === "R" && m.fromX === 0 && m.fromY === 7))) {
           let canCastle = true;
           for (let i = 4; i >= 2; i--) {
-            const tempBoard = board.map((row) => [...row]);
+            const tempBoard = board.map(row => [...row]);
             if (i < 4) {
               tempBoard[7][i] = "K";
               tempBoard[7][i + 1] = "";
@@ -716,22 +641,13 @@ document.addEventListener("DOMContentLoaded", () => {
               break;
             }
           }
-          if (canCastle) {
-            moves.push({ toX: 2, toY: 7, castling: "queenside" });
-          }
+          if (canCastle) moves.push({ toX: 2, toY: 7, castling: "queenside" });
         }
       } else if (!isWhite && y === 0 && x === 4) {
-        if (
-          castlingAvailability.black.kingside &&
-          !board[0][5] &&
-          !board[0][6] &&
-          board[0][7] === "r" &&
-          !isInCheck("black") &&
-          !moveHistory.some((m) => m.piece === "k" || (m.piece === "r" && m.fromX === 7 && m.fromY === 0))
-        ) {
+        if (castlingAvailability.black.kingside && !board[0][5] && !board[0][6] && board[0][7] === "r" && !isInCheck("black") && !moveHistory.some(m => m.piece === "k" || (m.piece === "r" && m.fromX === 7 && m.fromY === 0))) {
           let canCastle = true;
           for (let i = 4; i <= 6; i++) {
-            const tempBoard = board.map((row) => [...row]);
+            const tempBoard = board.map(row => [...row]);
             if (i > 4) {
               tempBoard[0][i] = "k";
               tempBoard[0][i - 1] = "";
@@ -742,22 +658,12 @@ document.addEventListener("DOMContentLoaded", () => {
               break;
             }
           }
-          if (canCastle) {
-            moves.push({ toX: 6, toY: 0, castling: "kingside" });
-          }
+          if (canCastle) moves.push({ toX: 6, toY: 0, castling: "kingside" });
         }
-        if (
-          castlingAvailability.black.queenside &&
-          !board[0][1] &&
-          !board[0][2] &&
-          !board[0][3] &&
-          board[0][0] === "r" &&
-          !isInCheck("black") &&
-          !moveHistory.some((m) => m.piece === "k" || (m.piece === "r" && m.fromX === 0 && m.fromY === 0))
-        ) {
+        if (castlingAvailability.black.queenside && !board[0][1] && !board[0][2] && !board[0][3] && board[0][0] === "r" && !isInCheck("black") && !moveHistory.some(m => m.piece === "k" || (m.piece === "r" && m.fromX === 0 && m.fromY === 0))) {
           let canCastle = true;
           for (let i = 4; i >= 2; i--) {
-            const tempBoard = board.map((row) => [...row]);
+            const tempBoard = board.map(row => [...row]);
             if (i < 4) {
               tempBoard[0][i] = "k";
               tempBoard[0][i + 1] = "";
@@ -768,15 +674,13 @@ document.addEventListener("DOMContentLoaded", () => {
               break;
             }
           }
-          if (canCastle) {
-            moves.push({ toX: 2, toY: 0, castling: "queenside" });
-          }
+          if (canCastle) moves.push({ toX: 2, toY: 0, castling: "queenside" });
         }
       }
     }
     const validMoves = [];
     for (const move of moves) {
-      const tempBoard = board.map((row) => [...row]);
+      const tempBoard = board.map(row => [...row]);
       tempBoard[move.toY][move.toX] = piece;
       tempBoard[y][x] = "";
       if (move.castling) {
@@ -793,9 +697,6 @@ document.addEventListener("DOMContentLoaded", () => {
         validMoves.push(move);
       }
       updateKingPositions(board);
-    }
-    if (DEBUG.enableLogging && DEBUG.logLevel === "debug") {
-      console.log("Legal moves calculated:", validMoves);
     }
     return validMoves;
   }
@@ -855,23 +756,12 @@ document.addEventListener("DOMContentLoaded", () => {
     promotionChoices.style.position = "absolute";
     promotionChoices.style.top = `${top}px`;
     promotionChoices.style.left = `${left}px`;
-    const menuWidth = 4 * (size * 0.8 + 5);
-    const menuHeight = size * 0.8 + 10;
-    if (left + menuWidth > window.innerWidth) {
-      promotionChoices.style.left = `${window.innerWidth - menuWidth - 10}px`;
-    }
-    if (top + menuHeight > window.innerHeight) {
-      promotionChoices.style.top = `${window.innerHeight - menuHeight - 10}px`;
-    }
     const choices = isWhite ? ["Q", "R", "B", "N"] : ["q", "r", "b", "n"];
     choices.forEach((p) => {
       const button = document.createElement("button");
       button.textContent = pieces[p];
       button.style.fontSize = `${size * 0.6}px`;
       button.addEventListener("click", () => {
-        if (DEBUG.enableLogging && DEBUG.logLevel === "debug") {
-          console.log(`Pawn promoted to ${p} at ${x},${y}`);
-        }
         board[y][x] = p;
         document.body.removeChild(promotionChoices);
         updateKingPositions();
@@ -899,7 +789,6 @@ document.addEventListener("DOMContentLoaded", () => {
       if (legalKingMoves.length === 0) {
         gameOver = true;
         winnerText = isWhiteInCheck ? "Schwarz hat gewonnen!" : "Weiß hat gewonnen!";
-        console.log("Game over:", winnerText);
       }
     } else {
       let hasMoves = false;
@@ -918,24 +807,12 @@ document.addEventListener("DOMContentLoaded", () => {
       if (!hasMoves) {
         gameOver = true;
         winnerText = "Unentschieden (Patt)!";
-        console.log("Game over:", winnerText);
       }
     }
   }
 
   function handleCanvasClick(event) {
-    if (!gameStarted || gameOver) {
-      if (DEBUG.enableLogging && DEBUG.logLevel === "debug") {
-        console.log("Game not started or already over. Game status:", { gameStarted, gameOver });
-      }
-      return;
-    }
-    if (DEBUG.enableLogging && DEBUG.logLevel === "debug") {
-      console.log("Canvas click event triggered at:", new Date().toISOString());
-      console.log("Event type:", event.type);
-      console.log("Current player:", currentPlayer);
-      console.log("Game state:", { gameStarted, gameOver, selectedPiece, legalMoves });
-    }
+    if (!gameStarted || gameOver) return;
     event.preventDefault();
     const rect = canvas.getBoundingClientRect();
     const clientX = event.clientX || (event.touches && event.touches[0]?.clientX);
@@ -948,13 +825,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const adjustedY = clientY - rect.top;
     const x = Math.floor((adjustedX - offsetX) / size);
     const y = Math.floor((adjustedY - offsetY) / size);
-    if (DEBUG.enableLogging && DEBUG.logLevel === "debug") {
-      console.log("Raw coordinates:", clientX, clientY);
-      console.log("Canvas rect:", rect);
-      console.log("Adjusted coordinates:", adjustedX, adjustedY);
-      console.log("Converted to grid coordinates:", x, y);
-      console.log("size:", size, "offsetX:", offsetX, "offsetY:", offsetY);
-    }
     let boardX = x;
     let boardY = y;
     let effectiveRotation = rotateBoard;
@@ -966,43 +836,26 @@ document.addEventListener("DOMContentLoaded", () => {
       boardY = 7 - y;
     }
     if (boardX < 0 || boardX >= 8 || boardY < 0 || boardY >= 8) {
-      if (DEBUG.enableLogging && DEBUG.logLevel === "debug") {
-        console.log("Click outside board:", boardX, boardY);
-      }
       selectedPiece = null;
       legalMoves = [];
       drawBoard();
       return;
     }
-    if (DEBUG.enableLogging && DEBUG.logLevel === "debug") {
-      console.log("Clicked position on board:", boardX, boardY, "Piece:", board[boardY][boardX]);
-    }
     const piece = board[boardY][boardX];
     const isWhitePiece = piece && piece === piece.toUpperCase();
     if (!selectedPiece) {
       if (piece && (isWhitePiece === (currentPlayer === "white"))) {
-        if (DEBUG.enableLogging && DEBUG.logLevel === "debug") {
-          console.log("Piece selected:", piece, "at", boardX, boardY);
-        }
         selectedPiece = { x: boardX, y: boardY, piece };
         legalMoves = getLegalMoves(boardX, boardY);
         if (legalMoves.length === 0) {
-          if (DEBUG.enableLogging && DEBUG.logLevel === "debug") {
-            console.log("No legal moves available for this piece.");
-          }
           selectedPiece = null;
-        } else {
-          console.log("Legal moves for selected piece:", legalMoves);
         }
         drawBoard();
       }
     } else {
       const move = legalMoves.find((m) => m.toX === boardX && m.toY === boardY);
       if (move) {
-        if (DEBUG.enableLogging && DEBUG.logLevel === "debug") {
-          console.log("Valid move found:", move);
-        }
-        const newBoard = board.map((row) => [...row]);
+        const newBoard = board.map(row => [...row]);
         const targetPiece = newBoard[boardY][boardX];
         const isCapture = targetPiece && (targetPiece.toLowerCase() !== selectedPiece.piece.toLowerCase()) && ((targetPiece === targetPiece.toUpperCase()) !== (selectedPiece.piece === selectedPiece.piece.toUpperCase()));
         newBoard[boardY][boardX] = selectedPiece.piece;
@@ -1042,7 +895,7 @@ document.addEventListener("DOMContentLoaded", () => {
           lastMove = { fromX: selectedPiece.x, fromY: selectedPiece.y, toX: boardX, toY: boardY };
           updateKingPositions();
           moveHistory.push({
-            board: board.map((row) => [...row]),
+            board: board.map(row => [...row]),
             currentPlayer,
             moveCount,
             castlingAvailability: { ...castlingAvailability },
@@ -1051,7 +904,7 @@ document.addEventListener("DOMContentLoaded", () => {
           return;
         }
         moveHistory.push({
-          board: board.map((row) => [...row]),
+          board: board.map(row => [...row]),
           currentPlayer,
           moveCount,
           castlingAvailability: { ...castlingAvailability },
@@ -1070,29 +923,14 @@ document.addEventListener("DOMContentLoaded", () => {
         }
         selectedPiece = null;
         legalMoves = [];
-        if (DEBUG.enableLogging && DEBUG.logLevel === "debug") {
-          console.log("After move - Current player:", currentPlayer);
-          console.log("Board state:", board);
-        }
       } else {
         if (piece && (isWhitePiece === (currentPlayer === "white"))) {
-          if (DEBUG.enableLogging && DEBUG.logLevel === "debug") {
-            console.log("New piece selected:", piece, "at", boardX, boardY);
-          }
           selectedPiece = { x: boardX, y: boardY, piece };
           legalMoves = getLegalMoves(boardX, boardY);
           if (legalMoves.length === 0) {
-            if (DEBUG.enableLogging && DEBUG.logLevel === "debug") {
-              console.log("No legal moves available for this piece.");
-            }
             selectedPiece = null;
-          } else {
-            console.log("Legal moves for newly selected piece:", legalMoves);
           }
         } else {
-          if (DEBUG.enableLogging && DEBUG.logLevel === "debug") {
-            console.log("No valid move found for target:", boardX, boardY);
-          }
           selectedPiece = null;
           legalMoves = [];
         }
@@ -1102,108 +940,64 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function initializeGameButtons() {
-    if (startButton) {
-      startButton.removeEventListener("click", startGameNormalHandler);
-      startButton.addEventListener("click", startGameNormalHandler);
-      console.log("Start button initialized successfully and event listener added.");
-      startButton.style.pointerEvents = "auto";
-    }
-    if (startFreestyleButton) {
-      startFreestyleButton.removeEventListener("click", startGameFreestyleHandler);
-      startFreestyleButton.addEventListener("click", startGameFreestyleHandler);
-      console.log("Freestyle button initialized successfully and event listener added.");
-      startFreestyleButton.style.pointerEvents = "auto";
-    }
-    if (rotateButton) {
-      rotateButton.addEventListener("click", () => {
-        rotateBoard = !rotateBoard;
-        drawBoard();
-      });
-    }
-    if (smartphoneModeButton) {
-      smartphoneModeButton.textContent = smartphoneMode ? "Brett mitdrehen aus" : "Brett mitdrehen";
-      smartphoneModeButton.addEventListener("click", () => {
-        smartphoneMode = !smartphoneMode;
-        smartphoneModeButton.textContent = smartphoneMode ? "Brett mitdrehen aus" : "Brett mitdrehen";
-        drawBoard();
-      });
-    }
-    if (soundToggleButton) {
+    startButton.addEventListener("click", () => startGame(false));
+    startFreestyleButton.addEventListener("click", () => startGame(true));
+    rotateButton.addEventListener("click", () => {
+      rotateBoard = !rotateBoard;
+      drawBoard();
+    });
+    smartphoneModeButton.textContent = smartphoneMode ? "Brett aus" : "Brett mit";
+    smartphoneModeButton.addEventListener("click", () => {
+      smartphoneMode = !smartphoneMode;
+      smartphoneModeButton.textContent = smartphoneMode ? "Brett aus" : "Brett mit";
+      drawBoard();
+    });
+    soundToggleButton.textContent = soundEnabled ? "Sound aus" : "Sound ein";
+    soundToggleButton.addEventListener("click", () => {
+      soundEnabled = !soundEnabled;
       soundToggleButton.textContent = soundEnabled ? "Sound aus" : "Sound ein";
-      soundToggleButton.addEventListener("click", () => {
-        soundEnabled = !soundEnabled;
-        soundToggleButton.textContent = soundEnabled ? "Sound aus" : "Sound ein";
-      });
-    }
-    if (undoButton) {
-      undoButton.addEventListener("click", () => {
-        if (moveHistory.length > 0 && !gameOver) {
-          if (currentPlayer === "white") {
-            whiteTime = Math.max(0, whiteTime - CONFIG.undoPenalty);
-          } else {
-            blackTime = Math.max(0, blackTime - CONFIG.undoPenalty);
-          }
-          showPenaltyMessage();
-          const lastState = moveHistory.pop();
-          board = lastState.board;
-          currentPlayer = lastState.currentPlayer;
-          moveCount = lastState.moveCount;
-          castlingAvailability = lastState.castlingAvailability;
-          moveNotations.pop();
-          if (currentPlayer === "white" && moveNotations.length % 2 === 0) moveCount--;
-          lastMove = moveHistory.length > 0 ? moveHistory[moveHistory.length - 1] : null;
-          updateKingPositions();
-          updateCheckStatus();
-          gameOver = false;
-          winnerText = "";
-          updateMoveHistory();
-          drawBoard();
+    });
+    undoButton.addEventListener("click", () => {
+      if (moveHistory.length > 0 && !gameOver) {
+        if (currentPlayer === "white") {
+          whiteTime = Math.max(0, whiteTime - CONFIG.undoPenalty);
+        } else {
+          blackTime = Math.max(0, blackTime - CONFIG.undoPenalty);
         }
-      });
-    }
-    if (restartButton) {
-      restartButton.addEventListener("click", () => startGame(false));
-    }
-    if (designButton) {
-      designButton.addEventListener("click", () => {
-        currentDesign = (currentDesign % 5) + 1;
-        console.log("Switched to design:", currentDesign);
-        window.updateBoardColors(currentDesign);
-      });
-    }
-    if (fullscreenButton) {
-      fullscreenButton.addEventListener("click", toggleFullscreenMode);
-    }
-    if (exitFullscreenButton) {
-      exitFullscreenButton.addEventListener("click", toggleFullscreenMode);
-    }
+        showPenaltyMessage();
+        const lastState = moveHistory.pop();
+        board = lastState.board;
+        currentPlayer = lastState.currentPlayer;
+        moveCount = lastState.moveCount;
+        castlingAvailability = lastState.castlingAvailability;
+        moveNotations.pop();
+        if (currentPlayer === "white" && moveNotations.length % 2 === 0) moveCount--;
+        lastMove = moveHistory.length > 0 ? moveHistory[moveHistory.length - 1] : null;
+        updateKingPositions();
+        updateCheckStatus();
+        gameOver = false;
+        winnerText = "";
+        updateMoveHistory();
+        drawBoard();
+      }
+    });
+    restartButton.addEventListener("click", () => startGame(false));
+    designButton.addEventListener("click", () => {
+      currentDesign = (currentDesign % 5) + 1;
+      window.updateBoardColors(currentDesign);
+    });
+    fullscreenButton.addEventListener("click", toggleFullscreenMode);
+    exitFullscreenButton.addEventListener("click", toggleFullscreenMode);
   }
-
-  function startGameNormalHandler() {
-    console.log("Start button clicked!");
-    startGame(false);
-  }
-
-  function startGameFreestyleHandler() {
-    console.log("Freestyle button clicked!");
-    startGame(true);
-  }
-
-  initializeGameButtons();
 
   const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
   if (isTouchDevice) {
     canvas.addEventListener("touchstart", handleCanvasClick, { passive: false });
-    if (DEBUG.enableLogging) {
-      console.log("Touch events enabled for canvas.");
-    }
   } else {
     canvas.addEventListener("click", handleCanvasClick);
-    if (DEBUG.enableLogging) {
-      console.log("Click events enabled for canvas.");
-    }
   }
 
   window.addEventListener("resize", resizeCanvas);
+  initializeGameButtons();
   resizeCanvas();
 });
