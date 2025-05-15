@@ -58,6 +58,7 @@ document.addEventListener("DOMContentLoaded", () => {
   console.log("darkmodeToggleButton:", darkmodeToggleButton);
   console.log("fullscreenButton:", fullscreenButton);
   console.log("exitFullscreenButton:", exitFullscreenButton);
+
   if (!canvas || !startScreen || !startButton || !startFreestyleButton || !gameContainer || !turnIndicator || !moveList || !openingDisplay || !designButton || !fullscreenButton || !exitFullscreenButton) {
     console.error("One or more DOM elements are missing. Check index.html for correct IDs:", {
       canvas, startScreen, startButton, startFreestyleButton, gameContainer, turnIndicator, moveList, openingDisplay, designButton, fullscreenButton, exitFullscreenButton
@@ -346,6 +347,8 @@ document.addEventListener("DOMContentLoaded", () => {
     if (DEBUG.enableLogging && DEBUG.logLevel === "debug") {
       console.log("Starting game, freestyle mode:", freestyle);
     }
+
+    // Reset game state
     currentPlayer = "white";
     gameStarted = true;
     selectedPiece = null;
@@ -361,15 +364,25 @@ document.addEventListener("DOMContentLoaded", () => {
     gameOver = false;
     winnerText = "";
     fullscreenMode = false;
-    document.body.classList.remove("fullscreen");
-    fullscreenButton.textContent = "Vollbildmodus";
-    exitFullscreenButton.style.display = "none";
-    moveList.innerHTML = "";
-    startScreen.style.display = "none";
+    whiteTime = CONFIG.initialTime;
+    blackTime = CONFIG.initialTime;
+
+    // Ensure UI elements are correctly toggled
+    console.log("Hiding start screen...");
+    startScreen.classList.add("hidden");
+    console.log("Showing game container...");
     gameContainer.classList.remove("hidden");
+
+    // Ensure buttons are visible
     restartButton.classList.remove("hidden");
     darkmodeToggleButton.style.display = "block";
+    fullscreenButton.textContent = "Vollbildmodus";
+    exitFullscreenButton.style.display = "none";
 
+    // Reset move list
+    moveList.innerHTML = "";
+
+    // Initialize board
     if (freestyle) {
       const shuffledRow = shuffleArray(["r", "n", "b", "q", "k", "b", "n", "r"]);
       board = [
@@ -394,11 +407,21 @@ document.addEventListener("DOMContentLoaded", () => {
         ["R", "N", "B", "Q", "K", "B", "N", "R"]
       ];
     }
+
+    // Update game state
     updateKingPositions();
     resizeCanvas();
+    console.log("Canvas resized, drawing board...");
     drawBoard();
+    console.log("Starting timer...");
     startTimer();
+    console.log("Initializing darkmode toggle...");
     initializeDarkmodeToggle();
+
+    // Debug UI state
+    console.log("startScreen display:", window.getComputedStyle(startScreen).display);
+    console.log("gameContainer display:", window.getComputedStyle(gameContainer).display);
+    console.log("canvas display:", window.getComputedStyle(canvas).display);
   }
 
   function shuffleArray(array) {
