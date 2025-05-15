@@ -7,6 +7,8 @@ document.addEventListener("DOMContentLoaded", () => {
     maxWidthFactor: 0.9,
     maxHeightFactor: 0.85,
     offset: 0.5,
+    initialTime: 600, // 10 Minuten in Sekunden
+    undoPenalty: 60, // 1 Minute Strafe bei "Zug zurück"
   };
 
   const DEBUG = {
@@ -94,6 +96,9 @@ document.addEventListener("DOMContentLoaded", () => {
   let fullscreenMode = false;
   let gameOver = false;
   let winnerText = "";
+  let whiteTime = CONFIG.initialTime;
+  let blackTime = CONFIG.initialTime;
+  let timerInterval = null;
 
   const designs = {
     1: { light: "#f0d9b5", dark: "#b58863" }, // Altes Design
@@ -123,7 +128,7 @@ document.addEventListener("DOMContentLoaded", () => {
     ["", "", "", "", "", "", "", ""],
     ["", "", "", "", "", "", "", ""],
     ["", "", "", "", "", "", "", ""],
-    ["", "", "", "", "", "", ""],
+    ["", "", "", "", "", "", "", ""],
     ["P", "P", "P", "P", "P", "P", "P", "P"],
     ["R", "N", "B", "Q", "K", "B", "N", "R"]
   ];
@@ -216,6 +221,64 @@ document.addEventListener("DOMContentLoaded", () => {
     openingDisplay.textContent = displayText;
   }
 
+  function formatTime(seconds) {
+    const minutes = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${minutes}:${secs < 10 ? "0" : ""}${secs}`;
+  }
+
+  function startTimer() {
+    if (timerInterval) clearInterval(timerInterval);
+    timerInterval = setInterval(() => {
+      if (gameOver) {
+        clearInterval(timerInterval);
+        return;
+      }
+      if (currentPlayer === "white") {
+        whiteTime--;
+        if (whiteTime <= 0) {
+          whiteTime = 0;
+          gameOver = true;
+          winnerText = "Schwarz hat gewonnen (Zeit abgelaufen)!";
+          clearInterval(timerInterval);
+        }
+      } else {
+        blackTime--;
+        if (blackTime <= 0) {
+          blackTime = 0;
+          gameOver = true;
+          winnerText = "Weiß hat gewonnen (Zeit abgelaufen)!";
+          clearInterval(timerInterval);
+        }
+      }
+      updateTurnIndicator();
+      drawBoard();
+    }, 1000);
+  }
+
+  function updateTurnIndicator() {
+    turnIndicator.innerHTML = gameOver
+      ? winnerText
+      : `Am Zug: ${currentPlayer === "white" ? "Weiß" : "Schwarz"}<br>Weiß: ${formatTime(whiteTime)} | Schwarz: ${formatTime(blackTime)}`;
+  }
+
+  function showPenaltyMessage() {
+    const penaltyMessage = document.createElement("div");
+    penaltyMessage.classList.add("penalty-message");
+    penaltyMessage.textContent = "- 1 Minute";
+    document.body.appendChild(penaltyMessage);
+
+    const rect = undoButton.getBoundingClientRect();
+    penaltyMessage.style.position = "absolute";
+    penaltyMessage.style.left = `${rect.left + rect.width / 2}px`;
+    penaltyMessage.style.top = `${rect.top - 30}px`;
+    penaltyMessage.style.transform = "translateX(-50%)";
+
+    setTimeout(() => {
+      document.body.removeChild(penaltyMessage);
+    }, 2000);
+  }
+
   function drawBoard() {
     if (DEBUG.enableLogging && DEBUG.logLevel === "debug") {
       console.log("Drawing board with design:", currentDesign);
@@ -278,7 +341,7 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     }
 
-    turnIndicator.textContent = gameOver ? winnerText : `Am Zug: ${currentPlayer === "white" ? "Weiß" : "Schwarz"}`;
+    updateTurnIndicator();
   }
 
   function resizeCanvas() {
@@ -294,17 +357,14 @@ document.addEventListener("DOMContentLoaded", () => {
       maxHeight = window.innerHeight - 100;
     }
 
-    // Behalte das 1:1-Verhältnis für das 8x8-Brett
     const boardSize = Math.min(maxWidth / 8, maxHeight / 8, CONFIG.defaultBoardSize);
     size = Math.floor(Math.max(boardSize, CONFIG.minBoardSize));
 
-    // Berechne Offset, um das Brett zu zentrieren
     const totalWidth = size * 8;
     const totalHeight = size * 8;
     offsetX = (maxWidth - totalWidth) / 2;
     offsetY = (maxHeight - totalHeight) / 2;
 
-    // Setze Canvas-Größe basierend auf der verfügbaren Fläche
     canvas.width = totalWidth + offsetX * 2;
     canvas.height = totalHeight + offsetY * 2;
 
@@ -344,6 +404,8 @@ document.addEventListener("DOMContentLoaded", () => {
     gameOver = false;
     winnerText = "";
     fullscreenMode = false;
+    whiteTime = CONFIG.initialTime;
+    blackTime = CONFIG.initialTime;
     document.body.classList.remove("fullscreen");
     fullscreenButton.textContent = "Vollbildmodus";
     exitFullscreenButton.style.display = "none";
@@ -380,6 +442,7 @@ document.addEventListener("DOMContentLoaded", () => {
     updateKingPositions();
     resizeCanvas();
     drawBoard();
+    startTimer();
     initializeDarkmodeToggle();
   }
 
@@ -466,7 +529,7 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     } else if (piece.toLowerCase() === "r") {
       const directions = [[0, 1], [0, -1], [1, 0], [-1, 0]];
-      directions.forEach([dx, dy]) => {
+      directions.forEach(([dx, dy]) => {
         let newX = x;
         let newY = y;
         while (true) {
@@ -482,7 +545,7 @@ document.addEventListener("DOMContentLoaded", () => {
         [-2, -1], [-2, 1], [-1, -2], [-1, 2],
         [1, -2], [1, 2], [2, -1], [2, 1]
       ];
-      knightMoves.forEach([dx, dy]) => {
+      knightMoves.forEach(([dx, dy]) => {
         const newX = x + dx;
         const newY = y + dy;
         if (newX >= 0 && newX < 8 && newY >= 0 && newY < 8) {
@@ -491,7 +554,7 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     } else if (piece.toLowerCase() === "b") {
       const directions = [[1, 1], [1, -1], [-1, 1], [-1, -1]];
-      directions.forEach([dx, dy]) => {
+      directions.forEach(([dx, dy]) => {
         let newX = x;
         let newY = y;
         while (true) {
@@ -504,7 +567,7 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     } else if (piece.toLowerCase() === "q") {
       const directions = [[0, 1], [0, -1], [1, 0], [-1, 0], [1, 1], [1, -1], [-1, 1], [-1, -1]];
-      directions.forEach([dx, dy]) => {
+      directions.forEach(([dx, dy]) => {
         let newX = x;
         let newY = y;
         while (true) {
@@ -520,7 +583,7 @@ document.addEventListener("DOMContentLoaded", () => {
         [0, 1], [0, -1], [1, 0], [-1, 0],
         [1, 1], [1, -1], [-1, 1], [-1, -1]
       ];
-      kingMoves.forEach([dx, dy]) => {
+      kingMoves.forEach(([dx, dy]) => {
         const newX = x + dx;
         const newY = y + dy;
         if (newX >= 0 && newX < 8 && newY >= 0 && newY < 8) {
@@ -577,7 +640,7 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     } else if (piece.toLowerCase() === "r") {
       const directions = [[0, 1], [0, -1], [1, 0], [-1, 0]];
-      directions.forEach([dx, dy]) => {
+      directions.forEach(([dx, dy]) => {
         let newX = x;
         let newY = y;
         while (true) {
@@ -599,7 +662,7 @@ document.addEventListener("DOMContentLoaded", () => {
         [-2, -1], [-2, 1], [-1, -2], [-1, 2],
         [1, -2], [1, 2], [2, -1], [2, 1]
       ];
-      knightMoves.forEach([dx, dy]) => {
+      knightMoves.forEach(([dx, dy]) => {
         const newX = x + dx;
         const newY = y + dy;
         if (newX >= 0 && newX < 8 && newY >= 0 && newY < 8) {
@@ -611,7 +674,7 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     } else if (piece.toLowerCase() === "b") {
       const directions = [[1, 1], [1, -1], [-1, 1], [-1, -1]];
-      directions.forEach([dx, dy]) => {
+      directions.forEach(([dx, dy]) => {
         let newX = x;
         let newY = y;
         while (true) {
@@ -630,7 +693,7 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     } else if (piece.toLowerCase() === "q") {
       const directions = [[0, 1], [0, -1], [1, 0], [-1, 0], [1, 1], [1, -1], [-1, 1], [-1, -1]];
-      directions.forEach([dx, dy]) => {
+      directions.forEach(([dx, dy]) => {
         let newX = x;
         let newY = y;
         while (true) {
@@ -652,7 +715,7 @@ document.addEventListener("DOMContentLoaded", () => {
         [0, 1], [0, -1], [1, 0], [-1, 0],
         [1, 1], [1, -1], [-1, 1], [-1, -1]
       ];
-      kingMoves.forEach([dx, dy]) => {
+      kingMoves.forEach(([dx, dy]) => {
         const newX = x + dx;
         const newY = y + dy;
         if (newX >= 0 && newX < 8 && newY >= 0 && newY < 8) {
@@ -1021,7 +1084,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
         const newBoard = board.map((row) => [...row]);
         const targetPiece = newBoard[boardY][boardX];
-        const isCapture = targetPiece && (targetPiece.toLowerCase() !== selectedPiece.piece.toLowerCase()) && ((targetPiece === targetPiece.toUpperCase()) !== (selectedPiece.piece === selectedPiece.piece.toUpperCase()));
+        const isCapture = targetPiece && (targetPiece.toLowerCase() !== selectedPiece.piece.toLowerCase()) && ((targetPiece | 0) === targetPiece.toUpperCase()) !== (selectedPiece.piece === selectedPiece.piece.toUpperCase());
         newBoard[boardY][boardX] = selectedPiece.piece;
         newBoard[selectedPiece.y][selectedPiece.x] = "";
         const isWhite = selectedPiece.piece === selectedPiece.piece.toUpperCase();
@@ -1127,9 +1190,10 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     if (smartphoneModeButton) {
+      smartphoneModeButton.textContent = smartphoneMode ? "Brett mitdrehen aus" : "Brett mitdrehen";
       smartphoneModeButton.addEventListener("click", () => {
         smartphoneMode = !smartphoneMode;
-        smartphoneModeButton.textContent = smartphoneMode ? "Smartphone-Modus aus" : "Smartphone-Modus";
+        smartphoneModeButton.textContent = smartphoneMode ? "Brett mitdrehen aus" : "Brett mitdrehen";
         drawBoard();
       });
     }
@@ -1145,6 +1209,12 @@ document.addEventListener("DOMContentLoaded", () => {
     if (undoButton) {
       undoButton.addEventListener("click", () => {
         if (moveHistory.length > 0 && !gameOver) {
+          if (currentPlayer === "white") {
+            whiteTime = Math.max(0, whiteTime - CONFIG.undoPenalty);
+          } else {
+            blackTime = Math.max(0, blackTime - CONFIG.undoPenalty);
+          }
+          showPenaltyMessage();
           const lastState = moveHistory.pop();
           board = lastState.board;
           currentPlayer = lastState.currentPlayer;
