@@ -1,7 +1,7 @@
 body {
   margin: 0;
   padding: 0;
-  font-family: 'Roboto', sans-serif;
+  font-family: Arial, sans-serif;
   background: linear-gradient(135deg, #d4a017, #8b5a2b);
   height: 100vh;
   display: flex;
@@ -16,13 +16,11 @@ body.darkmode {
   color: #fff;
 }
 
-/* Startseite */
 #startScreen {
   text-align: center;
   background: rgba(255, 255, 255, 0.9);
   padding: 40px;
-  border-radius: 15px;
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+  border-radius: 10px;
   max-width: 90%;
   max-height: 80%;
   overflow-y: auto;
@@ -31,7 +29,6 @@ body.darkmode {
 h1 {
   font-size: 2.5em;
   color: #8b5a2b;
-  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
   margin-bottom: 30px;
 }
 
@@ -40,12 +37,10 @@ h1 {
   padding: 15px 30px;
   margin: 10px;
   border: none;
-  border-radius: 10px;
+  border-radius: 5px;
   background: #8b5a2b;
   color: white;
   cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
   width: 200px;
   display: block;
   margin-left: auto;
@@ -54,16 +49,8 @@ h1 {
 
 #startScreen button:hover {
   background: #a5693d;
-  transform: translateY(-3px);
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
 }
 
-#startScreen button:active {
-  transform: translateY(1px);
-  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
-}
-
-/* Spielfeld und Sidebar */
 #gameContainer {
   display: flex;
   flex-direction: row;
@@ -96,8 +83,7 @@ h1 {
   gap: 15px;
   padding: 20px;
   background: rgba(255, 255, 255, 0.9);
-  border-radius: 15px;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+  border-radius: 10px;
   height: fit-content;
   max-height: 90%;
   overflow-y: auto;
@@ -112,10 +98,9 @@ body.darkmode #sidebar {
   color: #333;
   background: rgba(255, 255, 255, 0.8);
   padding: 10px 15px;
-  border-radius: 10px;
+  border-radius: 5px;
   font-size: 1.1em;
   text-align: center;
-  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
 }
 
 body.darkmode #turnIndicator {
@@ -133,23 +118,14 @@ body.darkmode #turnIndicator {
   font-size: 1em;
   padding: 10px 15px;
   border: none;
-  border-radius: 10px;
+  border-radius: 5px;
   background: #8b5a2b;
   color: white;
   cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
 }
 
 #buttonContainer button:hover {
   background: #a5693d;
-  transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-}
-
-#buttonContainer button:active {
-  transform: translateY(1px);
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
 }
 
 body.darkmode #buttonContainer button {
@@ -173,8 +149,7 @@ body.darkmode #buttonContainer button:hover {
   color: #333;
   background: rgba(255, 255, 255, 0.8);
   padding: 10px;
-  border-radius: 10px;
-  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+  border-radius: 5px;
 }
 
 body.darkmode #moveList {
@@ -195,10 +170,9 @@ body.darkmode #moveList {
   color: #333;
   background: rgba(255, 255, 255, 0.8);
   padding: 10px 15px;
-  border-radius: 10px;
+  border-radius: 5px;
   font-size: 1em;
   text-align: center;
-  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
 }
 
 body.darkmode #openingDisplay {
@@ -235,7 +209,6 @@ body.fullscreen #gameContainer {
   padding: 10px;
 }
 
-/* Responsive Design */
 @media (max-width: 768px) {
   #gameContainer {
     flex-direction: column;
