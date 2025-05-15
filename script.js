@@ -348,7 +348,8 @@ document.addEventListener("DOMContentLoaded", () => {
     exitFullscreenButton.style.display = "none";
     moveList.innerHTML = "";
     startScreen.style.display = "none";
-    gameContainer.style.display = "block";
+    gameContainer.classList.remove("hidden"); // Entferne die .hidden-Klasse
+    gameContainer.style.display = "block"; // Setze explizit auf block
     restartButton.classList.remove("hidden");
     darkmodeToggleButton.style.display = "block";
     if (freestyle) {
