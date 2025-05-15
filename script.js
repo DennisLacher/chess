@@ -84,7 +84,7 @@ document.addEventListener("DOMContentLoaded", () => {
   let kingPositions = { white: null, black: null };
   let castlingAvailability = { white: { kingside: true, queenside: true }, black: { kingside: true, queenside: true } };
   let isWhiteInCheck = false;
-  let isBlackInCheck = false;
+  isBlackInCheck = false;
   let currentDesign = 1;
   let isDarkmode = localStorage.getItem("darkmode") === "true";
   let fullscreenMode = false;
