@@ -145,21 +145,23 @@ document.addEventListener("DOMContentLoaded", () => {
     const moves = moveNotations.map((m) => m.notation).filter((n) => !n.includes("-"));
     let moveText = `Move: ${moves[moves.length - 1] || "None"}`;
     let openingText = "";
-    for (let opening of openings) {
-      const openingMoves = opening.moves;
-      let matches = true;
-      for (let i = 0; i < Math.min(moves.length, openingMoves.length); i++) {
-        if (moves[i] !== openingMoves[i]) {
-          matches = false;
+    if (moves.length > 0) { // Only check for openings if moves have been made
+      for (let opening of openings) {
+        const openingMoves = opening.moves;
+        let matches = true;
+        for (let i = 0; i < Math.min(moves.length, openingMoves.length); i++) {
+          if (moves[i] !== openingMoves[i]) {
+            matches = false;
+            break;
+          }
+        }
+        if (matches) {
+          openingText = `${opening.name}`;
+          if (moves.length >= openingMoves.length && opening.blackResponses.length > 0) {
+            openingText += ` (Black: ${opening.blackResponses.join(" or ")})`;
+          }
           break;
         }
-      }
-      if (matches) {
-        openingText = `${opening.name}`;
-        if (moves.length >= openingMoves.length && opening.blackResponses.length > 0) {
-          openingText += ` (Black: ${opening.blackResponses.join(" or ")})`;
-        }
-        break;
       }
     }
     const timeText = `White: ${formatTime(whiteTime)} | Black: ${formatTime(blackTime)}`;
@@ -282,13 +284,34 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function toggleFullscreenMode() {
-    fullscreenMode = !fullscreenMode;
-    document.body.classList.toggle("fullscreen", fullscreenMode);
+    if (!fullscreenMode) {
+      if (document.documentElement.requestFullscreen) {
+        document.documentElement.requestFullscreen().catch((err) => {
+          console.error("Failed to enter fullscreen mode:", err);
+        });
+      }
+      fullscreenMode = true;
+    } else {
+      if (document.exitFullscreen) {
+        document.exitFullscreen().catch((err) => {
+          console.error("Failed to exit fullscreen mode:", err);
+        });
+      }
+      fullscreenMode = false;
+    }
     fullscreenButton.style.display = fullscreenMode ? "none" : "block";
     exitFullscreenButton.style.display = fullscreenMode ? "block" : "none";
     resizeCanvas();
     drawBoard();
   }
+
+  document.addEventListener('fullscreenchange', () => {
+    fullscreenMode = !!document.fullscreenElement;
+    fullscreenButton.style.display = fullscreenMode ? "none" : "block";
+    exitFullscreenButton.style.display = fullscreenMode ? "block" : "none";
+    resizeCanvas();
+    drawBoard();
+  });
 
   function startGame(freestyle = false) {
     currentPlayer = "white";
@@ -699,7 +722,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function updateMoveHistory() {
-    if (!lastMove) return; // Only update if a move was made
+    if (!lastMove) return;
     const notation = getMoveNotation(lastMove.fromX, lastMove.fromY, lastMove.toX, lastMove.toY);
     moveNotations.push({ moveCount, notation: notation.simple });
     moveList.innerHTML = "";
@@ -796,14 +819,22 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!gameStarted || gameOver) return;
     event.preventDefault();
     const rect = canvas.getBoundingClientRect();
-    const clientX = event.clientX || (event.touches && event.touches[0]?.clientX);
-    const clientY = event.clientY || (event.touches && event.touches[0]?.clientY);
+    const scaleX = canvas.width / rect.width;   // Adjust for canvas scaling
+    const scaleY = canvas.height / rect.height;
+    let clientX, clientY;
+    if (event.type === "touchstart" || event.type === "touchmove") {
+      clientX = event.touches[0]?.clientX;
+      clientY = event.touches[0]?.clientY;
+    } else {
+      clientX = event.clientX;
+      clientY = event.clientY;
+    }
     if (!clientX || !clientY) {
       console.error("Client coordinates not found.");
       return;
     }
-    const adjustedX = clientX - rect.left;
-    const adjustedY = clientY - rect.top;
+    const adjustedX = (clientX - rect.left) * scaleX;
+    const adjustedY = (clientY - rect.top) * scaleY;
     const x = Math.floor((adjustedX - offsetX) / size);
     const y = Math.floor((adjustedY - offsetY) / size);
     let boardX = x;
@@ -894,7 +925,7 @@ document.addEventListener("DOMContentLoaded", () => {
         lastMove = { fromX: selectedPiece.x, fromY: selectedPiece.y, toX: boardX, toY: boardY };
         board = newBoard;
         updateKingPositions();
-        currentPlayer = currentPlayer === "white" ? "black" : "white"; // Ensure player switch
+        currentPlayer = currentPlayer === "white" ? "black" : "white";
         updateMoveHistory();
         updateCheckStatus();
         checkGameOver();
@@ -989,6 +1020,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
   if (isTouchDevice) {
     canvas.addEventListener("touchstart", handleCanvasClick, { passive: false });
+    canvas.addEventListener("touchmove", (e) => e.preventDefault(), { passive: false });
   } else {
     canvas.addEventListener("click", handleCanvasClick);
   }
