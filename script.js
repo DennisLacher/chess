@@ -4,11 +4,11 @@ document.addEventListener("DOMContentLoaded", () => {
   const CONFIG = {
     defaultBoardSize: 45,
     minBoardSize: 35,
-    maxWidthFactor: 0.9,
-    maxHeightFactor: 0.85,
+    maxWidthFactor: 1.0,
+    maxHeightFactor: 1.0,
     offset: 0.5,
-    initialTime: 600, // 10 Minuten in Sekunden
-    undoPenalty: 60, // 1 Minute Strafe bei "Zug zurück"
+    initialTime: 600,
+    undoPenalty: 60,
   };
 
   const DEBUG = {
@@ -101,11 +101,11 @@ document.addEventListener("DOMContentLoaded", () => {
   let timerInterval = null;
 
   const designs = {
-    1: { light: "#f0d9b5", dark: "#b58863" }, // Altes Design
-    2: { light: "#d7b899", dark: "#8b5a2b" }, // Holz
-    3: { light: "#f5f5f5", dark: "#a0a0a0" }, // Marmor
-    4: { light: "#c0c0c0", dark: "#404040" }, // Metall
-    5: { light: "#d4e4d2", dark: "#6b8e23" }  // Natur
+    1: { light: "#f0d9b5", dark: "#b58863" },
+    2: { light: "#d7b899", dark: "#8b5a2b" },
+    3: { light: "#f5f5f5", dark: "#a0a0a0" },
+    4: { light: "#c0c0c0", dark: "#404040" },
+    5: { light: "#d4e4d2", dark: "#6b8e23" }
   };
 
   window.boardColors = designs[currentDesign];
@@ -135,42 +135,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const openings = [
     { name: "Italienische Eröffnung", moves: ["e4", "e5", "Nf3", "Nc6", "Bc4"], blackResponses: ["Bc5", "Nf6"] },
-    { name: "Sizilianische Verteidigung", moves: ["e4", "c5"], blackResponses: ["Nc6", "e6"] },
-    { name: "Französische Verteidigung", moves: ["e4", "e6"], blackResponses: ["d5"] },
-    { name: "Skandinavische Verteidigung", moves: ["e4", "d5"], blackResponses: ["exd5"] },
-    { name: "Spanische Eröffnung", moves: ["e4", "e5", "Nf3", "Nc6", "Bb5"], blackResponses: ["a6"] },
-    { name: "Englische Eröffnung", moves: ["c4"], blackResponses: ["e5", "c5"] },
-    { name: "Königsgambit", moves: ["e4", "e5", "f4"], blackResponses: ["exf4", "d5"] },
-    { name: "Damenbauernspiel", moves: ["d4", "d5", "c4"], blackResponses: ["e6", "dxc4"] },
-    { name: "Niederländische Verteidigung", moves: ["d4", "f5"], blackResponses: ["e6"] },
-    { name: "Katalanische Eröffnung", moves: ["d4", "Nf6", "c4", "e6", "g3"], blackResponses: ["d5"] },
-    { name: "Russische Verteidigung", moves: ["e4", "e5", "Nf3", "Nf6"], blackResponses: ["Nxe4"] },
-    { name: "Philidor-Verteidigung", moves: ["e4", "e5", "Nf3", "d6"], blackResponses: ["Nf6"] },
-    { name: "Aljechin-Verteidigung", moves: ["e4", "Nf6"], blackResponses: ["e5"] },
-    { name: "Pirc-Verteidigung", moves: ["e4", "d6"], blackResponses: ["Nf6"] },
-    { name: "Moderne Verteidigung", moves: ["e4", "g6"], blackResponses: ["d6"] },
-    { name: "Caro-Kann-Verteidigung", moves: ["e4", "c6"], blackResponses: ["d5"] },
-    { name: "Schottische Eröffnung", moves: ["e4", "e5", "Nf3", "Nc6", "d4"], blackResponses: ["exd4"] },
-    { name: "Wiener Partie", moves: ["e4", "e5", "Nc3"], blackResponses: ["Nf6"] },
-    { name: "Zweispringer-Verteidigung", moves: ["e4", "e5", "Nf3", "Nc6", "Bc4", "Nf6"], blackResponses: ["d4"] },
-    { name: "Dre Springer-Spiel", moves: ["e4", "e5", "Nf3", "Nf6", "Nc3"], blackResponses: ["d4"] },
-    { name: "Boden-Kieseritzky-Gambit", moves: ["e4", "e5", "Nf3", "Nf6", "Bc4", "Nxe4", "Nc3"], blackResponses: ["Nxc3"] },
-    { name: "Budapester Gambit", moves: ["d4", "Nf6", "c4", "e5"], blackResponses: ["dxe5"] },
-    { name: "Benoni-Verteidigung", moves: ["d4", "Nf6", "c4", "c5"], blackResponses: ["d5"] },
-    { name: "Grünfeld-Verteidigung", moves: ["d4", "Nf6", "c4", "g6", "Nc3", "d5"], blackResponses: ["cxd5"] },
-    { name: "Königsindische Verteidigung", moves: ["d4", "Nf6", "c4", "g6"], blackResponses: ["d6"] },
-    { name: "Nimzo-Indische Verteidigung", moves: ["d4", "Nf6", "c4", "e6", "Nc3", "Bb4"], blackResponses: ["d5"] },
-    { name: "Slawische Verteidigung", moves: ["d4", "d5", "c4", "c6"], blackResponses: ["Nf6"] },
-    { name: "Tschechische Verteidigung", moves: ["d4", "d5", "c4", "c6", "Nf3", "Nf6", "Nc3", "e6"], blackResponses: ["d5"] },
-    { name: "Alte Indische Verteidigung", moves: ["d4", "Nf6", "c4", "d6"], blackResponses: ["e5"] },
-    { name: "Trompowsky-Angriff", moves: ["d4", "Nf6", "Bg5"], blackResponses: ["e6"] },
-    { name: "Londoner System", moves: ["d4", "Nf6", "Nf3", "d5", "Bf4"], blackResponses: ["e6"] },
-    { name: "Colle-System", moves: ["d4", "Nf6", "Nf3", "d5", "e3"], blackResponses: ["e6"] },
-    { name: "Richter-Veresov-Angriff", moves: ["d4", "Nf6", "Nc3", "d5", "Bg5"], blackResponses: ["e6"] },
-    { name: "Italienische Eröffnung (Traxler-Gegenangriff)", moves: ["e4", "e5", "Nf3", "Nc6", "Bc4", "Nf6", "d4", "exd4", "Ng5"], blackResponses: ["Bc5"] },
-    { name: "Schottisches Gambit", moves: ["e4", "e5", "Nf3", "Nc6", "d4", "exd4", "Bc4"], blackResponses: ["Nf6"] },
-    { name: "Königsgambit (Falkbeer-Gegengambit)", moves: ["e4", "e5", "f4", "d5"], blackResponses: ["exd5"] },
-    { name: "Königsgambit (Muzio-Gambit)", moves: ["e4", "e5", "f4", "exf4", "Nf3", "g5", "Bc4", "g4", "O-O"], blackResponses: ["gxf3"] }
+    { name: "Sizilianische Verteidigung", moves: ["e4", "c5"], blackResponses: ["Nc6", "e6"] }
   ];
 
   document.body.classList.toggle("darkmode", isDarkmode);
@@ -199,7 +164,6 @@ document.addEventListener("DOMContentLoaded", () => {
   function updateOpeningDisplay() {
     const moves = moveNotations.map((m) => m.notation).filter((n) => !n.includes("-"));
     let displayText = `Zug: ${moves[moves.length - 1] || "Kein Zug"}`;
-
     for (let opening of openings) {
       const openingMoves = opening.moves;
       let matches = true;
@@ -217,7 +181,6 @@ document.addEventListener("DOMContentLoaded", () => {
         break;
       }
     }
-
     openingDisplay.textContent = displayText;
   }
 
@@ -301,17 +264,17 @@ document.addEventListener("DOMContentLoaded", () => {
 
         ctx.fillStyle = (displayX + displayY) % 2 === 0 ? window.boardColors.light : window.boardColors.dark;
         if (lastMove && ((lastMove.fromX === x && lastMove.fromY === y) || (lastMove.toX === x && lastMove.toY === y))) {
-          ctx.fillStyle = "#a3e4a3"; // Subtiles Grün für den letzten Zug
+          ctx.fillStyle = "#a3e4a3";
         }
         if (selectedPiece && selectedPiece.x === x && selectedPiece.y === y) {
-          ctx.fillStyle = "#42a5f5"; // Blaue Hervorhebung für die ausgewählte Figur
+          ctx.fillStyle = "#42a5f5";
         }
         if (legalMoves.some((move) => move.toX === x && move.toY === y)) {
-          ctx.fillStyle = "#e6b800"; // Dunkles Gold für legale Züge
+          ctx.fillStyle = "#e6b800";
         }
         if ((isWhiteInCheck && kingPositions.white && kingPositions.white.x === x && kingPositions.white.y === y) ||
             (isBlackInCheck && kingPositions.black && kingPositions.black.x === x && kingPositions.black.y === y)) {
-          ctx.fillStyle = gameOver ? "#c62828" : "#d32f2f"; // Dunkleres Rot bei Schachmatt, sonst kräftiges Rot
+          ctx.fillStyle = gameOver ? "#c62828" : "#d32f2f";
         }
         ctx.fillRect(offsetX + displayX * size, offsetY + displayY * size, size, size);
 
@@ -348,14 +311,8 @@ document.addEventListener("DOMContentLoaded", () => {
     if (DEBUG.enableLogging && DEBUG.logLevel === "debug") {
       console.log("Resizing canvas...");
     }
-    let maxWidth, maxHeight;
-    if (fullscreenMode) {
-      maxWidth = window.innerWidth * CONFIG.maxWidthFactor; // 90% der Breite
-      maxHeight = window.innerHeight * CONFIG.maxHeightFactor; // 85% der Höhe
-    } else {
-      maxWidth = Math.min(window.innerWidth * CONFIG.maxWidthFactor - 40, 800); // Begrenze auf 800px
-      maxHeight = window.innerHeight - 100;
-    }
+    let maxWidth = window.innerWidth * CONFIG.maxWidthFactor;
+    let maxHeight = window.innerHeight * CONFIG.maxHeightFactor;
 
     const boardSize = Math.min(maxWidth / 8, maxHeight / 8, CONFIG.defaultBoardSize);
     size = Math.floor(Math.max(boardSize, CONFIG.minBoardSize));
@@ -404,8 +361,6 @@ document.addEventListener("DOMContentLoaded", () => {
     gameOver = false;
     winnerText = "";
     fullscreenMode = false;
-    whiteTime = CONFIG.initialTime;
-    blackTime = CONFIG.initialTime;
     document.body.classList.remove("fullscreen");
     fullscreenButton.textContent = "Vollbildmodus";
     exitFullscreenButton.style.display = "none";
@@ -560,7 +515,7 @@ document.addEventListener("DOMContentLoaded", () => {
         while (true) {
           newX += dx;
           newY += dy;
-          if (newX < 0 || newX >= 8 || newY < 0 || newY >= 8) break;
+          if (newX < 0 || newX >= 8 || newY < 0 || newY < 8) break;
           moves.push({ toX: newX, toY: newY });
           if (tempBoard[newY][newX]) break;
         }
@@ -573,7 +528,7 @@ document.addEventListener("DOMContentLoaded", () => {
         while (true) {
           newX += dx;
           newY += dy;
-          if (newX < 0 || newX >= 8 || newY < 0 || newY >= 8) break;
+          if (newX < 0 || newX >= 8 || newY < 0 || newY < 8) break;
           moves.push({ toX: newX, toY: newY });
           if (tempBoard[newY][newX]) break;
         }
@@ -646,7 +601,7 @@ document.addEventListener("DOMContentLoaded", () => {
         while (true) {
           newX += dx;
           newY += dy;
-          if (newX < 0 || newX >= 8 || newY < 0 || newY >= 8) break;
+          if (newX < 0 || newX >= 8 || newY < 0 || newY < 8) break;
           const targetPiece = board[newY][newX];
           if (targetPiece) {
             if ((targetPiece === targetPiece.toUpperCase()) !== isWhite) {
@@ -680,7 +635,7 @@ document.addEventListener("DOMContentLoaded", () => {
         while (true) {
           newX += dx;
           newY += dy;
-          if (newX < 0 || newX >= 8 || newY < 0 || newY >= 8) break;
+          if (newX < 0 || newX >= 8 || newY < 0 || newY < 8) break;
           const targetPiece = board[newY][newX];
           if (targetPiece) {
             if ((targetPiece === targetPiece.toUpperCase()) !== isWhite) {
@@ -699,7 +654,7 @@ document.addEventListener("DOMContentLoaded", () => {
         while (true) {
           newX += dx;
           newY += dy;
-          if (newX < 0 || newX >= 8 || newY < 0 || newY >= 8) break;
+          if (newX < 0 || newX >= 8 || newY < 0 || newY < 8) break;
           const targetPiece = board[newY][newX];
           if (targetPiece) {
             if ((targetPiece === targetPiece.toUpperCase()) !== isWhite) {
@@ -745,17 +700,11 @@ document.addEventListener("DOMContentLoaded", () => {
             const tempKingPos = { x: i, y: 7 };
             if (isInCheck("white", tempBoard, tempKingPos)) {
               canCastle = false;
-              if (DEBUG.enableLogging && DEBUG.logLevel === "debug") {
-                console.log(`Kingside castling for white blocked: square ${i},7 is under attack`);
-              }
               break;
             }
           }
           if (canCastle) {
             moves.push({ toX: 6, toY: 7, castling: "kingside" });
-            if (DEBUG.enableLogging && DEBUG.logLevel === "debug") {
-              console.log("Kingside castling for white is legal");
-            }
           }
         }
         if (
@@ -777,17 +726,11 @@ document.addEventListener("DOMContentLoaded", () => {
             const tempKingPos = { x: i, y: 7 };
             if (isInCheck("white", tempBoard, tempKingPos)) {
               canCastle = false;
-              if (DEBUG.enableLogging && DEBUG.logLevel === "debug") {
-                console.log(`Queenside castling for white blocked: square ${i},7 is under attack`);
-              }
               break;
             }
           }
           if (canCastle) {
             moves.push({ toX: 2, toY: 7, castling: "queenside" });
-            if (DEBUG.enableLogging && DEBUG.logLevel === "debug") {
-              console.log("Queenside castling for white is legal");
-            }
           }
         }
       } else if (!isWhite && y === 0 && x === 4) {
@@ -809,17 +752,11 @@ document.addEventListener("DOMContentLoaded", () => {
             const tempKingPos = { x: i, y: 0 };
             if (isInCheck("black", tempBoard, tempKingPos)) {
               canCastle = false;
-              if (DEBUG.enableLogging && DEBUG.logLevel === "debug") {
-                console.log(`Kingside castling for black blocked: square ${i},0 is under attack`);
-              }
               break;
             }
           }
           if (canCastle) {
             moves.push({ toX: 6, toY: 0, castling: "kingside" });
-            if (DEBUG.enableLogging && DEBUG.logLevel === "debug") {
-              console.log("Kingside castling for black is legal");
-            }
           }
         }
         if (
@@ -841,17 +778,11 @@ document.addEventListener("DOMContentLoaded", () => {
             const tempKingPos = { x: i, y: 0 };
             if (isInCheck("black", tempBoard, tempKingPos)) {
               canCastle = false;
-              if (DEBUG.enableLogging && DEBUG.logLevel === "debug") {
-                console.log(`Queenside castling for black blocked: square ${i},0 is under attack`);
-              }
               break;
             }
           }
           if (canCastle) {
             moves.push({ toX: 2, toY: 0, castling: "queenside" });
-            if (DEBUG.enableLogging && DEBUG.logLevel === "debug") {
-              console.log("Queenside castling for black is legal");
-            }
           }
         }
       }
@@ -1167,9 +1098,6 @@ document.addEventListener("DOMContentLoaded", () => {
       startButton.addEventListener("click", startGameNormalHandler);
       console.log("Start button initialized successfully and event listener added.");
       startButton.style.pointerEvents = "auto";
-    } else {
-      console.error("Start button not found in DOM. Check if ID 'startButton' exists in index.html.");
-      alert("Fehler: Start-Button nicht gefunden. Bitte überprüfe die Konsole.");
     }
 
     if (startFreestyleButton) {
@@ -1177,9 +1105,6 @@ document.addEventListener("DOMContentLoaded", () => {
       startFreestyleButton.addEventListener("click", startGameFreestyleHandler);
       console.log("Freestyle button initialized successfully and event listener added.");
       startFreestyleButton.style.pointerEvents = "auto";
-    } else {
-      console.error("Freestyle button not found in DOM. Check if ID 'startFreestyleButton' exists in index.html.");
-      alert("Fehler: Freestyle-Button nicht gefunden. Bitte überprüfe die Konsole.");
     }
 
     if (rotateButton) {
