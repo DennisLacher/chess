@@ -43,7 +43,9 @@ body.darkmode {
   display: flex;
   flex-direction: row; /* Schachbrett und Buttons nebeneinander */
   align-items: flex-start;
+  justify-content: flex-start;
   gap: 20px;
+  max-width: 100%;
 }
 
 #gameContainer.hidden {
@@ -53,6 +55,8 @@ body.darkmode {
 #chessboard {
   border: 2px solid #333;
   background-color: #fff;
+  flex: 0 0 auto; /* Verhindert Überdehnung */
+  min-width: 360px; /* Mindestbreite für das Schachbrett */
 }
 
 #controls {
@@ -61,7 +65,7 @@ body.darkmode {
   gap: 10px;
   max-height: 80vh;
   overflow-y: auto;
-  width: 200px; /* Feste Breite für Konsistenz */
+  width: 200px; /* Feste Breite für Buttons */
   align-items: center;
 }
 
@@ -168,6 +172,10 @@ body.darkmode #moveList {
 
   #openingDisplay {
     font-size: 0.9em;
+  }
+
+  #chessboard {
+    min-width: auto; /* Keine Mindestbreite auf Mobilgeräten */
   }
 }
 
