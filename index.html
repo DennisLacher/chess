@@ -1,39 +1,39 @@
 <!DOCTYPE html>
-<html lang="de">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Moderner Schachspieler</title>
+  <title>Modern Chess Player</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
   <div id="startScreen">
-    <h1>Moderner Schachspieler</h1>
-    <button id="startButton">Spiel Starten</button>
-    <button id="startFreestyleButton">Freies Spiel</button>
+    <h1>Modern Chess Player</h1>
+    <button id="startButton">Start Game</button>
+    <button id="startFreestyleButton">Freestyle Mode</button>
   </div>
   <div id="gameContainer" class="hidden">
     <div class="game-area">
       <canvas id="chessboard"></canvas>
       <div class="side-panel">
         <div id="controls">
-          <button id="rotateButton">Brett Drehen</button>
-          <button id="smartphoneModeButton">Mitdrehen</button>
-          <button id="soundToggleButton">Ton An/Aus</button>
-          <button id="undoButton">Rückgängig</button>
-          <button id="restartButton">Neustart</button>
-          <button id="designButton">Design Ändern</button>
-          <button id="darkmodeToggleButton">Modus</button>
-          <button id="fullscreenButton">Vollbild</button>
-          <button id="exitFullscreenButton" style="display: none;">Vollbild Beenden</button>
+          <button id="rotateButton">Rotate Board</button>
+          <button id="smartphoneModeButton">Rotate With Player</button>
+          <button id="soundToggleButton">Sound On/Off</button>
+          <button id="undoButton">Undo Move</button>
+          <button id="restartButton">Restart Game</button>
+          <button id="designButton">Change Design</button>
+          <button id="darkmodeToggleButton">Toggle Mode</button>
+          <button id="fullscreenButton">Fullscreen</button>
+          <button id="exitFullscreenButton" style="display: none;">Exit Fullscreen</button>
         </div>
         <div id="moveHistory">
-          <h3>Zugliste</h3>
+          <h3>Move List</h3>
           <ul id="moveList"></ul>
         </div>
       </div>
     </div>
-    <div id="openingDisplay">Zug: Kein Zug</div>
+    <div id="openingDisplay">Move: None | White: 10:00 | Black: 10:00</div>
   </div>
   <script src="script.js"></script>
 </body>
