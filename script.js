@@ -277,8 +277,8 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       }
     }
-    ctx.fillStyle = "#555555";
-    ctx.font = `${size * 0.25}px Arial`;
+    ctx.fillStyle = "#ffffff";
+    ctx.font = `${size * 0.25}px Poppins`;
     if (!effectiveRotation) {
       for (let i = 0; i < 8; i++) {
         ctx.fillText(String.fromCharCode(97 + i), offsetX + i * size + size / 2, offsetY + 8 * size + size * 0.3);
@@ -330,7 +330,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     currentPlayer = "white";
     gameStarted = true;
-    gameOver = false; // Sicherstellen, dass das Spiel nicht als beendet markiert ist
+    gameOver = false;
     selectedPiece = null;
     legalMoves = [];
     moveHistory = [];
@@ -350,8 +350,8 @@ document.addEventListener("DOMContentLoaded", () => {
     exitFullscreenButton.style.display = "none";
     moveList.innerHTML = "";
     startScreen.style.display = "none";
-    gameContainer.classList.remove("hidden"); // Entferne die .hidden-Klasse
-    gameContainer.style.display = "block"; // Setze explizit auf block
+    gameContainer.classList.remove("hidden");
+    gameContainer.style.display = "flex";
     restartButton.classList.remove("hidden");
     darkmodeToggleButton.style.display = "block";
     if (freestyle) {
@@ -584,7 +584,7 @@ document.addEventListener("DOMContentLoaded", () => {
         while (true) {
           newX += dx;
           newY += dy;
-          if (newX < 0 || newX >= 8 || newY < 0 || newY < 8) break;
+          if (newX < 0 || newX >= 8 || newY < 0 || newY >= 8) break;
           const targetPiece = board[newY][newX];
           if (targetPiece) {
             if ((targetPiece === targetPiece.toUpperCase()) !== isWhite) {
@@ -902,12 +902,13 @@ document.addEventListener("DOMContentLoaded", () => {
   function handleCanvasClick(event) {
     if (!gameStarted || gameOver) {
       if (DEBUG.enableLogging && DEBUG.logLevel === "debug") {
-        console.log("Game not started or already over.");
+        console.log("Game not started or already over. Game status:", { gameStarted, gameOver });
       }
       return;
     }
     if (DEBUG.enableLogging && DEBUG.logLevel === "debug") {
-      console.log("Canvas event triggered, type:", event.type);
+      console.log("Canvas click event triggered at:", new Date().toISOString());
+      console.log("Event type:", event.type);
     }
     event.preventDefault();
     const rect = canvas.getBoundingClientRect();
