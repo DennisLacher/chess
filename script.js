@@ -84,7 +84,7 @@ document.addEventListener("DOMContentLoaded", () => {
   let kingPositions = { white: null, black: null };
   let castlingAvailability = { white: { kingside: true, queenside: true }, black: { kingside: true, queenside: true } };
   let isWhiteInCheck = false;
-  isBlackInCheck = false;
+  let isBlackInCheck = false;
   let currentDesign = 1;
   let isDarkmode = localStorage.getItem("darkmode") === "true";
   let fullscreenMode = false;
@@ -330,6 +330,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     currentPlayer = "white";
     gameStarted = true;
+    gameOver = false; // Sicherstellen, dass das Spiel nicht als beendet markiert ist
     selectedPiece = null;
     legalMoves = [];
     moveHistory = [];
@@ -340,9 +341,10 @@ document.addEventListener("DOMContentLoaded", () => {
     castlingAvailability = { white: { kingside: true, queenside: true }, black: { kingside: true, queenside: true } };
     isWhiteInCheck = false;
     isBlackInCheck = false;
-    gameOver = false;
     winnerText = "";
     fullscreenMode = false;
+    whiteTime = CONFIG.initialTime;
+    blackTime = CONFIG.initialTime;
     document.body.classList.remove("fullscreen");
     fullscreenButton.textContent = "Vollbildmodus";
     exitFullscreenButton.style.display = "none";
@@ -385,6 +387,7 @@ document.addEventListener("DOMContentLoaded", () => {
     console.log("startScreen display:", window.getComputedStyle(startScreen).display);
     console.log("gameContainer display:", window.getComputedStyle(gameContainer).display);
     console.log("canvas display:", window.getComputedStyle(canvas).display);
+    console.log("Game status:", { gameStarted, gameOver });
   }
 
   function shuffleArray(array) {
