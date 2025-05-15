@@ -13,27 +13,24 @@
     <button id="startFreestyleButton">Freestyle</button>
   </div>
   <div id="gameContainer" class="hidden">
-    <div id="boardWrapper">
-      <canvas id="chessboard"></canvas>
+    <canvas id="chessboard"></canvas>
+    <div id="controls">
+      <div id="turnIndicator"></div>
+      <button id="rotateButton">Drehen</button>
+      <button id="smartphoneModeButton">Brett mitdrehen</button>
+      <button id="soundToggleButton">Sound aus</button>
+      <button id="undoButton">Zurück</button>
+      <button id="restartButton" class="hidden">Neustart</button>
+      <button id="designButton">Design</button>
+      <button id="darkmodeToggleButton">Darkmode</button>
+      <button id="fullscreenButton">Vollbildmodus</button>
+      <button id="exitFullscreenButton" style="display: none;">Normalmodus</button>
     </div>
-    <div id="rightPanel">
-      <div id="turnIndicator">Am Zug: Weiß</div>
-      <div id="buttonContainer">
-        <button id="rotateButton">Brett drehen</button>
-        <button id="smartphoneModeButton">Brett mitdrehen</button>
-        <button id="soundToggleButton">Sound aus</button>
-        <button id="undoButton">Rückgängig</button>
-        <button id="restartButton" class="hidden">Neustart</button>
-        <button id="designButton">Design ändern</button>
-        <button id="darkmodeToggleButton">Darkmode</button>
-        <button id="fullscreenButton">Vollbildmodus</button>
-        <button id="exitFullscreenButton" style="display: none;">Normalmodus</button>
-      </div>
-      <div id="moveListWrapper">
-        <ul id="moveList"></ul>
-      </div>
-      <div id="openingDisplay">Zug: Kein Zug</div>
+    <div id="moveHistory">
+      <h3>Züge</h3>
+      <ul id="moveList"></ul>
     </div>
+    <div id="openingDisplay">Zug: Kein Zug</div>
   </div>
   <script src="script.js"></script>
 </body>
