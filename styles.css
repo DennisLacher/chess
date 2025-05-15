@@ -70,10 +70,6 @@ button:active {
   position: relative;
 }
 
-#gameContainer:not(.hidden) {
-  display: block;
-}
-
 #chessboard {
   display: block;
   margin: 0 auto;
