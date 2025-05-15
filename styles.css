@@ -41,8 +41,8 @@ body.darkmode {
 
 #gameContainer {
   display: flex;
-  flex-direction: row;
-  align-items: flex-start;
+  flex-direction: column; /* Buttons unter dem Schachbrett */
+  align-items: center;
   gap: 20px;
 }
 
