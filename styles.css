@@ -131,6 +131,28 @@ body.darkmode #moveList {
   margin-top: 10px;
 }
 
+/* Vollbildmodus */
+body.fullscreen #gameContainer {
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100vh;
+  gap: 0;
+}
+
+body.fullscreen #chessboard {
+  min-width: 0; /* Entfernt Mindestbreite für maximale Flexibilität */
+  width: 100%;
+  height: auto;
+  max-width: 100vw;
+  max-height: 100vh;
+}
+
+body.fullscreen #controls {
+  display: none; /* Blendet die Steuerungselemente aus */
+}
+
 @media (max-width: 640px) {
   #gameContainer {
     flex-direction: column;
@@ -176,6 +198,22 @@ body.darkmode #moveList {
 
   #chessboard {
     min-width: auto; /* Keine Mindestbreite auf Mobilgeräten */
+  }
+
+  /* Vollbildmodus auf Mobilgeräten */
+  body.fullscreen #gameContainer {
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 100vh;
+  }
+
+  body.fullscreen #chessboard {
+    width: 100%;
+    height: auto;
+    max-width: 100vw;
+    max-height: 100vh;
   }
 }
 
