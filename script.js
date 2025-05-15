@@ -6,7 +6,7 @@ document.addEventListener("DOMContentLoaded", () => {
     minBoardSize: 40,
     maxWidthFactor: 1.0,
     maxHeightFactor: 1.0,
-    offset: 0.2, // Reduzierter Offset für kleineren Kasten um das Brett
+    offset: 0.1, // Reduzierter Offset für kleineren Kasten um das Brett
     initialTime: 600,
     undoPenalty: 60,
   };
@@ -28,7 +28,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const startButton = document.getElementById("startButton");
   const startFreestyleButton = document.getElementById("startFreestyleButton");
   const gameContainer = document.getElementById("gameContainer");
-  const turnIndicator = document.getElementById("turnIndicator");
   const rotateButton = document.getElementById("rotateButton");
   const smartphoneModeButton = document.getElementById("smartphoneModeButton");
   const soundToggleButton = document.getElementById("soundToggleButton");
@@ -125,7 +124,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function initializeDarkmodeToggle() {
     if (darkmodeToggleButton && gameStarted) {
-      darkmodeToggleButton.textContent = isDarkmode ? "Light" : "Dark";
+      darkmodeToggleButton.textContent = isDarkmode ? "Hell" : "Dunkel";
       darkmodeToggleButton.removeEventListener("click", toggleDarkmodeHandler);
       darkmodeToggleButton.addEventListener("click", toggleDarkmodeHandler);
     } else if (darkmodeToggleButton && !gameStarted) {
@@ -136,7 +135,7 @@ document.addEventListener("DOMContentLoaded", () => {
   function toggleDarkmodeHandler() {
     isDarkmode = !isDarkmode;
     document.body.classList.toggle("darkmode", isDarkmode);
-    darkmodeToggleButton.textContent = isDarkmode ? "Light" : "Dark";
+    darkmodeToggleButton.textContent = isDarkmode ? "Hell" : "Dunkel";
     localStorage.setItem("darkmode", isDarkmode);
     window.updateBoardColors(currentDesign);
     drawBoard();
@@ -195,30 +194,9 @@ document.addEventListener("DOMContentLoaded", () => {
           clearInterval(timerInterval);
         }
       }
-      updateTurnIndicator();
+      updateOpeningDisplay();
       drawBoard();
     }, 1000);
-  }
-
-  function updateTurnIndicator() {
-    turnIndicator.innerHTML = gameOver
-      ? winnerText
-      : `Am Zug: ${currentPlayer === "white" ? "Weiß" : "Schwarz"}<br>Weiß: ${formatTime(whiteTime)} | Schwarz: ${formatTime(blackTime)}`;
-  }
-
-  function showPenaltyMessage() {
-    const penaltyMessage = document.createElement("div");
-    penaltyMessage.classList.add("penalty-message");
-    penaltyMessage.textContent = "- 1 Minute";
-    document.body.appendChild(penaltyMessage);
-    const rect = undoButton.getBoundingClientRect();
-    penaltyMessage.style.position = "absolute";
-    penaltyMessage.style.left = `${rect.left + rect.width / 2}px`;
-    penaltyMessage.style.top = `${rect.top - 30}px`;
-    penaltyMessage.style.transform = "translateX(-50%)";
-    setTimeout(() => {
-      document.body.removeChild(penaltyMessage);
-    }, 2000);
   }
 
   function drawBoard() {
@@ -274,7 +252,7 @@ document.addEventListener("DOMContentLoaded", () => {
         ctx.fillText(i + 1, offsetX - size * 0.4, offsetY + (7 - i) * size + size / 2);
       }
     }
-    updateTurnIndicator();
+    updateOpeningDisplay();
   }
 
   function resizeCanvas() {
@@ -300,7 +278,7 @@ document.addEventListener("DOMContentLoaded", () => {
   function toggleFullscreenMode() {
     fullscreenMode = !fullscreenMode;
     document.body.classList.toggle("fullscreen", fullscreenMode);
-    fullscreenButton.textContent = fullscreenMode ? "Normal" : "Vollbild";
+    fullscreenButton.textContent = fullscreenMode ? "Vollbild Beenden" : "Vollbild";
     exitFullscreenButton.style.display = fullscreenMode ? "block" : "none";
     resizeCanvas();
     drawBoard();
@@ -698,6 +676,7 @@ document.addEventListener("DOMContentLoaded", () => {
       }
       updateKingPositions(tempBoard);
     }
+    console.log("Legal moves for", piece, "at", x, y, ":", validMoves);
     return validMoves;
   }
 
@@ -936,6 +915,21 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
+  function showPenaltyMessage() {
+    const penaltyMessage = document.createElement("div");
+    penaltyMessage.classList.add("penalty-message");
+    penaltyMessage.textContent = "- 1 Minute";
+    document.body.appendChild(penaltyMessage);
+    const rect = undoButton.getBoundingClientRect();
+    penaltyMessage.style.position = "absolute";
+    penaltyMessage.style.left = `${rect.left + rect.width / 2}px`;
+    penaltyMessage.style.top = `${rect.top - 30}px`;
+    penaltyMessage.style.transform = "translateX(-50%)";
+    setTimeout(() => {
+      document.body.removeChild(penaltyMessage);
+    }, 2000);
+  }
+
   function initializeGameButtons() {
     startButton.addEventListener("click", () => startGame(false));
     startFreestyleButton.addEventListener("click", () => startGame(true));
@@ -943,16 +937,16 @@ document.addEventListener("DOMContentLoaded", () => {
       rotateBoard = !rotateBoard;
       drawBoard();
     });
-    smartphoneModeButton.textContent = smartphoneMode ? "Brett aus" : "Brett mit";
+    smartphoneModeButton.textContent = smartphoneMode ? "Mitdrehen Aus" : "Mitdrehen An";
     smartphoneModeButton.addEventListener("click", () => {
       smartphoneMode = !smartphoneMode;
-      smartphoneModeButton.textContent = smartphoneMode ? "Brett aus" : "Brett mit";
+      smartphoneModeButton.textContent = smartphoneMode ? "Mitdrehen Aus" : "Mitdrehen An";
       drawBoard();
     });
-    soundToggleButton.textContent = soundEnabled ? "Sound aus" : "Sound ein";
+    soundToggleButton.textContent = soundEnabled ? "Ton Aus" : "Ton An";
     soundToggleButton.addEventListener("click", () => {
       soundEnabled = !soundEnabled;
-      soundToggleButton.textContent = soundEnabled ? "Sound aus" : "Sound ein";
+      soundToggleButton.textContent = soundEnabled ? "Ton Aus" : "Ton An";
     });
     undoButton.addEventListener("click", () => {
       if (moveHistory.length > 0 && !gameOver) {
