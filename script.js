@@ -95,7 +95,7 @@ document.addEventListener("DOMContentLoaded", () => {
   let timerInterval = null;
 
   const designs = {
-    1: { light: "#f0d9b5", dark: "#b58863" }, // Holzfarben
+    1: { light: "#f0d9b5", dark: "#b58863" },
     2: { light: "#d7b899", dark: "#8b5a2b" },
     3: { light: "#f5f5f5", dark: "#a0a0a0" },
     4: { light: "#c0c0c0", dark: "#404040" },
@@ -1153,38 +1153,4 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     }
     if (fullscreenButton) {
-      fullscreenButton.addEventListener("click", toggleFullscreenMode);
-    }
-    if (exitFullscreenButton) {
-      exitFullscreenButton.addEventListener("click", toggleFullscreenMode);
-    }
-  }
-
-  function startGameNormalHandler() {
-    console.log("Start button clicked!");
-    startGame(false);
-  }
-
-  function startGameFreestyleHandler() {
-    console.log("Freestyle button clicked!");
-    startGame(true);
-  }
-
-  initializeGameButtons();
-
-  const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
-  if (isTouchDevice) {
-    canvas.addEventListener("touchstart", handleCanvasClick, { passive: false });
-    if (DEBUG.enableLogging) {
-      console.log("Touch events enabled for canvas.");
-    }
-  } else {
-    canvas.addEventListener("click", handleCanvasClick);
-    if (DEBUG.enableLogging) {
-      console.log("Click events enabled for canvas.");
-    }
-  }
-
-  window.addEventListener("resize", resizeCanvas);
-  resizeCanvas();
-});
+      fullscreenButton
