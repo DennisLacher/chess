@@ -4,7 +4,8 @@ document.addEventListener("DOMContentLoaded", () => {
   const CONFIG = {
     defaultBoardSize: 45,
     minBoardSize: 35,
-    maxWidthFactor: 0.9,
+    maxWidthFactor: 0.9, // Maximal 90% der Breite
+    maxHeightFactor: 0.85, // Maximal 85% der Höhe, um Platz für UI zu lassen
     offset: 0.5,
   };
 
@@ -235,30 +236,20 @@ document.addEventListener("DOMContentLoaded", () => {
         const displayY = effectiveRotation ? 7 - y : y;
         const displayX = effectiveRotation ? 7 - x : x;
 
-        // Standardfarbe des Feldes
         ctx.fillStyle = (displayX + displayY) % 2 === 0 ? window.boardColors.light : window.boardColors.dark;
-
-        // Hervorhebung des letzten Zuges
         if (lastMove && ((lastMove.fromX === x && lastMove.fromY === y) || (lastMove.toX === x && lastMove.toY === y))) {
           ctx.fillStyle = "#a3e4a3"; // Subtiles Grün für den letzten Zug
         }
-
-        // Hervorhebung der ausgewählten Figur
         if (selectedPiece && selectedPiece.x === x && selectedPiece.y === y) {
           ctx.fillStyle = "#42a5f5"; // Blaue Hervorhebung für die ausgewählte Figur
         }
-
-        // Hervorhebung der legalen Züge
         if (legalMoves.some((move) => move.toX === x && move.toY === y)) {
           ctx.fillStyle = "#e6b800"; // Dunkles Gold für legale Züge
         }
-
-        // Hervorhebung bei Schach/Schachmatt
         if ((isWhiteInCheck && kingPositions.white && kingPositions.white.x === x && kingPositions.white.y === y) ||
             (isBlackInCheck && kingPositions.black && kingPositions.black.x === x && kingPositions.black.y === y)) {
           ctx.fillStyle = gameOver ? "#c62828" : "#d32f2f"; // Dunkleres Rot bei Schachmatt, sonst kräftiges Rot
         }
-
         ctx.fillRect(offsetX + displayX * size, offsetY + displayY * size, size, size);
 
         const piece = board[y][x];
@@ -296,22 +287,29 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     let maxWidth, maxHeight;
     if (fullscreenMode) {
-      maxWidth = window.innerWidth;
-      maxHeight = window.innerHeight;
+      maxWidth = window.innerWidth * CONFIG.maxWidthFactor; // 90% der Breite
+      maxHeight = window.innerHeight * CONFIG.maxHeightFactor; // 85% der Höhe
     } else {
       maxWidth = window.innerWidth * CONFIG.maxWidthFactor - 40;
       maxHeight = window.innerHeight - 100;
     }
-    size = Math.min(maxWidth / 8, maxHeight / 8, CONFIG.defaultBoardSize);
+
+    // Seitenverhältnis des Schachbretts (8:8) wahren
+    const boardAspectRatio = 8 / 8; // Quadratisches Brett
+    let newSize = Math.min(maxWidth / 8, maxHeight / 8, CONFIG.defaultBoardSize);
+
     if (window.innerWidth < 640 && !fullscreenMode) {
-      size = Math.min(size, CONFIG.minBoardSize);
+      newSize = Math.min(newSize, CONFIG.minBoardSize);
     }
+
+    size = Math.floor(newSize);
     offsetX = size * CONFIG.offset;
     offsetY = size * CONFIG.offset;
     canvas.width = size * 8 + offsetX * 2;
     canvas.height = size * 8 + offsetY * 2;
+
     if (DEBUG.enableLogging && DEBUG.logLevel === "debug") {
-      console.log("New canvas size:", canvas.width, "x", canvas.height);
+      console.log("New canvas size:", canvas.width, "x", canvas.height, "Calculated size:", size);
     }
     if (gameStarted) {
       drawBoard();
@@ -956,11 +954,9 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    // Koordinaten relativ zum Canvas berechnen und Offset berücksichtigen
     const adjustedX = clientX - rect.left;
     const adjustedY = clientY - rect.top;
 
-    // Koordinaten auf das Schachbrett umrechnen
     const x = Math.floor((adjustedX - offsetX) / size);
     const y = Math.floor((adjustedY - offsetY) / size);
 
@@ -985,7 +981,6 @@ document.addEventListener("DOMContentLoaded", () => {
       boardY = 7 - y;
     }
 
-    // Prüfen, ob der Klick innerhalb des Schachbretts liegt
     if (boardX < 0 || boardX >= 8 || boardY < 0 || boardY >= 8) {
       if (DEBUG.enableLogging && DEBUG.logLevel === "debug") {
         console.log("Click outside board:", boardX, boardY);
