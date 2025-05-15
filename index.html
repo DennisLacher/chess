@@ -3,28 +3,29 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Schachspiel</title>
+  <title>Moderner Schachspieler</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
   <div id="startScreen">
-    <h1>Schachspiel</h1>
+    <h1>Moderner Schachspieler</h1>
     <button id="startButton">Rapid</button>
     <button id="startFreestyleButton">Freestyle</button>
   </div>
   <div id="gameContainer" class="hidden">
-    <canvas id="chessboard"></canvas>
-    <div id="controls">
-      <div id="turnIndicator"></div>
-      <button id="rotateButton">Drehen</button>
-      <button id="smartphoneModeButton">Brett mitdrehen</button>
-      <button id="soundToggleButton">Sound aus</button>
-      <button id="undoButton">Zurück</button>
-      <button id="restartButton" class="hidden">Neustart</button>
-      <button id="designButton">Design</button>
-      <button id="darkmodeToggleButton">Darkmode</button>
-      <button id="fullscreenButton">Vollbildmodus</button>
-      <button id="exitFullscreenButton" style="display: none;">Normalmodus</button>
+    <div class="game-area">
+      <canvas id="chessboard"></canvas>
+      <div id="controls">
+        <button id="rotateButton">Drehen</button>
+        <button id="smartphoneModeButton">Brett mitdrehen</button>
+        <button id="soundToggleButton">Sound</button>
+        <button id="undoButton">Zurück</button>
+        <button id="restartButton">Neustart</button>
+        <button id="designButton">Design</button>
+        <button id="darkmodeToggleButton">Modus</button>
+        <button id="fullscreenButton">Vollbild</button>
+        <button id="exitFullscreenButton" style="display: none;">Normal</button>
+      </div>
     </div>
     <div id="moveHistory">
       <h3>Züge</h3>
