@@ -53,7 +53,7 @@ h1 {
   background-color: #fff;
   max-width: 100%;
   height: auto;
-  aspect-ratio: 1 / 1; /* Erzwingt 1:1-Verhältnis */
+  aspect-ratio: 1 / 1;
 }
 
 #turnIndicator {
@@ -61,6 +61,8 @@ h1 {
   font-size: 18px;
   font-weight: bold;
   color: #333;
+  text-align: center;
+  line-height: 1.5;
 }
 
 .game-buttons {
@@ -227,7 +229,7 @@ body.fullscreen #chessboard {
   max-height: 85vh;
   width: auto;
   height: auto;
-  aspect-ratio: 1 / 1; /* Erzwingt 1:1-Verhältnis im Vollbild */
+  aspect-ratio: 1 / 1;
 }
 
 body.fullscreen #turnIndicator,
@@ -258,4 +260,17 @@ body.fullscreen #openingDisplay {
 
 #promotionChoices button:hover {
   background-color: #f0f0f0;
+}
+
+/* Styling für die Strafzeit-Einblendung */
+.penalty-message {
+  background-color: #ff4444;
+  color: white;
+  padding: 5px 10px;
+  border-radius: 5px;
+  font-size: 14px;
+  font-weight: bold;
+  z-index: 1000;
+  opacity: 0.9;
+  transition: opacity 0.5s;
 }
