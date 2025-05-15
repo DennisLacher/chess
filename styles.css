@@ -1,275 +1,185 @@
 body {
+  font-family: Arial, sans-serif;
   margin: 0;
   padding: 0;
-  font-family: Arial, sans-serif;
-  background: linear-gradient(135deg, #d4a017, #8b5a2b);
-  height: 100vh;
   display: flex;
   justify-content: center;
   align-items: center;
-  overflow: hidden;
-  color: #333;
+  min-height: 100vh;
+  background-color: #f0f0f0;
+  transition: background-color 0.3s;
 }
 
 body.darkmode {
-  background: linear-gradient(135deg, #3c2f2f, #5c4033);
+  background-color: #333;
   color: #fff;
 }
 
 #startScreen {
   text-align: center;
-  background: rgba(255, 255, 255, 0.9);
-  padding: 40px;
+  padding: 20px;
+  background: #fff;
   border-radius: 10px;
-  max-width: 90%;
-  max-height: 80%;
-  overflow-y: auto;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
 
-h1 {
-  font-size: 2.5em;
-  color: #8b5a2b;
-  margin-bottom: 30px;
+body.darkmode #startScreen {
+  background: #444;
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
+}
+
+#startScreen h1 {
+  margin-bottom: 20px;
 }
 
 #startScreen button {
-  font-size: 1.2em;
-  padding: 15px 30px;
-  margin: 10px;
+  display: block;
+  width: 150px;
+  margin: 10px auto;
+  padding: 10px;
+  font-size: 16px;
+  cursor: pointer;
+  background-color: #4CAF50;
+  color: white;
   border: none;
   border-radius: 5px;
-  background: #8b5a2b;
-  color: white;
-  cursor: pointer;
-  width: 200px;
-  display: block;
-  margin-left: auto;
-  margin-right: auto;
+  transition: background-color 0.3s;
 }
 
 #startScreen button:hover {
-  background: #a5693d;
+  background-color: #45a049;
 }
 
 #gameContainer {
-  display: flex;
-  flex-direction: row;
-  align-items: flex-start;
-  justify-content: center;
-  width: 100%;
-  height: 100vh;
-  background: transparent;
-  padding: 20px;
-  box-sizing: border-box;
-  gap: 0px; /* Kein Abstand zwischen Brett und Panel */
-}
-
-#boardWrapper {
-  flex: 0 0 auto;
-  max-width: 70%;
-  max-height: 90%;
-}
-
-#chessboard {
-  display: block;
-  margin: 0;
-  max-width: 100%;
-  max-height: 100%;
-}
-
-#rightPanel {
-  display: flex;
+  display: none;
   flex-direction: column;
+  align-items: center;
   gap: 10px;
-  padding: 0;
-  background: transparent;
-  height: fit-content;
-  max-height: 90%;
-  overflow-y: auto;
-  min-width: 200px; /* Mindestbreite für Buttons und Liste */
+}
+
+#gameContainer.hidden {
+  display: none;
+}
+
+#controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+  margin-top: 10px;
+}
+
+#controls button {
+  padding: 5px 10px;
+  font-size: 14px;
+  cursor: pointer;
+  background-color: #008CBA;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  transition: background-color 0.3s;
+}
+
+#controls button:hover {
+  background-color: #007B9A;
+}
+
+body.darkmode #controls button {
+  background-color: #006d8d;
+}
+
+body.darkmode #controls button:hover {
+  background-color: #005f7a;
 }
 
 #turnIndicator {
-  color: #333;
-  background: rgba(255, 255, 255, 0.8);
-  padding: 10px 15px;
-  border-radius: 5px;
-  font-size: 1.1em;
+  font-size: 18px;
+  text-align: center;
+  margin-bottom: 10px;
+}
+
+#moveHistory {
+  margin-top: 10px;
   text-align: center;
 }
 
-body.darkmode #turnIndicator {
-  color: #fff;
-  background: rgba(0, 0, 0, 0.8);
-}
-
-#buttonContainer {
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-}
-
-#buttonContainer button {
-  font-size: 1em;
-  padding: 10px 15px;
-  border: none;
-  border-radius: 5px;
-  background: #8b5a2b;
-  color: white;
-  cursor: pointer;
-}
-
-#buttonContainer button:hover {
-  background: #a5693d;
-}
-
-body.darkmode #buttonContainer button {
-  background: #5c4033;
-}
-
-body.darkmode #buttonContainer button:hover {
-  background: #7a523f;
-}
-
-#moveListWrapper {
-  flex: 1;
-  overflow-y: auto;
-  max-height: 200px;
+#moveHistory h3 {
+  margin-bottom: 5px;
 }
 
 #moveList {
-  list-style: none;
+  list-style-type: none;
   padding: 0;
-  margin: 0;
-  color: #333;
-  background: rgba(255, 255, 255, 0.8);
-  padding: 10px;
-  border-radius: 5px;
-}
-
-body.darkmode #moveList {
-  color: #fff;
-  background: rgba(0, 0, 0, 0.8);
-}
-
-#moveList li {
-  padding: 5px 0;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-}
-
-#moveList li:last-child {
-  border-bottom: none;
+  max-height: 150px;
+  overflow-y: auto;
+  text-align: left;
 }
 
 #openingDisplay {
-  color: #333;
-  background: rgba(255, 255, 255, 0.8);
-  padding: 10px 15px;
-  border-radius: 5px;
-  font-size: 1em;
+  font-size: 16px;
   text-align: center;
+  margin-top: 10px;
 }
 
-body.darkmode #openingDisplay {
-  color: #fff;
-  background: rgba(0, 0, 0, 0.8);
+#chessboard {
+  border: 1px solid #000;
+  touch-action: none;
 }
 
-.hidden {
-  display: none !important;
+body.fullscreen {
+  background-color: #000;
+}
+
+body.fullscreen #gameContainer {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background-color: #000;
+  z-index: 1000;
+}
+
+body.fullscreen #chessboard {
+  max-width: 90vw;
+  max-height: 90vh;
 }
 
 .penalty-message {
   position: absolute;
-  background: #e74c3c;
+  background-color: #ff4444;
   color: white;
   padding: 5px 10px;
-  border-radius: 5px;
-  font-size: 1em;
+  border-radius: 3px;
+  font-size: 14px;
   animation: fadeOut 2s forwards;
-  z-index: 1000;
 }
 
 @keyframes fadeOut {
   0% { opacity: 1; }
   90% { opacity: 1; }
-  100% { opacity: 0; visibility: hidden; }
+  100% { opacity: 0; }
 }
 
-body.fullscreen {
-  overflow: hidden;
+#promotionChoices {
+  display: flex;
+  gap: 5px;
 }
 
-body.fullscreen #gameContainer {
-  padding: 10px;
+#promotionChoices button {
+  width: 40px;
+  height: 40px;
+  background-color: #ddd;
+  border: 1px solid #ccc;
+  cursor: pointer;
+  border-radius: 5px;
 }
 
-@media (max-width: 768px) {
-  #gameContainer {
-    flex-direction: column;
-    padding: 10px;
-    gap: 10px;
-  }
-
-  #boardWrapper {
-    max-width: 100%;
-    max-height: 60%;
-  }
-
-  #rightPanel {
-    width: 100%;
-    max-height: 35%;
-    padding: 0;
-    margin-top: 10px;
-  }
-
-  #moveListWrapper {
-    max-height: 100px;
-  }
-
-  h1 {
-    font-size: 2em;
-  }
-
-  #startScreen button {
-    font-size: 1em;
-    width: 150px;
-    padding: 10px 20px;
-  }
-
-  #turnIndicator, #openingDisplay {
-    font-size: 0.9em;
-    padding: 5px 10px;
-  }
-
-  #buttonContainer button {
-    font-size: 0.9em;
-    padding: 8px 12px;
-  }
-}
-
-@media (max-width: 480px) {
-  h1 {
-    font-size: 1.5em;
-  }
-
-  #startScreen {
-    padding: 20px;
-  }
-
-  #startScreen button {
-    font-size: 0.9em;
-    width: 120px;
-    padding: 8px 16px;
-  }
-
-  #turnIndicator, #openingDisplay {
-    font-size: 0.8em;
-    padding: 5px;
-  }
-
-  #buttonContainer button {
-    font-size: 0.8em;
-    padding: 6px 10px;
-  }
+body.darkmode #promotionChoices button {
+  background-color: #666;
+  border-color: #888;
 }
