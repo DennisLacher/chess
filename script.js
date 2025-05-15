@@ -401,7 +401,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const whiteWasInCheck = isWhiteInCheck;
     const blackWasInCheck = isBlackInCheck;
     isWhiteInCheck = isInCheck("white");
-    isBlackInCheck = isBlackInCheck("black");
+    isBlackInCheck = isInCheck("black");
 
     if ((isWhiteInCheck && !whiteWasInCheck) || (isBlackInCheck && !blackWasInCheck)) {
       if (soundEnabled) {
@@ -931,6 +931,9 @@ document.addEventListener("DOMContentLoaded", () => {
       if (DEBUG.enableLogging && DEBUG.logLevel === "debug") {
         console.log("Click outside board:", boardX, boardY);
       }
+      selectedPiece = null;
+      legalMoves = [];
+      drawBoard();
       return;
     }
 
@@ -959,6 +962,9 @@ document.addEventListener("DOMContentLoaded", () => {
     } else {
       const move = legalMoves.find((m) => m.toX === boardX && m.toY === boardY);
       if (move) {
+        if (DEBUG.enableLogging && DEBUG.logLevel === "debug") {
+          console.log("Valid move found:", move);
+        }
         const newBoard = board.map((row) => [...row]);
         const targetPiece = newBoard[boardY][boardX];
         const isCapture = targetPiece && (targetPiece.toLowerCase() !== selectedPiece.piece.toLowerCase()) && ((targetPiece === targetPiece.toUpperCase()) !== (selectedPiece.piece === selectedPiece.piece.toUpperCase()));
@@ -1019,12 +1025,14 @@ document.addEventListener("DOMContentLoaded", () => {
         }
         selectedPiece = null;
         legalMoves = [];
-        drawBoard();
       } else {
+        if (DEBUG.enableLogging && DEBUG.logLevel === "debug") {
+          console.log("No valid move found for target:", boardX, boardY);
+        }
         selectedPiece = null;
         legalMoves = [];
-        drawBoard();
       }
+      drawBoard();
     }
   }
 
