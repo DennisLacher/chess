@@ -39,7 +39,8 @@ document.addEventListener("DOMContentLoaded", () => {
   const openingDisplay = document.getElementById("openingDisplay");
   const designButton = document.getElementById("designButton");
   const darkmodeToggleButton = document.getElementById("darkmodeToggleButton");
-  const fullscreenButton = document.getElementById("fullscreenButton"); // Neuer Button
+  const fullscreenButton = document.getElementById("fullscreenButton");
+  const exitFullscreenButton = document.getElementById("exitFullscreenButton");
 
   console.log("Checking DOM elements...");
   console.log("canvas:", canvas);
@@ -53,9 +54,10 @@ document.addEventListener("DOMContentLoaded", () => {
   console.log("designButton:", designButton);
   console.log("darkmodeToggleButton:", darkmodeToggleButton);
   console.log("fullscreenButton:", fullscreenButton);
-  if (!canvas || !startScreen || !startButton || !startFreestyleButton || !gameContainer || !turnIndicator || !moveList || !openingDisplay || !designButton || !fullscreenButton) {
+  console.log("exitFullscreenButton:", exitFullscreenButton);
+  if (!canvas || !startScreen || !startButton || !startFreestyleButton || !gameContainer || !turnIndicator || !moveList || !openingDisplay || !designButton || !fullscreenButton || !exitFullscreenButton) {
     console.error("One or more DOM elements are missing. Check index.html for correct IDs:", {
-      canvas, startScreen, startButton, startFreestyleButton, gameContainer, turnIndicator, moveList, openingDisplay, designButton, fullscreenButton
+      canvas, startScreen, startButton, startFreestyleButton, gameContainer, turnIndicator, moveList, openingDisplay, designButton, fullscreenButton, exitFullscreenButton
     });
     alert("Fehler: Ein oder mehrere DOM-Elemente fehlen. Bitte überprüfe die Konsole für Details.");
     return;
@@ -76,7 +78,6 @@ document.addEventListener("DOMContentLoaded", () => {
   let gameStarted = false;
   let rotateBoard = false;
   let smartphoneMode = false;
-  let fullscreenMode = false; // Neue Variable für Vollbildmodus
   let soundEnabled = SOUND.enabledByDefault;
   let moveHistory = [];
   let legalMoves = [];
@@ -89,6 +90,7 @@ document.addEventListener("DOMContentLoaded", () => {
   let isBlackInCheck = false;
   let currentDesign = 1;
   let isDarkmode = localStorage.getItem("darkmode") === "true";
+  let fullscreenMode = false;
   let gameOver = false;
   let winnerText = "";
 
@@ -188,14 +190,6 @@ document.addEventListener("DOMContentLoaded", () => {
     window.updateBoardColors(currentDesign);
   }
 
-  function toggleFullscreenMode() {
-    fullscreenMode = !fullscreenMode;
-    document.body.classList.toggle("fullscreen", fullscreenMode);
-    fullscreenButton.textContent = fullscreenMode ? "Normalmodus" : "Vollbildmodus";
-    resizeCanvas();
-    drawBoard();
-  }
-
   function updateOpeningDisplay() {
     const moves = moveNotations.map((m) => m.notation).filter((n) => !n.includes("-"));
     let displayText = `Zug: ${moves[moves.length - 1] || "Kein Zug"}`;
@@ -287,35 +281,37 @@ document.addEventListener("DOMContentLoaded", () => {
     if (DEBUG.enableLogging && DEBUG.logLevel === "debug") {
       console.log("Resizing canvas...");
     }
-
+    let maxWidth, maxHeight;
     if (fullscreenMode) {
-      // Vollbildmodus: Maximiere das Schachbrett
-      const maxSize = Math.min(window.innerWidth, window.innerHeight) * CONFIG.maxWidthFactor;
-      size = maxSize / 8;
-      offsetX = size * CONFIG.offset;
-      offsetY = size * CONFIG.offset;
-      canvas.width = size * 8 + offsetX * 2;
-      canvas.height = size * 8 + offsetY * 2;
+      maxWidth = window.innerWidth;
+      maxHeight = window.innerHeight;
     } else {
-      // Normalmodus
-      const maxWidth = window.innerWidth * CONFIG.maxWidthFactor - 40;
-      const maxHeight = window.innerHeight - 100;
-      size = Math.min(maxWidth / 8, maxHeight / 8, CONFIG.defaultBoardSize);
-      if (window.innerWidth < 640) {
-        size = Math.min(size, CONFIG.minBoardSize);
-      }
-      offsetX = size * CONFIG.offset;
-      offsetY = size * CONFIG.offset;
-      canvas.width = size * 8 + offsetX * 2;
-      canvas.height = size * 8 + offsetY * 2;
+      maxWidth = window.innerWidth * CONFIG.maxWidthFactor - 40;
+      maxHeight = window.innerHeight - 100;
     }
-
+    size = Math.min(maxWidth / 8, maxHeight / 8, CONFIG.defaultBoardSize);
+    if (window.innerWidth < 640 && !fullscreenMode) {
+      size = Math.min(size, CONFIG.minBoardSize);
+    }
+    offsetX = size * CONFIG.offset;
+    offsetY = size * CONFIG.offset;
+    canvas.width = size * 8 + offsetX * 2;
+    canvas.height = size * 8 + offsetY * 2;
     if (DEBUG.enableLogging && DEBUG.logLevel === "debug") {
       console.log("New canvas size:", canvas.width, "x", canvas.height);
     }
     if (gameStarted) {
       drawBoard();
     }
+  }
+
+  function toggleFullscreenMode() {
+    fullscreenMode = !fullscreenMode;
+    document.body.classList.toggle("fullscreen", fullscreenMode);
+    fullscreenButton.textContent = fullscreenMode ? "Normalmodus" : "Vollbildmodus";
+    exitFullscreenButton.style.display = fullscreenMode ? "block" : "none";
+    resizeCanvas();
+    drawBoard();
   }
 
   function startGame(freestyle = false) {
@@ -336,9 +332,10 @@ document.addEventListener("DOMContentLoaded", () => {
     isBlackInCheck = false;
     gameOver = false;
     winnerText = "";
-    fullscreenMode = false; // Vollbildmodus standardmäßig deaktiviert
+    fullscreenMode = false; // Vollbildmodus beim Neustart deaktivieren
     document.body.classList.remove("fullscreen");
     fullscreenButton.textContent = "Vollbildmodus";
+    exitFullscreenButton.style.display = "none";
     moveList.innerHTML = "";
     startScreen.style.display = "none";
     gameContainer.classList.remove("hidden");
@@ -636,7 +633,7 @@ document.addEventListener("DOMContentLoaded", () => {
             }
             break;
           }
-          moves.push({ toX: newX, toY: newY });
+          moves.push({ toX: newX, toY: newY }); // Ermöglicht Blockieren von Schach
         }
       });
     } else if (piece.toLowerCase() === "k") {
@@ -852,33 +849,49 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function showPromotionChoice(x, y, isWhite) {
+    // Entferne vorheriges Menü, falls vorhanden
+    const existingMenu = document.getElementById("promotionChoices");
+    if (existingMenu) {
+      document.body.removeChild(existingMenu);
+    }
+
     const promotionChoices = document.createElement("div");
     promotionChoices.id = "promotionChoices";
+    
+    // Positionierung anpassen
+    const rect = canvas.getBoundingClientRect();
+    let effectiveRotation = rotateBoard;
+    if (smartphoneMode) {
+      effectiveRotation = currentPlayer === "black";
+    }
+    const displayX = effectiveRotation ? 7 - x : x;
+    const displayY = effectiveRotation ? 7 - y : y;
+    const top = rect.top + offsetY + displayY * size;
+    const left = rect.left + offsetX + displayX * size;
+
     promotionChoices.style.position = "absolute";
-    promotionChoices.style.top = `${offsetY + y * size}px`;
-    promotionChoices.style.left = `${offsetX + x * size}px`;
-    promotionChoices.style.backgroundColor = "#fff";
-    promotionChoices.style.border = "2px solid #333";
-    promotionChoices.style.borderRadius = "5px";
-    promotionChoices.style.padding = "5px";
-    promotionChoices.style.display = "flex";
-    promotionChoices.style.gap = "5px";
-    promotionChoices.style.zIndex = "1000";
+    promotionChoices.style.top = `${top}px`;
+    promotionChoices.style.left = `${left}px`;
+
+    // Sicherstellen, dass das Menü im sichtbaren Bereich bleibt
+    const menuWidth = 4 * (size * 0.8 + 5); // Ungefähre Breite (4 Buttons)
+    const menuHeight = size * 0.8 + 10; // Ungefähre Höhe
+    if (left + menuWidth > window.innerWidth) {
+      promotionChoices.style.left = `${window.innerWidth - menuWidth - 10}px`;
+    }
+    if (top + menuHeight > window.innerHeight) {
+      promotionChoices.style.top = `${window.innerHeight - menuHeight - 10}px`;
+    }
 
     const choices = isWhite ? ["Q", "R", "B", "N"] : ["q", "r", "b", "n"];
     choices.forEach((p) => {
       const button = document.createElement("button");
       button.textContent = pieces[p];
       button.style.fontSize = `${size * 0.6}px`;
-      button.style.padding = "5px";
-      button.style.backgroundColor = "#f0d9b5";
-      button.style.border = "1px solid #b58863";
-      button.style.borderRadius = "3px";
-      button.style.cursor = "pointer";
-      button.style.transition = "background-color 0.2s";
-      button.onmouseover = () => (button.style.backgroundColor = "#d4e4d2");
-      button.onmouseout = () => (button.style.backgroundColor = "#f0d9b5");
       button.addEventListener("click", () => {
+        if (DEBUG.enableLogging && DEBUG.logLevel === "debug") {
+          console.log(`Pawn promoted to ${p} at ${x},${y}`);
+        }
         board[y][x] = p;
         document.body.removeChild(promotionChoices);
         updateKingPositions();
@@ -923,7 +936,7 @@ document.addEventListener("DOMContentLoaded", () => {
       console.log("Canvas event triggered, type:", event.type);
     }
 
-    event.preventDefault();
+    event.preventDefault(); // Verhindert Standardverhalten und doppelte Events
 
     const rect = canvas.getBoundingClientRect();
     const clientX = event.clientX || (event.touches && event.touches[0]?.clientX);
@@ -1030,7 +1043,15 @@ document.addEventListener("DOMContentLoaded", () => {
         if (move.promotion) {
           showPromotionChoice(boardX, boardY, isWhite);
           board = newBoard;
+          lastMove = { fromX: selectedPiece.x, fromY: selectedPiece.y, toX: boardX, toY: boardY };
           updateKingPositions();
+          moveHistory.push({
+            board: board.map((row) => [...row]),
+            currentPlayer,
+            moveCount,
+            castlingAvailability: { ...castlingAvailability },
+            piece: selectedPiece.piece
+          });
           return;
         }
         moveHistory.push({
@@ -1144,6 +1165,10 @@ document.addEventListener("DOMContentLoaded", () => {
     if (fullscreenButton) {
       fullscreenButton.addEventListener("click", toggleFullscreenMode);
     }
+
+    if (exitFullscreenButton) {
+      exitFullscreenButton.addEventListener("click", toggleFullscreenMode);
+    }
   }
 
   function startGameNormalHandler() {
@@ -1158,6 +1183,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   initializeGameButtons();
 
+  // Touch- und Click-Handling
   const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
   if (isTouchDevice) {
     canvas.addEventListener("touchstart", handleCanvasClick, { passive: false });
