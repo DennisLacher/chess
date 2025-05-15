@@ -195,3 +195,67 @@ body.darkmode #chessboard {
     flex-direction: row;
     justify-content: center;
     gap: 10px;
+  }
+}
+
+/* Vollbildmodus */
+body.fullscreen {
+  overflow: hidden;
+  margin: 0;
+  padding: 0;
+}
+
+body.fullscreen #gameContainer {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background-color: #f0f0f0;
+}
+
+body.fullscreen.darkmode #gameContainer {
+  background-color: #333;
+}
+
+body.fullscreen #chessboard {
+  max-width: 90vw;
+  max-height: 85vh;
+  width: auto;
+  height: auto;
+  aspect-ratio: 1 / 1; /* Erzwingt 1:1-Verhältnis im Vollbild */
+}
+
+body.fullscreen #turnIndicator,
+body.fullscreen .game-buttons,
+body.fullscreen #moveList,
+body.fullscreen #openingDisplay {
+  max-width: 90%;
+}
+
+/* Styling für Promotionsmenü */
+#promotionChoices {
+  display: flex;
+  background-color: #fff;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  z-index: 1000;
+}
+
+#promotionChoices button {
+  padding: 5px 10px;
+  font-size: 20px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+#promotionChoices button:hover {
+  background-color: #f0f0f0;
+}
