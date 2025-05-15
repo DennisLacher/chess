@@ -95,7 +95,7 @@ document.addEventListener("DOMContentLoaded", () => {
   let timerInterval = null;
 
   const designs = {
-    1: { light: "#f0d9b5", dark: "#b58863" },
+    1: { light: "#f0d9b5", dark: "#b58863" }, // Holzfarben
     2: { light: "#d7b899", dark: "#8b5a2b" },
     3: { light: "#f5f5f5", dark: "#a0a0a0" },
     4: { light: "#c0c0c0", dark: "#404040" },
@@ -278,7 +278,7 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     }
     ctx.fillStyle = "#ffffff";
-    ctx.font = `${size * 0.25}px Poppins`;
+    ctx.font = `${size * 0.25}px Roboto`;
     if (!effectiveRotation) {
       for (let i = 0; i < 8; i++) {
         ctx.fillText(String.fromCharCode(97 + i), offsetX + i * size + size / 2, offsetY + 8 * size + size * 0.3);
@@ -297,8 +297,12 @@ document.addEventListener("DOMContentLoaded", () => {
     if (DEBUG.enableLogging && DEBUG.logLevel === "debug") {
       console.log("Resizing canvas...");
     }
-    let maxWidth = window.innerWidth * CONFIG.maxWidthFactor;
-    let maxHeight = window.innerHeight * CONFIG.maxHeightFactor;
+    let maxWidth = window.innerWidth * CONFIG.maxWidthFactor * 0.7; // 70% für das Brett im Web
+    let maxHeight = window.innerHeight * CONFIG.maxHeightFactor * 0.9;
+    if (window.innerWidth <= 768) {
+      maxWidth = window.innerWidth * CONFIG.maxWidthFactor;
+      maxHeight = window.innerHeight * CONFIG.maxHeightFactor * 0.6; // 60% für das Brett auf Smartphones
+    }
     const boardSize = Math.min(maxWidth / 8, maxHeight / 8, CONFIG.defaultBoardSize);
     size = Math.floor(Math.max(boardSize, CONFIG.minBoardSize));
     const totalWidth = size * 8;
