@@ -41,7 +41,7 @@ body.darkmode {
 
 #gameContainer {
   display: flex;
-  flex-direction: column; /* Buttons unter dem Schachbrett */
+  flex-direction: column;
   align-items: center;
   gap: 20px;
 }
@@ -61,12 +61,23 @@ body.darkmode {
   gap: 10px;
   max-height: 80vh;
   overflow-y: auto;
+  width: 100%;
+  align-items: center;
 }
 
 #turnIndicator {
   font-size: 1.2em;
   font-weight: bold;
   margin-bottom: 10px;
+}
+
+#controls .button-row {
+  display: flex;
+  flex-direction: column; /* Buttons untereinander */
+  gap: 5px;
+  padding: 5px 0;
+  width: 100%;
+  align-items: center;
 }
 
 #controls button {
@@ -77,6 +88,8 @@ body.darkmode {
   border: 2px solid #b58863;
   border-radius: 5px;
   transition: background-color 0.2s;
+  width: 200px; /* Feste Breite für Konsistenz */
+  text-align: center;
 }
 
 #controls button:hover {
@@ -96,6 +109,7 @@ body.darkmode {
   border: 1px solid #ccc;
   padding: 10px;
   background-color: #fff;
+  width: 200px; /* Gleiche Breite wie Buttons */
 }
 
 body.darkmode #moveList {
@@ -131,19 +145,19 @@ body.darkmode #moveList {
     flex-direction: column; /* Vertikal auf Mobilgeräten */
     gap: 5px;
     padding: 5px 0;
+    width: 100%;
+    align-items: center;
   }
 
   #controls button {
     padding: 6px 10px;
     font-size: 0.9em;
     margin: 2px;
-    white-space: nowrap;
-    min-width: 80px;
-    text-align: center;
+    width: 150px; /* Kleinere Breite für Mobilgeräte */
   }
 
   #moveList {
-    width: 80%;
+    width: 150px; /* Kleinere Breite für Mobilgeräte */
     max-height: 150px;
   }
 
