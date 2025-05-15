@@ -1,56 +1,59 @@
 body {
   margin: 0;
   padding: 0;
-  font-family: 'Arial', sans-serif;
-  background: #f0f0f0; /* Altes, schlichtes Grau für den Hintergrund */
+  font-family: 'Poppins', sans-serif;
+  background: linear-gradient(135deg, #1e3c72, #2a5298);
   height: 100vh;
   display: flex;
   justify-content: center;
   align-items: center;
   overflow: hidden;
+  color: #fff;
 }
 
 body.darkmode {
-  background: #333; /* Dunkles Grau für Darkmode */
+  background: linear-gradient(135deg, #0f2027, #203a43);
 }
 
-/* Neues Design nur für Startseite */
+/* Startseite */
 #startScreen {
   text-align: center;
-  background: linear-gradient(45deg, #2c3e50, #3498db);
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
   padding: 40px;
-  border-radius: 15px;
-  box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
-  border: 5px solid #d4a017;
+  border-radius: 20px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  border: 2px solid rgba(255, 255, 255, 0.2);
   max-width: 90%;
   max-height: 80%;
   overflow-y: auto;
+  animation: fadeIn 0.5s ease-in-out;
 }
 
-body.darkmode #startScreen {
-  background: linear-gradient(45deg, #1a252f, #1e4c6e);
+@keyframes fadeIn {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
 }
 
 h1 {
-  font-size: 3em;
+  font-size: 2.5em;
   color: #f1c40f;
-  text-shadow: 2px 2px 4px #000;
+  text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.3);
   margin-bottom: 30px;
-  font-family: 'Georgia', serif;
+  font-weight: 600;
 }
 
-/* Buttons auf Startseite */
 #startScreen button {
-  font-size: 1.5em;
+  font-size: 1.2em;
   padding: 15px 30px;
   margin: 10px;
   border: none;
-  border-radius: 10px;
-  background: #e74c3c;
+  border-radius: 50px;
+  background: linear-gradient(45deg, #ff6b6b, #feca57);
   color: white;
   cursor: pointer;
-  transition: transform 0.3s, background 0.3s;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+  transition: all 0.3s ease;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
   width: 200px;
   display: block;
   margin-left: auto;
@@ -58,122 +61,135 @@ h1 {
 }
 
 #startScreen button:hover {
-  transform: scale(1.1);
-  background: #c0392b;
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+  background: linear-gradient(45deg, #feca57, #ff6b6b);
 }
 
 #startScreen button:active {
-  transform: scale(0.95);
+  transform: translateY(1px);
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
 }
 
-/* Altes Design für das Spielfeld */
+/* Spielfeld */
 #gameContainer {
   text-align: center;
-  background: #f0f0f0; /* Altes, schlichtes Grau */
+  background: transparent;
   height: 100vh;
   width: 100%;
   position: relative;
-}
-
-body.darkmode #gameContainer {
-  background: #333; /* Dunkles Grau für Darkmode */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 }
 
 #chessboard {
   display: block;
   margin: 0 auto;
   max-width: 90%;
-  max-height: 90%;
+  max-height: 70%;
 }
 
-/* Alte Anordnung der UI-Elemente */
+/* UI-Elemente */
 #turnIndicator {
   position: absolute;
-  top: 10px;
-  left: 10px;
-  color: #000;
-  background: rgba(255, 255, 255, 0.8);
-  padding: 5px 10px;
-  border: 1px solid #000;
-  font-size: 1.2em;
-}
-
-body.darkmode #turnIndicator {
+  top: 20px;
+  left: 20px;
   color: #fff;
-  background: rgba(0, 0, 0, 0.8);
+  background: rgba(0, 0, 0, 0.5);
+  padding: 10px 20px;
+  border-radius: 10px;
+  font-size: 1.2em;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
 }
 
 #moveList {
   position: absolute;
-  bottom: 10px;
-  left: 10px;
-  color: #000;
-  background: rgba(255, 255, 255, 0.8);
-  padding: 5px 10px;
-  border: 1px solid #000;
+  bottom: 20px;
+  left: 20px;
+  color: #fff;
+  background: rgba(0, 0, 0, 0.5);
+  padding: 10px;
+  border-radius: 10px;
   max-height: 150px;
   overflow-y: auto;
   width: 200px;
-}
-
-body.darkmode #moveList {
-  color: #fff;
-  background: rgba(0, 0, 0, 0.8);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
 }
 
 #openingDisplay {
   position: absolute;
-  bottom: 10px;
-  right: 10px;
-  color: #000;
-  background: rgba(255, 255, 255, 0.8);
-  padding: 5px 10px;
-  border: 1px solid #000;
-  width: 200px;
-}
-
-body.darkmode #openingDisplay {
+  bottom: 20px;
+  right: 20px;
   color: #fff;
-  background: rgba(0, 0, 0, 0.8);
+  background: rgba(0, 0, 0, 0.5);
+  padding: 10px 20px;
+  border-radius: 10px;
+  width: 200px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
 }
 
-/* Alte Button-Stile für das Spielfeld */
-button[id^="rotate"], button[id^="smartphoneMode"], button[id^="soundToggle"], button[id^="undo"], button[id^="restart"], button[id^="design"], button[id^="darkmodeToggle"], button[id^="fullscreen"], button[id^="exitFullscreen"] {
+/* Buttons im Spielfeld */
+button[id^="rotate"],
+button[id^="smartphoneMode"],
+button[id^="soundToggle"],
+button[id^="undo"],
+button[id^="restart"],
+button[id^="design"],
+button[id^="darkmodeToggle"],
+button[id^="fullscreen"],
+button[id^="exitFullscreen"] {
   position: absolute;
   font-size: 1em;
-  padding: 8px 16px;
+  padding: 10px 20px;
   margin: 5px;
-  border: 1px solid #000;
-  border-radius: 0; /* Keine abgerundeten Ecken */
-  background: #ccc; /* Schlichtes Grau */
-  color: #000;
+  border: none;
+  border-radius: 50px;
+  background: linear-gradient(45deg, #4facfe, #00f2fe);
+  color: white;
   cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
 }
 
-body.darkmode button[id^="rotate"], body.darkmode button[id^="smartphoneMode"], body.darkmode button[id^="soundToggle"], body.darkmode button[id^="undo"], body.darkmode button[id^="restart"], body.darkmode button[id^="design"], body.darkmode button[id^="darkmodeToggle"], body.darkmode button[id^="fullscreen"], body.darkmode button[id^="exitFullscreen"] {
-  background: #555;
-  color: #fff;
-  border: 1px solid #fff;
+button[id^="rotate"]:hover,
+button[id^="smartphoneMode"]:hover,
+button[id^="soundToggle"]:hover,
+button[id^="undo"]:hover,
+button[id^="restart"]:hover,
+button[id^="design"]:hover,
+button[id^="darkmodeToggle"]:hover,
+button[id^="fullscreen"]:hover,
+button[id^="exitFullscreen"]:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+  background: linear-gradient(45deg, #00f2fe, #4facfe);
 }
 
-button[id^="rotate"]:hover, button[id^="smartphoneMode"]:hover, button[id^="soundToggle"]:hover, button[id^="undo"]:hover, button[id^="restart"]:hover, button[id^="design"]:hover, button[id^="darkmodeToggle"]:hover, button[id^="fullscreen"]:hover, button[id^="exitFullscreen"]:hover {
-  background: #bbb; /* Leicht dunkleres Grau beim Hover */
-}
-
-body.darkmode button[id^="rotate"]:hover, body.darkmode button[id^="smartphoneMode"]:hover, body.darkmode button[id^="soundToggle"]:hover, body.darkmode button[id^="undo"]:hover, body.darkmode button[id^="restart"]:hover, body.darkmode button[id^="design"]:hover, body.darkmode button[id^="darkmodeToggle"]:hover, body.darkmode button[id^="fullscreen"]:hover, body.darkmode button[id^="exitFullscreen"]:hover {
-  background: #666;
+button[id^="rotate"]:active,
+button[id^="smartphoneMode"]:active,
+button[id^="soundToggle"]:active,
+button[id^="undo"]:active,
+button[id^="restart"]:active,
+button[id^="design"]:active,
+button[id^="darkmodeToggle"]:active,
+button[id^="fullscreen"]:active,
+button[id^="exitFullscreen"]:active {
+  transform: translateY(1px);
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
 }
 
 /* Positionen der Buttons */
-#rotateButton { top: 10px; right: 10px; }
-#smartphoneModeButton { top: 40px; right: 10px; }
-#soundToggleButton { top: 70px; right: 10px; }
-#undoButton { top: 100px; right: 10px; }
-#restartButton { top: 130px; right: 10px; }
-#designButton { top: 160px; right: 10px; }
-#darkmodeToggleButton { top: 190px; right: 10px; }
-#fullscreenButton { top: 220px; right: 10px; }
-#exitFullscreenButton { top: 220px; right: 10px; }
+#rotateButton { top: 20px; right: 20px; }
+#smartphoneModeButton { top: 70px; right: 20px; }
+#soundToggleButton { top: 120px; right: 20px; }
+#undoButton { top: 170px; right: 20px; }
+#restartButton { top: 220px; right: 20px; }
+#designButton { top: 270px; right: 20px; }
+#darkmodeToggleButton { top: 320px; right: 20px; }
+#fullscreenButton { top: 370px; right: 20px; }
+#exitFullscreenButton { top: 370px; right: 20px; }
 
 .hidden {
   display: none !important;
@@ -181,10 +197,10 @@ body.darkmode button[id^="rotate"]:hover, body.darkmode button[id^="smartphoneMo
 
 .penalty-message {
   position: absolute;
-  background: #e74c3c;
+  background: #ff6b6b;
   color: white;
   padding: 5px 10px;
-  border-radius: 5px;
+  border-radius: 10px;
   font-size: 1em;
   animation: fadeOut 2s forwards;
   z-index: 1000;
@@ -201,5 +217,65 @@ body.fullscreen {
 }
 
 body.fullscreen #gameContainer {
-  display: block;
+  display: flex;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  h1 {
+    font-size: 2em;
+  }
+  #startScreen button {
+    font-size: 1em;
+    width: 150px;
+    padding: 10px 20px;
+  }
+  #turnIndicator, #moveList, #openingDisplay {
+    font-size: 0.9em;
+    padding: 5px 10px;
+    width: 150px;
+  }
+  button[id^="rotate"],
+  button[id^="smartphoneMode"],
+  button[id^="soundToggle"],
+  button[id^="undo"],
+  button[id^="restart"],
+  button[id^="design"],
+  button[id^="darkmodeToggle"],
+  button[id^="fullscreen"],
+  button[id^="exitFullscreen"] {
+    font-size: 0.9em;
+    padding: 8px 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  h1 {
+    font-size: 1.5em;
+  }
+  #startScreen {
+    padding: 20px;
+  }
+  #startScreen button {
+    font-size: 0.9em;
+    width: 120px;
+    padding: 8px 16px;
+  }
+  #turnIndicator, #moveList, #openingDisplay {
+    font-size: 0.8em;
+    padding: 5px;
+    width: 120px;
+  }
+  #turnIndicator { top: 10px; left: 10px; }
+  #moveList { bottom: 10px; left: 10px; }
+  #openingDisplay { bottom: 10px; right: 10px; }
+  button[id^="rotate"] { top: 10px; right: 10px; }
+  button[id^="smartphoneMode"] { top: 50px; right: 10px; }
+  button[id^="soundToggle"] { top: 90px; right: 10px; }
+  button[id^="undo"] { top: 130px; right: 10px; }
+  button[id^="restart"] { top: 170px; right: 10px; }
+  button[id^="design"] { top: 210px; right: 10px; }
+  button[id^="darkmodeToggle"] { top: 250px; right: 10px; }
+  button[id^="fullscreen"] { top: 290px; right: 10px; }
+  button[id^="exitFullscreen"] { top: 290px; right: 10px; }
 }
