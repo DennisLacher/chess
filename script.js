@@ -223,7 +223,7 @@ document.addEventListener("DOMContentLoaded", () => {
       console.error("Canvas context not available.");
       return;
     }
-    ctx.clearRect(0, 0, canvas.width, canvas.height); // Korrigiert: height -> canvas.height
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     let effectiveRotation = rotateBoard;
     if (smartphoneMode) {
@@ -235,17 +235,30 @@ document.addEventListener("DOMContentLoaded", () => {
         const displayY = effectiveRotation ? 7 - y : y;
         const displayX = effectiveRotation ? 7 - x : x;
 
+        // Standardfarbe des Feldes
         ctx.fillStyle = (displayX + displayY) % 2 === 0 ? window.boardColors.light : window.boardColors.dark;
+
+        // Hervorhebung des letzten Zuges
         if (lastMove && ((lastMove.fromX === x && lastMove.fromY === y) || (lastMove.toX === x && lastMove.toY === y))) {
           ctx.fillStyle = "#a3e4a3"; // Subtiles Grün für den letzten Zug
         }
+
+        // Hervorhebung der ausgewählten Figur
+        if (selectedPiece && selectedPiece.x === x && selectedPiece.y === y) {
+          ctx.fillStyle = "#42a5f5"; // Blaue Hervorhebung für die ausgewählte Figur
+        }
+
+        // Hervorhebung der legalen Züge
         if (legalMoves.some((move) => move.toX === x && move.toY === y)) {
           ctx.fillStyle = "#e6b800"; // Dunkles Gold für legale Züge
         }
+
+        // Hervorhebung bei Schach/Schachmatt
         if ((isWhiteInCheck && kingPositions.white && kingPositions.white.x === x && kingPositions.white.y === y) ||
             (isBlackInCheck && kingPositions.black && kingPositions.black.x === x && kingPositions.black.y === y)) {
           ctx.fillStyle = gameOver ? "#c62828" : "#d32f2f"; // Dunkleres Rot bei Schachmatt, sonst kräftiges Rot
         }
+
         ctx.fillRect(offsetX + displayX * size, offsetY + displayY * size, size, size);
 
         const piece = board[y][x];
@@ -332,7 +345,7 @@ document.addEventListener("DOMContentLoaded", () => {
     isBlackInCheck = false;
     gameOver = false;
     winnerText = "";
-    fullscreenMode = false; // Vollbildmodus beim Neustart deaktivieren
+    fullscreenMode = false;
     document.body.classList.remove("fullscreen");
     fullscreenButton.textContent = "Vollbildmodus";
     exitFullscreenButton.style.display = "none";
@@ -646,7 +659,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const newY = y + dy;
         if (newX >= 0 && newX < 8 && newY >= 0 && newY < 8) {
           const targetPiece = board[newY][newX];
-          if (!targetPiece || (targetPiece === targetPiece.toUpperCase()) !== ontdeutig) {
+          if (!targetPiece || (targetPiece === targetPiece.toUpperCase()) !== isWhite) {
             moves.push({ toX: newX, toY: newY });
           }
         }
@@ -849,7 +862,6 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function showPromotionChoice(x, y, isWhite) {
-    // Entferne vorheriges Menü, falls vorhanden
     const existingMenu = document.getElementById("promotionChoices");
     if (existingMenu) {
       document.body.removeChild(existingMenu);
@@ -858,7 +870,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const promotionChoices = document.createElement("div");
     promotionChoices.id = "promotionChoices";
     
-    // Positionierung anpassen
     const rect = canvas.getBoundingClientRect();
     let effectiveRotation = rotateBoard;
     if (smartphoneMode) {
@@ -873,9 +884,8 @@ document.addEventListener("DOMContentLoaded", () => {
     promotionChoices.style.top = `${top}px`;
     promotionChoices.style.left = `${left}px`;
 
-    // Sicherstellen, dass das Menü im sichtbaren Bereich bleibt
-    const menuWidth = 4 * (size * 0.8 + 5); // Ungefähre Breite (4 Buttons)
-    const menuHeight = size * 0.8 + 10; // Ungefähre Höhe
+    const menuWidth = 4 * (size * 0.8 + 5);
+    const menuHeight = size * 0.8 + 10;
     if (left + menuWidth > window.innerWidth) {
       promotionChoices.style.left = `${window.innerWidth - menuWidth - 10}px`;
     }
@@ -936,7 +946,7 @@ document.addEventListener("DOMContentLoaded", () => {
       console.log("Canvas event triggered, type:", event.type);
     }
 
-    event.preventDefault(); // Verhindert Standardverhalten und doppelte Events
+    event.preventDefault();
 
     const rect = canvas.getBoundingClientRect();
     const clientX = event.clientX || (event.touches && event.touches[0]?.clientX);
@@ -946,11 +956,13 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    // Anpassung für Vollbildmodus: Berücksichtige die volle Canvas-Größe
+    // Koordinaten relativ zum Canvas berechnen und Offset berücksichtigen
     const adjustedX = clientX - rect.left;
     const adjustedY = clientY - rect.top;
-    const x = Math.floor(adjustedX / size);
-    const y = Math.floor(adjustedY / size);
+
+    // Koordinaten auf das Schachbrett umrechnen
+    const x = Math.floor((adjustedX - offsetX) / size);
+    const y = Math.floor((adjustedY - offsetY) / size);
 
     if (DEBUG.enableLogging && DEBUG.logLevel === "debug") {
       console.log("Raw coordinates:", clientX, clientY);
@@ -973,9 +985,10 @@ document.addEventListener("DOMContentLoaded", () => {
       boardY = 7 - y;
     }
 
-    if (boardX < 0 || boardX >= 8 || boardY < 0 || boardY >= 8 || adjustedX < offsetX || adjustedX >= canvas.width - offsetX || adjustedY < offsetY || adjustedY >= canvas.height - offsetY) {
+    // Prüfen, ob der Klick innerhalb des Schachbretts liegt
+    if (boardX < 0 || boardX >= 8 || boardY < 0 || boardY >= 8) {
       if (DEBUG.enableLogging && DEBUG.logLevel === "debug") {
-        console.log("Click outside board or invalid coordinates:", boardX, boardY, adjustedX, adjustedY);
+        console.log("Click outside board:", boardX, boardY);
       }
       selectedPiece = null;
       legalMoves = [];
@@ -1188,7 +1201,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
   initializeGameButtons();
 
-  // Touch- und Click-Handling
   const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
   if (isTouchDevice) {
     canvas.addEventListener("touchstart", handleCanvasClick, { passive: false });
