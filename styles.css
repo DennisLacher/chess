@@ -1,4 +1,68 @@
-/* Allgemeine Stile für Buttons */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: Arial, sans-serif;
+  background-color: #f0f0f0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+  min-height: 100vh;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+h1 {
+  margin-bottom: 20px;
+  color: #333;
+}
+
+#startScreen {
+  text-align: center;
+}
+
+#startScreen button {
+  padding: 10px 20px;
+  margin: 10px;
+  font-size: 16px;
+  border: none;
+  border-radius: 5px;
+  background-color: #4CAF50;
+  color: white;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+#startScreen button:hover {
+  background-color: #45a049;
+}
+
+#gameContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  max-width: 800px;
+}
+
+#chessboard {
+  border: 2px solid #333;
+  background-color: #fff;
+  max-width: 100%;
+  height: auto;
+  aspect-ratio: 1 / 1; /* Erzwingt 1:1-Verhältnis */
+}
+
+#turnIndicator {
+  margin: 10px 0;
+  font-size: 18px;
+  font-weight: bold;
+  color: #333;
+}
+
 .game-buttons {
   display: flex;
   flex-wrap: wrap;
@@ -6,6 +70,7 @@
   padding: 10px;
   justify-content: center;
   align-items: center;
+  width: 100%;
 }
 
 .game-buttons button {
@@ -23,51 +88,110 @@
   background-color: #45a049;
 }
 
-/* Responsive Anpassung für Smartphones */
+#exitFullscreenButton {
+  position: fixed;
+  top: 10px;
+  right: 10px;
+  background-color: #ff4444;
+  padding: 5px 10px;
+  font-size: 14px;
+}
+
+#exitFullscreenButton:hover {
+  background-color: #cc0000;
+}
+
+#moveList, #openingDisplay {
+  margin-top: 10px;
+  width: 100%;
+  max-width: 400px;
+  padding: 10px;
+  background-color: #fff;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  max-height: 150px;
+  overflow-y: auto;
+  font-size: 14px;
+}
+
+#moveList li {
+  list-style: none;
+  padding: 2px 0;
+}
+
+#openingDisplay {
+  font-style: italic;
+  text-align: center;
+}
+
+.hidden {
+  display: none;
+}
+
+/* Darkmode */
+body.darkmode {
+  background-color: #333;
+  color: #fff;
+}
+
+body.darkmode h1,
+body.darkmode #turnIndicator,
+body.darkmode #openingDisplay {
+  color: #fff;
+}
+
+body.darkmode #moveList {
+  background-color: #444;
+  border-color: #666;
+  color: #fff;
+}
+
+body.darkmode #chessboard {
+  border-color: #666;
+  background-color: #444;
+}
+
+/* Responsive Design für Smartphones */
 @media (max-width: 640px) {
+  body {
+    padding: 10px;
+  }
+
+  h1 {
+    font-size: 1.5em;
+  }
+
+  #startScreen button {
+    padding: 8px 16px;
+    font-size: 14px;
+  }
+
   .game-buttons {
-    flex-direction: row; /* Horizontale Anordnung */
+    flex-direction: row;
     justify-content: center;
-    gap: 5px; /* Kleinerer Abstand auf kleinen Bildschirmen */
+    gap: 5px;
   }
 
   .game-buttons button {
-    font-size: 12px; /* Kleinere Schrift für Kompaktheit */
+    font-size: 12px;
     padding: 6px 12px;
-    min-width: 0; /* Verhindert übermäßige Breite */
+    min-width: 0;
+  }
+
+  #moveList, #openingDisplay {
+    max-width: 100%;
+    font-size: 12px;
+    max-height: 100px;
+  }
+
+  #turnIndicator {
+    font-size: 16px;
   }
 }
 
-/* Web-Design (Desktop) bleibt unverändert */
+/* Web-Design für Desktop */
 @media (min-width: 641px) {
   .game-buttons {
     flex-direction: row;
     justify-content: center;
     gap: 10px;
-  }
-}
-
-/* Vollbildmodus */
-body.fullscreen {
-  overflow: hidden;
-  margin: 0;
-  padding: 0;
-}
-
-body.fullscreen #gameContainer {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  background-color: #f0f0f0;
-}
-
-body.fullscreen #chessboard {
-  max-width: 90%;
-  max-height: 85%;
-}
