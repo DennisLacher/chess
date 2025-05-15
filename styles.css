@@ -61,7 +61,7 @@ h1 {
   background: transparent;
   padding: 20px;
   box-sizing: border-box;
-  gap: 15px;
+  gap: 0px; /* Kein Abstand zwischen Brett und Panel */
 }
 
 #boardWrapper {
@@ -72,7 +72,7 @@ h1 {
 
 #chessboard {
   display: block;
-  margin: 0 auto;
+  margin: 0;
   max-width: 100%;
   max-height: 100%;
 }
@@ -80,12 +80,13 @@ h1 {
 #rightPanel {
   display: flex;
   flex-direction: column;
-  gap: 15px;
+  gap: 10px;
   padding: 0;
   background: transparent;
   height: fit-content;
   max-height: 90%;
   overflow-y: auto;
+  min-width: 200px; /* Mindestbreite für Buttons und Liste */
 }
 
 #turnIndicator {
@@ -105,7 +106,7 @@ body.darkmode #turnIndicator {
 #buttonContainer {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 5px;
 }
 
 #buttonContainer button {
