@@ -223,7 +223,7 @@ document.addEventListener("DOMContentLoaded", () => {
       console.error("Canvas context not available.");
       return;
     }
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.clearRect(0, 0, canvas.width, height);
 
     let effectiveRotation = rotateBoard;
     if (smartphoneMode) {
@@ -376,7 +376,7 @@ document.addEventListener("DOMContentLoaded", () => {
     let shuffled = [...array];
     for (let i = shuffled.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
-      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+      [shuffled[i], shuffled[j] = [shuffled[j], shuffled[i]];
     }
     return shuffled;
   }
@@ -633,7 +633,7 @@ document.addEventListener("DOMContentLoaded", () => {
             }
             break;
           }
-          moves.push({ toX: newX, toY: newY }); // Ermöglicht Blockieren von Schach
+          moves.push({ toX: newX, toY: newY });
         }
       });
     } else if (piece.toLowerCase() === "k") {
@@ -946,11 +946,16 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    const x = Math.floor((clientX - rect.left - offsetX) / size);
-    const y = Math.floor((clientY - rect.top - offsetY) / size);
+    // Anpassung für Vollbildmodus: Berücksichtige die volle Canvas-Größe
+    const adjustedX = clientX - rect.left;
+    const adjustedY = clientY - rect.top;
+    const x = Math.floor(adjustedX / size);
+    const y = Math.floor(adjustedY / size);
+
     if (DEBUG.enableLogging && DEBUG.logLevel === "debug") {
       console.log("Raw coordinates:", clientX, clientY);
       console.log("Canvas rect:", rect);
+      console.log("Adjusted coordinates:", adjustedX, adjustedY);
       console.log("Converted to grid coordinates:", x, y);
       console.log("size:", size, "offsetX:", offsetX, "offsetY:", offsetY);
     }
@@ -968,9 +973,9 @@ document.addEventListener("DOMContentLoaded", () => {
       boardY = 7 - y;
     }
 
-    if (boardX < 0 || boardX >= 8 || boardY < 0 || boardY >= 8) {
+    if (boardX < 0 || boardX >= 8 || boardY < 0 || boardY >= 8 || adjustedX < offsetX || adjustedX >= canvas.width - offsetX || adjustedY < offsetY || adjustedY >= canvas.height - offsetY) {
       if (DEBUG.enableLogging && DEBUG.logLevel === "debug") {
-        console.log("Click outside board:", boardX, boardY);
+        console.log("Click outside board or invalid coordinates:", boardX, boardY, adjustedX, adjustedY);
       }
       selectedPiece = null;
       legalMoves = [];
