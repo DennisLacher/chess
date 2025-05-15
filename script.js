@@ -86,6 +86,7 @@ document.addEventListener("DOMContentLoaded", () => {
   let isBlackInCheck = false;
   let currentDesign = 1;
   let isDarkmode = localStorage.getItem("darkmode") === "true";
+  let gameOver = false;
 
   const designs = {
     1: { light: "#f0d9b5", dark: "#b58863" }, // Altes Design
@@ -230,14 +231,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
         ctx.fillStyle = (displayX + displayY) % 2 === 0 ? window.boardColors.light : window.boardColors.dark;
         if (lastMove && ((lastMove.fromX === x && lastMove.fromY === y) || (lastMove.toX === x && lastMove.toY === y))) {
-          ctx.fillStyle = "#b2f0b2";
+          ctx.fillStyle = "#a3e4a3"; // Subtiles Grün für den letzten Zug
         }
         if (legalMoves.some((move) => move.toX === x && move.toY === y)) {
-          ctx.fillStyle = "#ffd700";
+          ctx.fillStyle = "#e6b800"; // Dunkles Gold für legale Züge
         }
         if ((isWhiteInCheck && kingPositions.white && kingPositions.white.x === x && kingPositions.white.y === y) ||
             (isBlackInCheck && kingPositions.black && kingPositions.black.x === x && kingPositions.black.y === y)) {
-          ctx.fillStyle = "#ff4444";
+          ctx.fillStyle = gameOver ? "#c62828" : "#d32f2f"; // Dunkleres Rot bei Schachmatt, sonst kräftiges Rot
         }
         ctx.fillRect(offsetX + displayX * size, offsetY + displayY * size, size, size);
 
@@ -267,7 +268,7 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     }
 
-    turnIndicator.textContent = `Am Zug: ${currentPlayer === "white" ? "Weiß" : "Schwarz"}`;
+    turnIndicator.textContent = gameOver ? winnerText : `Am Zug: ${currentPlayer === "white" ? "Weiß" : "Schwarz"}`;
   }
 
   function resizeCanvas() {
@@ -308,6 +309,8 @@ document.addEventListener("DOMContentLoaded", () => {
     castlingAvailability = { white: { kingside: true, queenside: true }, black: { kingside: true, queenside: true } };
     isWhiteInCheck = false;
     isBlackInCheck = false;
+    gameOver = false;
+    winnerText = "";
     moveList.innerHTML = "";
     startScreen.style.display = "none";
     gameContainer.classList.remove("hidden");
@@ -398,7 +401,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const whiteWasInCheck = isWhiteInCheck;
     const blackWasInCheck = isBlackInCheck;
     isWhiteInCheck = isInCheck("white");
-    isBlackInCheck = isInCheck("black");
+    isBlackInCheck = isBlackInCheck("black");
 
     if ((isWhiteInCheck && !whiteWasInCheck) || (isBlackInCheck && !blackWasInCheck)) {
       if (soundEnabled) {
@@ -598,8 +601,14 @@ document.addEventListener("DOMContentLoaded", () => {
           newX += dx;
           newY += dy;
           if (newX < 0 || newX >= 8 || newY < 0 || newY >= 8) break;
-          moves.push({ toX: newX, toY: newY });
-          if (tempBoard[newY][newX]) break;
+          const targetPiece = board[newY][newX];
+          if (targetPiece) {
+            if ((targetPiece === targetPiece.toUpperCase()) !== isWhite) {
+              moves.push({ toX: newX, toY: newY });
+            }
+            break;
+          }
+          moves.push({ toX: newX, toY: newY }); // Ermöglicht Blockieren von Schach
         }
       });
     } else if (piece.toLowerCase() === "k") {
@@ -850,6 +859,7 @@ document.addEventListener("DOMContentLoaded", () => {
         legalMoves = [];
         updateMoveHistory();
         updateCheckStatus();
+        checkGameOver();
         if (soundEnabled) {
           const audio = new Audio(SOUND.moveSound);
           audio.play().catch((e) => console.error("Promotion audio play failed:", e));
@@ -862,10 +872,22 @@ document.addEventListener("DOMContentLoaded", () => {
     document.body.appendChild(promotionChoices);
   }
 
+  function checkGameOver() {
+    if (isWhiteInCheck || isBlackInCheck) {
+      const kingPos = currentPlayer === "white" ? kingPositions.white : kingPositions.black;
+      const legalKingMoves = getLegalMoves(kingPos.x, kingPos.y);
+      if (legalKingMoves.length === 0) {
+        gameOver = true;
+        winnerText = isWhiteInCheck ? "Schwarz hat gewonnen!" : "Weiß hat gewonnen!";
+        console.log("Game over:", winnerText);
+      }
+    }
+  }
+
   function handleCanvasClick(event) {
-    if (!gameStarted) {
+    if (!gameStarted || gameOver) {
       if (DEBUG.enableLogging && DEBUG.logLevel === "debug") {
-        console.log("Game not started yet.");
+        console.log("Game not started or already over.");
       }
       return;
     }
@@ -990,6 +1012,7 @@ document.addEventListener("DOMContentLoaded", () => {
         currentPlayer = currentPlayer === "white" ? "black" : "white";
         updateMoveHistory();
         updateCheckStatus();
+        checkGameOver();
         if (soundEnabled) {
           const audio = new Audio(isCapture ? SOUND.captureSound : SOUND.moveSound);
           audio.play().catch((e) => console.error("Move audio play failed:", e));
@@ -1051,7 +1074,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (undoButton) {
       undoButton.addEventListener("click", () => {
-        if (moveHistory.length > 0) {
+        if (moveHistory.length > 0 && !gameOver) {
           const lastState = moveHistory.pop();
           board = lastState.board;
           currentPlayer = lastState.currentPlayer;
@@ -1062,6 +1085,8 @@ document.addEventListener("DOMContentLoaded", () => {
           lastMove = moveHistory.length > 0 ? moveHistory[moveHistory.length - 1] : null;
           updateKingPositions();
           updateCheckStatus();
+          gameOver = false;
+          winnerText = "";
           updateMoveHistory();
           drawBoard();
         }
