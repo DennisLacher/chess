@@ -39,6 +39,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const openingDisplay = document.getElementById("openingDisplay");
   const designButton = document.getElementById("designButton");
   const darkmodeToggleButton = document.getElementById("darkmodeToggleButton");
+  const fullscreenButton = document.getElementById("fullscreenButton"); // Neuer Button
 
   console.log("Checking DOM elements...");
   console.log("canvas:", canvas);
@@ -51,9 +52,10 @@ document.addEventListener("DOMContentLoaded", () => {
   console.log("openingDisplay:", openingDisplay);
   console.log("designButton:", designButton);
   console.log("darkmodeToggleButton:", darkmodeToggleButton);
-  if (!canvas || !startScreen || !startButton || !startFreestyleButton || !gameContainer || !turnIndicator || !moveList || !openingDisplay || !designButton) {
+  console.log("fullscreenButton:", fullscreenButton);
+  if (!canvas || !startScreen || !startButton || !startFreestyleButton || !gameContainer || !turnIndicator || !moveList || !openingDisplay || !designButton || !fullscreenButton) {
     console.error("One or more DOM elements are missing. Check index.html for correct IDs:", {
-      canvas, startScreen, startButton, startFreestyleButton, gameContainer, turnIndicator, moveList, openingDisplay, designButton
+      canvas, startScreen, startButton, startFreestyleButton, gameContainer, turnIndicator, moveList, openingDisplay, designButton, fullscreenButton
     });
     alert("Fehler: Ein oder mehrere DOM-Elemente fehlen. Bitte überprüfe die Konsole für Details.");
     return;
@@ -74,6 +76,7 @@ document.addEventListener("DOMContentLoaded", () => {
   let gameStarted = false;
   let rotateBoard = false;
   let smartphoneMode = false;
+  let fullscreenMode = false; // Neue Variable für Vollbildmodus
   let soundEnabled = SOUND.enabledByDefault;
   let moveHistory = [];
   let legalMoves = [];
@@ -87,6 +90,7 @@ document.addEventListener("DOMContentLoaded", () => {
   let currentDesign = 1;
   let isDarkmode = localStorage.getItem("darkmode") === "true";
   let gameOver = false;
+  let winnerText = "";
 
   const designs = {
     1: { light: "#f0d9b5", dark: "#b58863" }, // Altes Design
@@ -184,6 +188,14 @@ document.addEventListener("DOMContentLoaded", () => {
     window.updateBoardColors(currentDesign);
   }
 
+  function toggleFullscreenMode() {
+    fullscreenMode = !fullscreenMode;
+    document.body.classList.toggle("fullscreen", fullscreenMode);
+    fullscreenButton.textContent = fullscreenMode ? "Normalmodus" : "Vollbildmodus";
+    resizeCanvas();
+    drawBoard();
+  }
+
   function updateOpeningDisplay() {
     const moves = moveNotations.map((m) => m.notation).filter((n) => !n.includes("-"));
     let displayText = `Zug: ${moves[moves.length - 1] || "Kein Zug"}`;
@@ -275,16 +287,29 @@ document.addEventListener("DOMContentLoaded", () => {
     if (DEBUG.enableLogging && DEBUG.logLevel === "debug") {
       console.log("Resizing canvas...");
     }
-    const maxWidth = window.innerWidth * CONFIG.maxWidthFactor - 40;
-    const maxHeight = window.innerHeight - 100;
-    size = Math.min(maxWidth / 8, maxHeight / 8, CONFIG.defaultBoardSize);
-    if (window.innerWidth < 640) {
-      size = Math.min(size, CONFIG.minBoardSize);
+
+    if (fullscreenMode) {
+      // Vollbildmodus: Maximiere das Schachbrett
+      const maxSize = Math.min(window.innerWidth, window.innerHeight) * CONFIG.maxWidthFactor;
+      size = maxSize / 8;
+      offsetX = size * CONFIG.offset;
+      offsetY = size * CONFIG.offset;
+      canvas.width = size * 8 + offsetX * 2;
+      canvas.height = size * 8 + offsetY * 2;
+    } else {
+      // Normalmodus
+      const maxWidth = window.innerWidth * CONFIG.maxWidthFactor - 40;
+      const maxHeight = window.innerHeight - 100;
+      size = Math.min(maxWidth / 8, maxHeight / 8, CONFIG.defaultBoardSize);
+      if (window.innerWidth < 640) {
+        size = Math.min(size, CONFIG.minBoardSize);
+      }
+      offsetX = size * CONFIG.offset;
+      offsetY = size * CONFIG.offset;
+      canvas.width = size * 8 + offsetX * 2;
+      canvas.height = size * 8 + offsetY * 2;
     }
-    offsetX = size * CONFIG.offset;
-    offsetY = size * CONFIG.offset;
-    canvas.width = size * 8 + offsetX * 2;
-    canvas.height = size * 8 + offsetY * 2;
+
     if (DEBUG.enableLogging && DEBUG.logLevel === "debug") {
       console.log("New canvas size:", canvas.width, "x", canvas.height);
     }
@@ -311,6 +336,9 @@ document.addEventListener("DOMContentLoaded", () => {
     isBlackInCheck = false;
     gameOver = false;
     winnerText = "";
+    fullscreenMode = false; // Vollbildmodus standardmäßig deaktiviert
+    document.body.classList.remove("fullscreen");
+    fullscreenButton.textContent = "Vollbildmodus";
     moveList.innerHTML = "";
     startScreen.style.display = "none";
     gameContainer.classList.remove("hidden");
@@ -608,7 +636,7 @@ document.addEventListener("DOMContentLoaded", () => {
             }
             break;
           }
-          moves.push({ toX: newX, toY: newY }); // Ermöglicht Blockieren von Schach
+          moves.push({ toX: newX, toY: newY });
         }
       });
     } else if (piece.toLowerCase() === "k") {
@@ -895,7 +923,7 @@ document.addEventListener("DOMContentLoaded", () => {
       console.log("Canvas event triggered, type:", event.type);
     }
 
-    event.preventDefault(); // Verhindert Standardverhalten und doppelte Events
+    event.preventDefault();
 
     const rect = canvas.getBoundingClientRect();
     const clientX = event.clientX || (event.touches && event.touches[0]?.clientX);
@@ -1112,6 +1140,10 @@ document.addEventListener("DOMContentLoaded", () => {
         window.updateBoardColors(currentDesign);
       });
     }
+
+    if (fullscreenButton) {
+      fullscreenButton.addEventListener("click", toggleFullscreenMode);
+    }
   }
 
   function startGameNormalHandler() {
@@ -1126,7 +1158,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
   initializeGameButtons();
 
-  // Touch- und Click-Handling
   const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
   if (isTouchDevice) {
     canvas.addEventListener("touchstart", handleCanvasClick, { passive: false });
