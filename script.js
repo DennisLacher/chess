@@ -51,17 +51,10 @@ document.addEventListener("DOMContentLoaded", () => {
   console.log("startButton:", startButton);
   console.log("startFreestyleButton:", startFreestyleButton);
   console.log("gameContainer:", gameContainer);
-  console.log("turnIndicator:", turnIndicator);
-  console.log("moveList:", moveList);
-  console.log("openingDisplay:", openingDisplay);
-  console.log("designButton:", designButton);
-  console.log("darkmodeToggleButton:", darkmodeToggleButton);
-  console.log("fullscreenButton:", fullscreenButton);
-  console.log("exitFullscreenButton:", exitFullscreenButton);
 
-  if (!canvas || !startScreen || !startButton || !startFreestyleButton || !gameContainer || !turnIndicator || !moveList || !openingDisplay || !designButton || !fullscreenButton || !exitFullscreenButton) {
+  if (!canvas || !startScreen || !startButton || !startFreestyleButton || !gameContainer) {
     console.error("One or more DOM elements are missing. Check index.html for correct IDs:", {
-      canvas, startScreen, startButton, startFreestyleButton, gameContainer, turnIndicator, moveList, openingDisplay, designButton, fullscreenButton, exitFullscreenButton
+      canvas, startScreen, startButton, startFreestyleButton, gameContainer
     });
     alert("Fehler: Ein oder mehrere DOM-Elemente fehlen. Bitte überprüfe die Konsole für Details.");
     return;
@@ -231,13 +224,11 @@ document.addEventListener("DOMContentLoaded", () => {
     penaltyMessage.classList.add("penalty-message");
     penaltyMessage.textContent = "- 1 Minute";
     document.body.appendChild(penaltyMessage);
-
     const rect = undoButton.getBoundingClientRect();
     penaltyMessage.style.position = "absolute";
     penaltyMessage.style.left = `${rect.left + rect.width / 2}px`;
     penaltyMessage.style.top = `${rect.top - 30}px`;
     penaltyMessage.style.transform = "translateX(-50%)";
-
     setTimeout(() => {
       document.body.removeChild(penaltyMessage);
     }, 2000);
@@ -252,17 +243,14 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-
     let effectiveRotation = rotateBoard;
     if (smartphoneMode) {
       effectiveRotation = currentPlayer === "black";
     }
-
     for (let y = 0; y < 8; y++) {
       for (let x = 0; x < 8; x++) {
         const displayY = effectiveRotation ? 7 - y : y;
         const displayX = effectiveRotation ? 7 - x : x;
-
         ctx.fillStyle = (displayX + displayY) % 2 === 0 ? window.boardColors.light : window.boardColors.dark;
         if (lastMove && ((lastMove.fromX === x && lastMove.fromY === y) || (lastMove.toX === x && lastMove.toY === y))) {
           ctx.fillStyle = "#a3e4a3";
@@ -278,7 +266,6 @@ document.addEventListener("DOMContentLoaded", () => {
           ctx.fillStyle = gameOver ? "#c62828" : "#d32f2f";
         }
         ctx.fillRect(offsetX + displayX * size, offsetY + displayY * size, size, size);
-
         const piece = board[y][x];
         if (piece) {
           const isWhite = piece === piece.toUpperCase();
@@ -290,7 +277,6 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       }
     }
-
     ctx.fillStyle = "#555555";
     ctx.font = `${size * 0.25}px Arial`;
     if (!effectiveRotation) {
@@ -304,7 +290,6 @@ document.addEventListener("DOMContentLoaded", () => {
         ctx.fillText(i + 1, offsetX - size * 0.4, offsetY + (7 - i) * size + size / 2);
       }
     }
-
     updateTurnIndicator();
   }
 
@@ -314,18 +299,14 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     let maxWidth = window.innerWidth * CONFIG.maxWidthFactor;
     let maxHeight = window.innerHeight * CONFIG.maxHeightFactor;
-
     const boardSize = Math.min(maxWidth / 8, maxHeight / 8, CONFIG.defaultBoardSize);
     size = Math.floor(Math.max(boardSize, CONFIG.minBoardSize));
-
     const totalWidth = size * 8;
     const totalHeight = size * 8;
     offsetX = (maxWidth - totalWidth) / 2;
     offsetY = (maxHeight - totalHeight) / 2;
-
     canvas.width = totalWidth + offsetX * 2;
     canvas.height = totalHeight + offsetY * 2;
-
     if (DEBUG.enableLogging && DEBUG.logLevel === "debug") {
       console.log("New canvas size:", canvas.width, "x", canvas.height, "Calculated size:", size, "Offsets:", offsetX, offsetY);
     }
@@ -347,8 +328,6 @@ document.addEventListener("DOMContentLoaded", () => {
     if (DEBUG.enableLogging && DEBUG.logLevel === "debug") {
       console.log("Starting game, freestyle mode:", freestyle);
     }
-
-    // Reset game state
     currentPlayer = "white";
     gameStarted = true;
     selectedPiece = null;
@@ -364,25 +343,14 @@ document.addEventListener("DOMContentLoaded", () => {
     gameOver = false;
     winnerText = "";
     fullscreenMode = false;
-    whiteTime = CONFIG.initialTime;
-    blackTime = CONFIG.initialTime;
-
-    // Ensure UI elements are correctly toggled
-    console.log("Hiding start screen...");
-    startScreen.classList.add("hidden");
-    console.log("Showing game container...");
-    gameContainer.classList.remove("hidden");
-
-    // Ensure buttons are visible
-    restartButton.classList.remove("hidden");
-    darkmodeToggleButton.style.display = "block";
+    document.body.classList.remove("fullscreen");
     fullscreenButton.textContent = "Vollbildmodus";
     exitFullscreenButton.style.display = "none";
-
-    // Reset move list
     moveList.innerHTML = "";
-
-    // Initialize board
+    startScreen.style.display = "none";
+    gameContainer.style.display = "block";
+    restartButton.classList.remove("hidden");
+    darkmodeToggleButton.style.display = "block";
     if (freestyle) {
       const shuffledRow = shuffleArray(["r", "n", "b", "q", "k", "b", "n", "r"]);
       board = [
@@ -407,18 +375,12 @@ document.addEventListener("DOMContentLoaded", () => {
         ["R", "N", "B", "Q", "K", "B", "N", "R"]
       ];
     }
-
-    // Update game state
     updateKingPositions();
     resizeCanvas();
-    console.log("Canvas resized, drawing board...");
     drawBoard();
-    console.log("Starting timer...");
     startTimer();
-    console.log("Initializing darkmode toggle...");
     initializeDarkmodeToggle();
-
-    // Debug UI state
+    console.log("Game started, checking UI states:");
     console.log("startScreen display:", window.getComputedStyle(startScreen).display);
     console.log("gameContainer display:", window.getComputedStyle(gameContainer).display);
     console.log("canvas display:", window.getComputedStyle(canvas).display);
@@ -454,7 +416,6 @@ document.addEventListener("DOMContentLoaded", () => {
       }
       return false;
     }
-
     const opponentColor = color === "white" ? "black" : "white";
     for (let y = 0; y < 8; y++) {
       for (let x = 0; x < 8; x++) {
@@ -479,7 +440,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const blackWasInCheck = isBlackInCheck;
     isWhiteInCheck = isInCheck("white");
     isBlackInCheck = isInCheck("black");
-
     if ((isWhiteInCheck && !whiteWasInCheck) || (isBlackInCheck && !blackWasInCheck)) {
       if (soundEnabled) {
         const audio = new Audio(SOUND.checkSound);
@@ -492,9 +452,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const moves = [];
     const piece = tempBoard[y][x];
     if (!piece) return moves;
-
     const isWhite = piece === piece.toUpperCase();
-
     if (piece.toLowerCase() === "p") {
       const direction = isWhite ? -1 : 1;
       const attackDirs = [-1, 1];
@@ -584,7 +542,6 @@ document.addEventListener("DOMContentLoaded", () => {
       }
       return moves;
     }
-
     const isWhite = piece === piece.toUpperCase();
     if ((isWhite && currentPlayer !== "white") || (!isWhite && currentPlayer !== "black")) {
       if (DEBUG.enableLogging && DEBUG.logLevel === "debug") {
@@ -592,7 +549,6 @@ document.addEventListener("DOMContentLoaded", () => {
       }
       return moves;
     }
-
     if (piece.toLowerCase() === "p") {
       const direction = isWhite ? -1 : 1;
       const startRow = isWhite ? 6 : 1;
@@ -703,7 +659,6 @@ document.addEventListener("DOMContentLoaded", () => {
           }
         }
       });
-
       if (isWhite && y === 7 && x === 4) {
         if (
           castlingAvailability.white.kingside &&
@@ -810,7 +765,6 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       }
     }
-
     const validMoves = [];
     for (const move of moves) {
       const tempBoard = board.map((row) => [...row]);
@@ -831,7 +785,6 @@ document.addEventListener("DOMContentLoaded", () => {
       }
       updateKingPositions(board);
     }
-
     if (DEBUG.enableLogging && DEBUG.logLevel === "debug") {
       console.log("Legal moves calculated:", validMoves);
     }
@@ -854,7 +807,6 @@ document.addEventListener("DOMContentLoaded", () => {
     if (lastMove) {
       const notation = getMoveNotation(lastMove.fromX, lastMove.fromY, lastMove.toX, lastMove.toY);
       moveNotations.push({ moveCount, notation: notation.simple });
-      
       moveList.innerHTML = "";
       let movePairs = [];
       for (let i = 0; i < moveNotations.length; i++) {
@@ -871,7 +823,6 @@ document.addEventListener("DOMContentLoaded", () => {
       });
       if (currentPlayer === "black") moveCount++;
       moveList.scrollTop = moveList.scrollHeight;
-
       updateOpeningDisplay();
     }
   }
@@ -881,10 +832,8 @@ document.addEventListener("DOMContentLoaded", () => {
     if (existingMenu) {
       document.body.removeChild(existingMenu);
     }
-
     const promotionChoices = document.createElement("div");
     promotionChoices.id = "promotionChoices";
-    
     const rect = canvas.getBoundingClientRect();
     let effectiveRotation = rotateBoard;
     if (smartphoneMode) {
@@ -894,11 +843,9 @@ document.addEventListener("DOMContentLoaded", () => {
     const displayY = effectiveRotation ? 7 - y : y;
     const top = rect.top + offsetY + displayY * size;
     const left = rect.left + offsetX + displayX * size;
-
     promotionChoices.style.position = "absolute";
     promotionChoices.style.top = `${top}px`;
     promotionChoices.style.left = `${left}px`;
-
     const menuWidth = 4 * (size * 0.8 + 5);
     const menuHeight = size * 0.8 + 10;
     if (left + menuWidth > window.innerWidth) {
@@ -907,7 +854,6 @@ document.addEventListener("DOMContentLoaded", () => {
     if (top + menuHeight > window.innerHeight) {
       promotionChoices.style.top = `${window.innerHeight - menuHeight - 10}px`;
     }
-
     const choices = isWhite ? ["Q", "R", "B", "N"] : ["q", "r", "b", "n"];
     choices.forEach((p) => {
       const button = document.createElement("button");
@@ -934,7 +880,6 @@ document.addEventListener("DOMContentLoaded", () => {
       });
       promotionChoices.appendChild(button);
     });
-
     document.body.appendChild(promotionChoices);
   }
 
@@ -960,9 +905,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (DEBUG.enableLogging && DEBUG.logLevel === "debug") {
       console.log("Canvas event triggered, type:", event.type);
     }
-
     event.preventDefault();
-
     const rect = canvas.getBoundingClientRect();
     const clientX = event.clientX || (event.touches && event.touches[0]?.clientX);
     const clientY = event.clientY || (event.touches && event.touches[0]?.clientY);
@@ -970,13 +913,10 @@ document.addEventListener("DOMContentLoaded", () => {
       console.error("Client coordinates not found.");
       return;
     }
-
     const adjustedX = clientX - rect.left;
     const adjustedY = clientY - rect.top;
-
     const x = Math.floor((adjustedX - offsetX) / size);
     const y = Math.floor((adjustedY - offsetY) / size);
-
     if (DEBUG.enableLogging && DEBUG.logLevel === "debug") {
       console.log("Raw coordinates:", clientX, clientY);
       console.log("Canvas rect:", rect);
@@ -984,20 +924,16 @@ document.addEventListener("DOMContentLoaded", () => {
       console.log("Converted to grid coordinates:", x, y);
       console.log("size:", size, "offsetX:", offsetX, "offsetY:", offsetY);
     }
-
     let boardX = x;
     let boardY = y;
-
     let effectiveRotation = rotateBoard;
     if (smartphoneMode) {
       effectiveRotation = currentPlayer === "black";
     }
-
     if (effectiveRotation) {
       boardX = 7 - x;
       boardY = 7 - y;
     }
-
     if (boardX < 0 || boardX >= 8 || boardY < 0 || boardY >= 8) {
       if (DEBUG.enableLogging && DEBUG.logLevel === "debug") {
         console.log("Click outside board:", boardX, boardY);
@@ -1007,14 +943,11 @@ document.addEventListener("DOMContentLoaded", () => {
       drawBoard();
       return;
     }
-
     if (DEBUG.enableLogging && DEBUG.logLevel === "debug") {
       console.log("Clicked position on board:", boardX, boardY, "Piece:", board[boardY][boardX]);
     }
-
     const piece = board[boardY][boardX];
     const isWhitePiece = piece && piece === piece.toUpperCase();
-
     if (!selectedPiece) {
       if (piece && (isWhitePiece === (currentPlayer === "white"))) {
         if (DEBUG.enableLogging && DEBUG.logLevel === "debug") {
@@ -1038,7 +971,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
         const newBoard = board.map((row) => [...row]);
         const targetPiece = newBoard[boardY][boardX];
-        const isCapture = targetPiece && (targetPiece.toLowerCase() !== selectedPiece.piece.toLowerCase()) && ((targetPiece | 0) === targetPiece.toUpperCase()) !== (selectedPiece.piece === selectedPiece.piece.toUpperCase());
+        const isCapture = targetPiece && (targetPiece.toLowerCase() !== selectedPiece.piece.toLowerCase()) && ((targetPiece === targetPiece.toUpperCase()) !== (selectedPiece.piece === selectedPiece.piece.toUpperCase()));
         newBoard[boardY][boardX] = selectedPiece.piece;
         newBoard[selectedPiece.y][selectedPiece.x] = "";
         const isWhite = selectedPiece.piece === selectedPiece.piece.toUpperCase();
@@ -1105,11 +1038,25 @@ document.addEventListener("DOMContentLoaded", () => {
         selectedPiece = null;
         legalMoves = [];
       } else {
-        if (DEBUG.enableLogging && DEBUG.logLevel === "debug") {
-          console.log("No valid move found for target:", boardX, boardY);
+        if (piece && (isWhitePiece === (currentPlayer === "white"))) {
+          if (DEBUG.enableLogging && DEBUG.logLevel === "debug") {
+            console.log("New piece selected:", piece, "at", boardX, boardY);
+          }
+          selectedPiece = { x: boardX, y: boardY, piece };
+          legalMoves = getLegalMoves(boardX, boardY);
+          if (legalMoves.length === 0) {
+            if (DEBUG.enableLogging && DEBUG.logLevel === "debug") {
+              console.log("No legal moves available for this piece.");
+            }
+            selectedPiece = null;
+          }
+        } else {
+          if (DEBUG.enableLogging && DEBUG.logLevel === "debug") {
+            console.log("No valid move found for target:", boardX, boardY);
+          }
+          selectedPiece = null;
+          legalMoves = [];
         }
-        selectedPiece = null;
-        legalMoves = [];
       }
       drawBoard();
     }
@@ -1122,21 +1069,18 @@ document.addEventListener("DOMContentLoaded", () => {
       console.log("Start button initialized successfully and event listener added.");
       startButton.style.pointerEvents = "auto";
     }
-
     if (startFreestyleButton) {
       startFreestyleButton.removeEventListener("click", startGameFreestyleHandler);
       startFreestyleButton.addEventListener("click", startGameFreestyleHandler);
       console.log("Freestyle button initialized successfully and event listener added.");
       startFreestyleButton.style.pointerEvents = "auto";
     }
-
     if (rotateButton) {
       rotateButton.addEventListener("click", () => {
         rotateBoard = !rotateBoard;
         drawBoard();
       });
     }
-
     if (smartphoneModeButton) {
       smartphoneModeButton.textContent = smartphoneMode ? "Brett mitdrehen aus" : "Brett mitdrehen";
       smartphoneModeButton.addEventListener("click", () => {
@@ -1145,7 +1089,6 @@ document.addEventListener("DOMContentLoaded", () => {
         drawBoard();
       });
     }
-
     if (soundToggleButton) {
       soundToggleButton.textContent = soundEnabled ? "Sound aus" : "Sound ein";
       soundToggleButton.addEventListener("click", () => {
@@ -1153,7 +1096,6 @@ document.addEventListener("DOMContentLoaded", () => {
         soundToggleButton.textContent = soundEnabled ? "Sound aus" : "Sound ein";
       });
     }
-
     if (undoButton) {
       undoButton.addEventListener("click", () => {
         if (moveHistory.length > 0 && !gameOver) {
@@ -1180,11 +1122,9 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       });
     }
-
     if (restartButton) {
       restartButton.addEventListener("click", () => startGame(false));
     }
-
     if (designButton) {
       designButton.addEventListener("click", () => {
         currentDesign = (currentDesign % 5) + 1;
@@ -1192,11 +1132,9 @@ document.addEventListener("DOMContentLoaded", () => {
         window.updateBoardColors(currentDesign);
       });
     }
-
     if (fullscreenButton) {
       fullscreenButton.addEventListener("click", toggleFullscreenMode);
     }
-
     if (exitFullscreenButton) {
       exitFullscreenButton.addEventListener("click", toggleFullscreenMode);
     }
