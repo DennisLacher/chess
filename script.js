@@ -6,7 +6,7 @@ document.addEventListener("DOMContentLoaded", () => {
     minBoardSize: 40,
     maxWidthFactor: 1.0,
     maxHeightFactor: 1.0,
-    offset: 0.5,
+    offset: 0.2, // Reduzierter Offset für kleineren Kasten um das Brett
     initialTime: 600,
     undoPenalty: 60,
   };
@@ -84,11 +84,11 @@ document.addEventListener("DOMContentLoaded", () => {
   let timerInterval = null;
 
   const designs = {
-    1: { light: "#f0f0f0", dark: "#b0b0b0" },
-    2: { light: "#e0e0e0", dark: "#808080" },
-    3: { light: "#ffffff", dark: "#606060" },
-    4: { light: "#d0d0d0", dark: "#404040" },
-    5: { light: "#e8ecef", dark: "#4a4e57" }
+    1: { light: "#DEB887", dark: "#8B4513" }, // Holzbrett
+    2: { light: "#E0E0E0", dark: "#808080" }, // Grau
+    3: { light: "#ADD8E6", dark: "#4682B4" }, // Blau
+    4: { light: "#90EE90", dark: "#228B22" }, // Grün
+    5: { light: "#FFDAB9", dark: "#CD853F" }  // Pfirsich/Holz
   };
 
   window.boardColors = designs[currentDesign];
@@ -288,8 +288,8 @@ document.addEventListener("DOMContentLoaded", () => {
     size = Math.floor(Math.max(boardSize, CONFIG.minBoardSize));
     const totalWidth = size * 8;
     const totalHeight = size * 8;
-    offsetX = (maxWidth - totalWidth) / 2;
-    offsetY = (maxHeight - totalHeight) / 2;
+    offsetX = (maxWidth - totalWidth) / 2 * CONFIG.offset;
+    offsetY = (maxHeight - totalHeight) / 2 * CONFIG.offset;
     canvas.width = totalWidth + offsetX * 2;
     canvas.height = totalHeight + offsetY * 2;
     if (gameStarted) {
@@ -497,18 +497,18 @@ document.addEventListener("DOMContentLoaded", () => {
     return moves;
   }
 
-  function getLegalMoves(x, y) {
+  function getLegalMoves(x, y, tempBoard = board) {
     const moves = [];
-    const piece = board[y][x];
+    const piece = tempBoard[y][x];
     if (!piece) return moves;
     const isWhite = piece === piece.toUpperCase();
     if ((isWhite && currentPlayer !== "white") || (!isWhite && currentPlayer !== "black")) return moves;
     if (piece.toLowerCase() === "p") {
       const direction = isWhite ? -1 : 1;
       const startRow = isWhite ? 6 : 1;
-      if (y + direction >= 0 && y + direction < 8 && !board[y + direction][x]) {
+      if (y + direction >= 0 && y + direction < 8 && !tempBoard[y + direction][x]) {
         moves.push({ toX: x, toY: y + direction, promotion: y + direction === (isWhite ? 0 : 7) });
-        if (y === startRow && !board[y + 2 * direction][x] && !board[y + direction][x]) {
+        if (y === startRow && !tempBoard[y + 2 * direction][x] && !tempBoard[y + direction][x]) {
           moves.push({ toX: x, toY: y + 2 * direction });
         }
       }
@@ -517,7 +517,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const newX = x + dx;
         const newY = y + direction;
         if (newX >= 0 && newX < 8 && newY >= 0 && newY < 8) {
-          const targetPiece = board[newY][newX];
+          const targetPiece = tempBoard[newY][newX];
           if (targetPiece && (targetPiece === targetPiece.toUpperCase()) !== isWhite) {
             moves.push({ toX: newX, toY: newY, promotion: newY === (isWhite ? 0 : 7) });
           }
@@ -532,7 +532,7 @@ document.addEventListener("DOMContentLoaded", () => {
           newX += dx;
           newY += dy;
           if (newX < 0 || newX >= 8 || newY < 0 || newY >= 8) break;
-          const targetPiece = board[newY][newX];
+          const targetPiece = tempBoard[newY][newX];
           if (targetPiece) {
             if ((targetPiece === targetPiece.toUpperCase()) !== isWhite) {
               moves.push({ toX: newX, toY: newY });
@@ -551,7 +551,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const newX = x + dx;
         const newY = y + dy;
         if (newX >= 0 && newX < 8 && newY >= 0 && newY < 8) {
-          const targetPiece = board[newY][newX];
+          const targetPiece = tempBoard[newY][newX];
           if (!targetPiece || (targetPiece === targetPiece.toUpperCase()) !== isWhite) {
             moves.push({ toX: newX, toY: newY });
           }
@@ -566,7 +566,7 @@ document.addEventListener("DOMContentLoaded", () => {
           newX += dx;
           newY += dy;
           if (newX < 0 || newX >= 8 || newY < 0 || newY < 8) break;
-          const targetPiece = board[newY][newX];
+          const targetPiece = tempBoard[newY][newX];
           if (targetPiece) {
             if ((targetPiece === targetPiece.toUpperCase()) !== isWhite) {
               moves.push({ toX: newX, toY: newY });
@@ -585,7 +585,7 @@ document.addEventListener("DOMContentLoaded", () => {
           newX += dx;
           newY += dy;
           if (newX < 0 || newX >= 8 || newY < 0 || newY < 8) break;
-          const targetPiece = board[newY][newX];
+          const targetPiece = tempBoard[newY][newX];
           if (targetPiece) {
             if ((targetPiece === targetPiece.toUpperCase()) !== isWhite) {
               moves.push({ toX: newX, toY: newY });
@@ -604,39 +604,39 @@ document.addEventListener("DOMContentLoaded", () => {
         const newX = x + dx;
         const newY = y + dy;
         if (newX >= 0 && newX < 8 && newY >= 0 && newY < 8) {
-          const targetPiece = board[newY][newX];
+          const targetPiece = tempBoard[newY][newX];
           if (!targetPiece || (targetPiece === targetPiece.toUpperCase()) !== isWhite) {
             moves.push({ toX: newX, toY: newY });
           }
         }
       });
       if (isWhite && y === 7 && x === 4) {
-        if (castlingAvailability.white.kingside && !board[7][5] && !board[7][6] && board[7][7] === "R" && !isInCheck("white") && !moveHistory.some(m => m.piece === "K" || (m.piece === "R" && m.fromX === 7 && m.fromY === 7))) {
+        if (castlingAvailability.white.kingside && !tempBoard[7][5] && !tempBoard[7][6] && tempBoard[7][7] === "R" && !isInCheck("white") && !moveHistory.some(m => m.piece === "K" || (m.piece === "R" && m.fromX === 7 && m.fromY === 7))) {
           let canCastle = true;
           for (let i = 4; i <= 6; i++) {
-            const tempBoard = board.map(row => [...row]);
+            const tempBoardCopy = tempBoard.map(row => [...row]);
             if (i > 4) {
-              tempBoard[7][i] = "K";
-              tempBoard[7][i - 1] = "";
+              tempBoardCopy[7][i] = "K";
+              tempBoardCopy[7][i - 1] = "";
             }
             const tempKingPos = { x: i, y: 7 };
-            if (isInCheck("white", tempBoard, tempKingPos)) {
+            if (isInCheck("white", tempBoardCopy, tempKingPos)) {
               canCastle = false;
               break;
             }
           }
           if (canCastle) moves.push({ toX: 6, toY: 7, castling: "kingside" });
         }
-        if (castlingAvailability.white.queenside && !board[7][1] && !board[7][2] && !board[7][3] && board[7][0] === "R" && !isInCheck("white") && !moveHistory.some(m => m.piece === "K" || (m.piece === "R" && m.fromX === 0 && m.fromY === 7))) {
+        if (castlingAvailability.white.queenside && !tempBoard[7][1] && !tempBoard[7][2] && !tempBoard[7][3] && tempBoard[7][0] === "R" && !isInCheck("white") && !moveHistory.some(m => m.piece === "K" || (m.piece === "R" && m.fromX === 0 && m.fromY === 7))) {
           let canCastle = true;
           for (let i = 4; i >= 2; i--) {
-            const tempBoard = board.map(row => [...row]);
+            const tempBoardCopy = tempBoard.map(row => [...row]);
             if (i < 4) {
-              tempBoard[7][i] = "K";
-              tempBoard[7][i + 1] = "";
+              tempBoardCopy[7][i] = "K";
+              tempBoardCopy[7][i + 1] = "";
             }
             const tempKingPos = { x: i, y: 7 };
-            if (isInCheck("white", tempBoard, tempKingPos)) {
+            if (isInCheck("white", tempBoardCopy, tempKingPos)) {
               canCastle = false;
               break;
             }
@@ -644,32 +644,32 @@ document.addEventListener("DOMContentLoaded", () => {
           if (canCastle) moves.push({ toX: 2, toY: 7, castling: "queenside" });
         }
       } else if (!isWhite && y === 0 && x === 4) {
-        if (castlingAvailability.black.kingside && !board[0][5] && !board[0][6] && board[0][7] === "r" && !isInCheck("black") && !moveHistory.some(m => m.piece === "k" || (m.piece === "r" && m.fromX === 7 && m.fromY === 0))) {
+        if (castlingAvailability.black.kingside && !tempBoard[0][5] && !tempBoard[0][6] && tempBoard[0][7] === "r" && !isInCheck("black") && !moveHistory.some(m => m.piece === "k" || (m.piece === "r" && m.fromX === 7 && m.fromY === 0))) {
           let canCastle = true;
           for (let i = 4; i <= 6; i++) {
-            const tempBoard = board.map(row => [...row]);
+            const tempBoardCopy = tempBoard.map(row => [...row]);
             if (i > 4) {
-              tempBoard[0][i] = "k";
-              tempBoard[0][i - 1] = "";
+              tempBoardCopy[0][i] = "k";
+              tempBoardCopy[0][i - 1] = "";
             }
             const tempKingPos = { x: i, y: 0 };
-            if (isInCheck("black", tempBoard, tempKingPos)) {
+            if (isInCheck("black", tempBoardCopy, tempKingPos)) {
               canCastle = false;
               break;
             }
           }
           if (canCastle) moves.push({ toX: 6, toY: 0, castling: "kingside" });
         }
-        if (castlingAvailability.black.queenside && !board[0][1] && !board[0][2] && !board[0][3] && board[0][0] === "r" && !isInCheck("black") && !moveHistory.some(m => m.piece === "k" || (m.piece === "r" && m.fromX === 0 && m.fromY === 0))) {
+        if (castlingAvailability.black.queenside && !tempBoard[0][1] && !tempBoard[0][2] && !tempBoard[0][3] && tempBoard[0][0] === "r" && !isInCheck("black") && !moveHistory.some(m => m.piece === "k" || (m.piece === "r" && m.fromX === 0 && m.fromY === 0))) {
           let canCastle = true;
           for (let i = 4; i >= 2; i--) {
-            const tempBoard = board.map(row => [...row]);
+            const tempBoardCopy = tempBoard.map(row => [...row]);
             if (i < 4) {
-              tempBoard[0][i] = "k";
-              tempBoard[0][i + 1] = "";
+              tempBoardCopy[0][i] = "k";
+              tempBoardCopy[0][i + 1] = "";
             }
             const tempKingPos = { x: i, y: 0 };
-            if (isInCheck("black", tempBoard, tempKingPos)) {
+            if (isInCheck("black", tempBoardCopy, tempKingPos)) {
               canCastle = false;
               break;
             }
@@ -680,23 +680,23 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     const validMoves = [];
     for (const move of moves) {
-      const tempBoard = board.map(row => [...row]);
-      tempBoard[move.toY][move.toX] = piece;
-      tempBoard[y][x] = "";
+      const tempBoardCopy = tempBoard.map(row => [...row]);
+      tempBoardCopy[move.toY][move.toX] = piece;
+      tempBoardCopy[y][x] = "";
       if (move.castling) {
         if (move.castling === "kingside") {
-          tempBoard[move.toY][move.toX - 1] = isWhite ? "R" : "r";
-          tempBoard[move.toY][7] = "";
+          tempBoardCopy[move.toY][move.toX - 1] = isWhite ? "R" : "r";
+          tempBoardCopy[move.toY][7] = "";
         } else if (move.castling === "queenside") {
-          tempBoard[move.toY][move.toX + 1] = isWhite ? "R" : "r";
-          tempBoard[move.toY][0] = "";
+          tempBoardCopy[move.toY][move.toX + 1] = isWhite ? "R" : "r";
+          tempBoardCopy[move.toY][0] = "";
         }
       }
-      updateKingPositions(tempBoard);
-      if (!isInCheck(isWhite ? "white" : "black", tempBoard)) {
+      updateKingPositions(tempBoardCopy);
+      if (!isInCheck(isWhite ? "white" : "black", tempBoardCopy)) {
         validMoves.push(move);
       }
-      updateKingPositions(board);
+      updateKingPositions(tempBoard);
     }
     return validMoves;
   }
@@ -783,28 +783,25 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function checkGameOver() {
-    if (isWhiteInCheck || isBlackInCheck) {
-      const kingPos = currentPlayer === "white" ? kingPositions.white : kingPositions.black;
-      const legalKingMoves = getLegalMoves(kingPos.x, kingPos.y);
-      if (legalKingMoves.length === 0) {
-        gameOver = true;
-        winnerText = isWhiteInCheck ? "Schwarz hat gewonnen!" : "Weiß hat gewonnen!";
-      }
-    } else {
-      let hasMoves = false;
-      for (let y = 0; y < 8; y++) {
-        for (let x = 0; x < 8; x++) {
-          const piece = board[y][x];
-          if (piece && ((piece === piece.toUpperCase() && currentPlayer === "white") || (piece !== piece.toUpperCase() && currentPlayer === "black"))) {
-            if (getLegalMoves(x, y).length > 0) {
-              hasMoves = true;
-              break;
-            }
+    let hasMoves = false;
+    for (let y = 0; y < 8; y++) {
+      for (let x = 0; x < 8; x++) {
+        const piece = board[y][x];
+        if (piece && ((piece === piece.toUpperCase() && currentPlayer === "white") || (piece !== piece.toUpperCase() && currentPlayer === "black"))) {
+          const moves = getLegalMoves(x, y);
+          if (moves.length > 0) {
+            hasMoves = true;
+            break;
           }
         }
-        if (hasMoves) break;
       }
-      if (!hasMoves) {
+      if (hasMoves) break;
+    }
+    if (!hasMoves) {
+      if (isWhiteInCheck || isBlackInCheck) {
+        gameOver = true;
+        winnerText = isWhiteInCheck ? "Schwarz hat gewonnen!" : "Weiß hat gewonnen!";
+      } else {
         gameOver = true;
         winnerText = "Unentschieden (Patt)!";
       }
