@@ -17,7 +17,7 @@ body.darkmode {
 
 #startScreen {
   text-align: center;
-  background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAJElEQVQYV2NkYGD4z8DAwMgAB//z0iYqEsD8DAwMjAFXADN4DAwMDEwPAAAcEwABV2DNWAAAAAElFTkSuQmCC') repeat;
+  background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAYAAACNiR0NAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAB5SURBVHgB7ZSxCYAwDEQ/1kEdtEAdtEHdg3ZQB3XQBv0mJsyFGMYHsjCSkJCYnOTjXQLAf9oE2sDDrA1swGNsDWzAY2wNbMBjbA1swGNsDWzAY2wNbMBjbA1swGNsDWzAY2wNbMBjbA1swGNsDWzAY2wNbMBjbA1swGNsDWzAY2wNbMBjTBBvR8kavwAAAABJRU5ErkJggg==') repeat;
   padding: 40px;
   border-radius: 15px;
   box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
@@ -63,7 +63,7 @@ button:active {
 
 #gameContainer {
   display: none;
-  position: absolute;
+  position: fixed;
   top: 0;
   left: 0;
   width: 100%;
@@ -71,12 +71,18 @@ button:active {
   justify-content: center;
   align-items: center;
   flex-direction: column;
+  background: linear-gradient(45deg, #2c3e50, #3498db);
+}
+
+#gameContainer:not(.hidden) {
+  display: flex;
 }
 
 #chessboard {
   touch-action: none;
   max-width: 100%;
   max-height: 100%;
+  display: block;
 }
 
 #turnIndicator {
