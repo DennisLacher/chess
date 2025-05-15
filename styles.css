@@ -1,110 +1,119 @@
 body {
-  font-family: Arial, sans-serif;
+  font-family: 'Helvetica Neue', Arial, sans-serif;
   margin: 0;
   padding: 0;
   display: flex;
   justify-content: center;
   align-items: center;
   min-height: 100vh;
-  background-color: #f0f0f0;
+  background-color: #f5f5f5;
   transition: background-color 0.3s;
 }
 
 body.darkmode {
-  background-color: #333;
-  color: #fff;
+  background-color: #2d2d2d;
+  color: #e0e0e0;
 }
 
 #startScreen {
   text-align: center;
   padding: 20px;
   background: #fff;
-  border-radius: 10px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 body.darkmode #startScreen {
-  background: #444;
-  box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
+  background: #3a3a3a;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
 }
 
 #startScreen h1 {
   margin-bottom: 20px;
+  font-size: 24px;
 }
 
 #startScreen button {
   display: block;
-  width: 150px;
+  width: 180px;
   margin: 10px auto;
-  padding: 10px;
+  padding: 12px;
   font-size: 16px;
   cursor: pointer;
-  background-color: #4CAF50;
-  color: white;
+  background-color: #4a90e2;
+  color: #fff;
   border: none;
-  border-radius: 5px;
+  border-radius: 6px;
   transition: background-color 0.3s;
 }
 
 #startScreen button:hover {
-  background-color: #45a049;
+  background-color: #357abd;
 }
 
 #gameContainer {
   display: none;
   flex-direction: column;
   align-items: center;
-  gap: 10px;
+  width: 100%;
+  max-width: 800px;
 }
 
 #gameContainer.hidden {
   display: none;
 }
 
+.game-area {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  width: 100%;
+}
+
+#chessboard {
+  border: 2px solid #ccc;
+  touch-action: none;
+}
+
 #controls {
   display: flex;
-  flex-wrap: wrap;
+  flex-direction: column;
   gap: 10px;
-  justify-content: center;
-  margin-top: 10px;
+  padding: 10px;
 }
 
 #controls button {
-  padding: 5px 10px;
+  padding: 10px;
   font-size: 14px;
   cursor: pointer;
-  background-color: #008CBA;
-  color: white;
+  background-color: #4a90e2;
+  color: #fff;
   border: none;
-  border-radius: 5px;
+  border-radius: 6px;
   transition: background-color 0.3s;
 }
 
 #controls button:hover {
-  background-color: #007B9A;
+  background-color: #357abd;
 }
 
 body.darkmode #controls button {
-  background-color: #006d8d;
+  background-color: #5a9de2;
 }
 
 body.darkmode #controls button:hover {
-  background-color: #005f7a;
-}
-
-#turnIndicator {
-  font-size: 18px;
-  text-align: center;
-  margin-bottom: 10px;
+  background-color: #4682b4;
 }
 
 #moveHistory {
-  margin-top: 10px;
+  width: 100%;
   text-align: center;
+  margin-top: 20px;
 }
 
 #moveHistory h3 {
   margin-bottom: 5px;
+  font-size: 18px;
 }
 
 #moveList {
@@ -113,21 +122,34 @@ body.darkmode #controls button:hover {
   max-height: 150px;
   overflow-y: auto;
   text-align: left;
+  background: #fff;
+  border-radius: 6px;
+  padding: 10px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+body.darkmode #moveList {
+  background: #444;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
 #openingDisplay {
   font-size: 16px;
   text-align: center;
   margin-top: 10px;
+  padding: 10px;
+  background: #fff;
+  border-radius: 6px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-#chessboard {
-  border: 1px solid #000;
-  touch-action: none;
+body.darkmode #openingDisplay {
+  background: #444;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
 body.fullscreen {
-  background-color: #000;
+  background-color: #1a1a1a;
 }
 
 body.fullscreen #gameContainer {
@@ -140,7 +162,7 @@ body.fullscreen #gameContainer {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  background-color: #000;
+  background-color: #1a1a1a;
   z-index: 1000;
 }
 
@@ -151,10 +173,10 @@ body.fullscreen #chessboard {
 
 .penalty-message {
   position: absolute;
-  background-color: #ff4444;
-  color: white;
-  padding: 5px 10px;
-  border-radius: 3px;
+  background-color: #e74c3c;
+  color: #fff;
+  padding: 8px 12px;
+  border-radius: 4px;
   font-size: 14px;
   animation: fadeOut 2s forwards;
 }
@@ -168,15 +190,17 @@ body.fullscreen #chessboard {
 #promotionChoices {
   display: flex;
   gap: 5px;
+  position: absolute;
 }
 
 #promotionChoices button {
-  width: 40px;
-  height: 40px;
+  width: 50px;
+  height: 50px;
   background-color: #ddd;
   border: 1px solid #ccc;
   cursor: pointer;
-  border-radius: 5px;
+  border-radius: 6px;
+  font-size: 24px;
 }
 
 body.darkmode #promotionChoices button {
