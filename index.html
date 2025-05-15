@@ -1,32 +1,32 @@
 <!DOCTYPE html>
-<html lang="de" class="darkmode">
+<html lang="de">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Schachspiel</title>
-  <link rel="stylesheet" href="styles.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Schachspiel</title>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <div id="startScreen">
-    <h1>♔ Schach ♚</h1>
-    <button id="startButton">Rapid</button>
-    <button id="startFreestyleButton">Freestyle</button>
-  </div>
-  <div id="gameContainer" class="hidden">
-    <canvas id="chessboard"></canvas>
-    <div id="turnIndicator"></div>
-    <button id="rotateButton">Drehen</button>
-    <button id="smartphoneModeButton">Brett mitdrehen</button>
-    <button id="soundToggleButton">Sound aus</button>
-    <button id="undoButton">Zug zurück</button>
-    <button id="restartButton" class="hidden">Neustart</button>
-    <button id="designButton">Design</button>
-    <button id="darkmodeToggleButton" style="display: none;">Lightmode</button>
-    <button id="fullscreenButton">Vollbildmodus</button>
-    <button id="exitFullscreenButton" style="display: none;">Normalmodus</button>
-    <ul id="moveList"></ul>
-    <div id="openingDisplay"></div>
-  </div>
-  <script src="script.js"></script>
+    <div id="startScreen">
+        <h1>Schachspiel</h1>
+        <button id="startButton">Rapid</button>
+        <button id="startFreestyleButton">Freestyle</button>
+    </div>
+    <div id="gameContainer" class="hidden">
+        <canvas id="chessboard"></canvas>
+        <div id="turnIndicator"></div>
+        <ul id="moveList"></ul>
+        <div id="openingDisplay"></div>
+        <button id="rotateButton">Drehen</button>
+        <button id="smartphoneModeButton">Brett mitdrehen</button>
+        <button id="soundToggleButton">Sound aus</button>
+        <button id="undoButton">Rückgängig</button>
+        <button id="restartButton" class="hidden">Neustart</button>
+        <button id="designButton">Design</button>
+        <button id="darkmodeToggleButton">Darkmode</button>
+        <button id="fullscreenButton">Vollbildmodus</button>
+        <button id="exitFullscreenButton">Normalmodus</button>
+    </div>
+    <script src="script.js"></script>
 </body>
 </html>
