@@ -153,6 +153,7 @@ document.addEventListener("DOMContentLoaded", () => {
     darkmodeToggleButton.textContent = isDarkmode ? "Lightmode" : "Darkmode";
     localStorage.setItem("darkmode", isDarkmode);
     window.updateBoardColors(currentDesign);
+    drawBoard();
   }
 
   function updateOpeningDisplay() {
@@ -259,7 +260,7 @@ document.addEventListener("DOMContentLoaded", () => {
           ctx.fillStyle = "#42a5f5";
         }
         if (legalMoves.some((move) => move.toX === x && move.toY === y)) {
-          ctx.fillStyle = "#e6b800";
+          ctx.fillStyle = isDarkmode ? "#808080" : "#d3d3d3";
         }
         if ((isWhiteInCheck && kingPositions.white && kingPositions.white.x === x && kingPositions.white.y === y) ||
             (isBlackInCheck && kingPositions.black && kingPositions.black.x === x && kingPositions.black.y === y)) {
@@ -913,6 +914,8 @@ document.addEventListener("DOMContentLoaded", () => {
     if (DEBUG.enableLogging && DEBUG.logLevel === "debug") {
       console.log("Canvas click event triggered at:", new Date().toISOString());
       console.log("Event type:", event.type);
+      console.log("Current player:", currentPlayer);
+      console.log("Game state:", { gameStarted, gameOver, selectedPiece, legalMoves });
     }
     event.preventDefault();
     const rect = canvas.getBoundingClientRect();
@@ -969,6 +972,8 @@ document.addEventListener("DOMContentLoaded", () => {
             console.log("No legal moves available for this piece.");
           }
           selectedPiece = null;
+        } else {
+          console.log("Legal moves for selected piece:", legalMoves);
         }
         drawBoard();
       }
@@ -1046,6 +1051,10 @@ document.addEventListener("DOMContentLoaded", () => {
         }
         selectedPiece = null;
         legalMoves = [];
+        if (DEBUG.enableLogging && DEBUG.logLevel === "debug") {
+          console.log("After move - Current player:", currentPlayer);
+          console.log("Board state:", board);
+        }
       } else {
         if (piece && (isWhitePiece === (currentPlayer === "white"))) {
           if (DEBUG.enableLogging && DEBUG.logLevel === "debug") {
@@ -1058,6 +1067,8 @@ document.addEventListener("DOMContentLoaded", () => {
               console.log("No legal moves available for this piece.");
             }
             selectedPiece = null;
+          } else {
+            console.log("Legal moves for newly selected piece:", legalMoves);
           }
         } else {
           if (DEBUG.enableLogging && DEBUG.logLevel === "debug") {
