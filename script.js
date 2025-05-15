@@ -278,7 +278,7 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     }
     ctx.fillStyle = "#ffffff";
-    ctx.font = `${size * 0.25}px Roboto`;
+    ctx.font = `${size * 0.25}px Arial`;
     if (!effectiveRotation) {
       for (let i = 0; i < 8; i++) {
         ctx.fillText(String.fromCharCode(97 + i), offsetX + i * size + size / 2, offsetY + 8 * size + size * 0.3);
@@ -297,11 +297,11 @@ document.addEventListener("DOMContentLoaded", () => {
     if (DEBUG.enableLogging && DEBUG.logLevel === "debug") {
       console.log("Resizing canvas...");
     }
-    let maxWidth = window.innerWidth * CONFIG.maxWidthFactor * 0.7; // 70% für das Brett im Web
+    let maxWidth = window.innerWidth * CONFIG.maxWidthFactor * 0.7;
     let maxHeight = window.innerHeight * CONFIG.maxHeightFactor * 0.9;
     if (window.innerWidth <= 768) {
       maxWidth = window.innerWidth * CONFIG.maxWidthFactor;
-      maxHeight = window.innerHeight * CONFIG.maxHeightFactor * 0.6; // 60% für das Brett auf Smartphones
+      maxHeight = window.innerHeight * CONFIG.maxHeightFactor * 0.6;
     }
     const boardSize = Math.min(maxWidth / 8, maxHeight / 8, CONFIG.defaultBoardSize);
     size = Math.floor(Math.max(boardSize, CONFIG.minBoardSize));
