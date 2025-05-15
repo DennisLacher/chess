@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Schachspiel</title>
   <link rel="stylesheet" href="styles.css">
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet">
 </head>
 <body>
   <div id="startScreen">
@@ -14,19 +14,27 @@
     <button id="startFreestyleButton">Freestyle</button>
   </div>
   <div id="gameContainer" class="hidden">
-    <canvas id="chessboard"></canvas>
-    <div id="turnIndicator">Am Zug: Weiß</div>
-    <ul id="moveList"></ul>
-    <div id="openingDisplay">Zug: Kein Zug</div>
-    <button id="rotateButton">Brett drehen</button>
-    <button id="smartphoneModeButton">Brett mitdrehen</button>
-    <button id="soundToggleButton">Sound aus</button>
-    <button id="undoButton">Rückgängig</button>
-    <button id="restartButton" class="hidden">Neustart</button>
-    <button id="designButton">Design ändern</button>
-    <button id="darkmodeToggleButton">Darkmode</button>
-    <button id="fullscreenButton">Vollbildmodus</button>
-    <button id="exitFullscreenButton" style="display: none;">Normalmodus</button>
+    <div id="boardWrapper">
+      <canvas id="chessboard"></canvas>
+    </div>
+    <div id="sidebar">
+      <div id="turnIndicator">Am Zug: Weiß</div>
+      <div id="buttonContainer">
+        <button id="rotateButton">Brett drehen</button>
+        <button id="smartphoneModeButton">Brett mitdrehen</button>
+        <button id="soundToggleButton">Sound aus</button>
+        <button id="undoButton">Rückgängig</button>
+        <button id="restartButton" class="hidden">Neustart</button>
+        <button id="designButton">Design ändern</button>
+        <button id="darkmodeToggleButton">Darkmode</button>
+        <button id="fullscreenButton">Vollbildmodus</button>
+        <button id="exitFullscreenButton" style="display: none;">Normalmodus</button>
+      </div>
+      <div id="moveListWrapper">
+        <ul id="moveList"></ul>
+      </div>
+      <div id="openingDisplay">Zug: Kein Zug</div>
+    </div>
   </div>
   <script src="script.js"></script>
 </body>
