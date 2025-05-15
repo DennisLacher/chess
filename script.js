@@ -260,7 +260,7 @@ document.addEventListener("DOMContentLoaded", () => {
           ctx.fillStyle = "#42a5f5";
         }
         if (legalMoves.some((move) => move.toX === x && move.toY === y)) {
-          ctx.fillStyle = isDarkmode ? "#808080" : "#d3d3d3";
+          ctx.fillStyle = isDarkmode ? "#808080" : "#d3d3d3"; // Grau statt Gelb
         }
         if ((isWhiteInCheck && kingPositions.white && kingPositions.white.x === x && kingPositions.white.y === y) ||
             (isBlackInCheck && kingPositions.black && kingPositions.black.x === x && kingPositions.black.y === y)) {
@@ -541,7 +541,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function getLegalMoves(x, y) {
     if (DEBUG.enableLogging && DEBUG.logLevel === "debug") {
-      console.log("Calculating legal moves for position:", x, y, "Piece:", board[y][x]);
+      console.log("Calculating legal moves for position:", x, y, "Piece:", board[y][x], "Current Player:", currentPlayer);
     }
     const moves = [];
     const piece = board[y][x];
@@ -901,6 +901,25 @@ document.addEventListener("DOMContentLoaded", () => {
         winnerText = isWhiteInCheck ? "Schwarz hat gewonnen!" : "Weiß hat gewonnen!";
         console.log("Game over:", winnerText);
       }
+    } else {
+      let hasMoves = false;
+      for (let y = 0; y < 8; y++) {
+        for (let x = 0; x < 8; x++) {
+          const piece = board[y][x];
+          if (piece && ((piece === piece.toUpperCase() && currentPlayer === "white") || (piece !== piece.toUpperCase() && currentPlayer === "black"))) {
+            if (getLegalMoves(x, y).length > 0) {
+              hasMoves = true;
+              break;
+            }
+          }
+        }
+        if (hasMoves) break;
+      }
+      if (!hasMoves) {
+        gameOver = true;
+        winnerText = "Unentschieden (Patt)!";
+        console.log("Game over:", winnerText);
+      }
     }
   }
 
@@ -1153,4 +1172,38 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     }
     if (fullscreenButton) {
-      fullscreenButton
+      fullscreenButton.addEventListener("click", toggleFullscreenMode);
+    }
+    if (exitFullscreenButton) {
+      exitFullscreenButton.addEventListener("click", toggleFullscreenMode);
+    }
+  }
+
+  function startGameNormalHandler() {
+    console.log("Start button clicked!");
+    startGame(false);
+  }
+
+  function startGameFreestyleHandler() {
+    console.log("Freestyle button clicked!");
+    startGame(true);
+  }
+
+  initializeGameButtons();
+
+  const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+  if (isTouchDevice) {
+    canvas.addEventListener("touchstart", handleCanvasClick, { passive: false });
+    if (DEBUG.enableLogging) {
+      console.log("Touch events enabled for canvas.");
+    }
+  } else {
+    canvas.addEventListener("click", handleCanvasClick);
+    if (DEBUG.enableLogging) {
+      console.log("Click events enabled for canvas.");
+    }
+  }
+
+  window.addEventListener("resize", resizeCanvas);
+  resizeCanvas();
+});
