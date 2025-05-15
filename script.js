@@ -4,8 +4,8 @@ document.addEventListener("DOMContentLoaded", () => {
   const CONFIG = {
     defaultBoardSize: 45,
     minBoardSize: 35,
-    maxWidthFactor: 0.9, // Maximal 90% der Breite
-    maxHeightFactor: 0.85, // Maximal 85% der Höhe, um Platz für UI zu lassen
+    maxWidthFactor: 0.9,
+    maxHeightFactor: 0.85,
     offset: 0.5,
   };
 
@@ -294,7 +294,6 @@ document.addEventListener("DOMContentLoaded", () => {
       maxHeight = window.innerHeight - 100;
     }
 
-    // Seitenverhältnis des Schachbretts (8:8) wahren
     const boardAspectRatio = 8 / 8; // Quadratisches Brett
     let newSize = Math.min(maxWidth / 8, maxHeight / 8, CONFIG.defaultBoardSize);
 
