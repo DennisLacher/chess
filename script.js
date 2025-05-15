@@ -6,7 +6,7 @@ document.addEventListener("DOMContentLoaded", () => {
     minBoardSize: 40,
     maxWidthFactor: 1.0,
     maxHeightFactor: 1.0,
-    offset: 0.1, // Reduzierter Offset für kleineren Kasten um das Brett
+    offset: 0.1,
     initialTime: 600,
     undoPenalty: 60,
   };
@@ -44,14 +44,14 @@ document.addEventListener("DOMContentLoaded", () => {
     console.error("One or more DOM elements are missing. Check index.html for correct IDs:", {
       canvas, startScreen, startButton, startFreestyleButton, gameContainer
     });
-    alert("Fehler: Ein oder mehrere DOM-Elemente fehlen. Bitte überprüfe die Konsole.");
+    alert("Error: One or more DOM elements are missing. Please check the console.");
     return;
   }
 
   const ctx = canvas.getContext("2d");
   if (!ctx) {
     console.error("Failed to initialize canvas context.");
-    alert("Fehler: Canvas-Kontext konnte nicht initialisiert werden.");
+    alert("Error: Canvas context could not be initialized.");
     return;
   }
 
@@ -83,11 +83,11 @@ document.addEventListener("DOMContentLoaded", () => {
   let timerInterval = null;
 
   const designs = {
-    1: { light: "#DEB887", dark: "#8B4513" }, // Holzbrett
-    2: { light: "#E0E0E0", dark: "#808080" }, // Grau
-    3: { light: "#ADD8E6", dark: "#4682B4" }, // Blau
-    4: { light: "#90EE90", dark: "#228B22" }, // Grün
-    5: { light: "#FFDAB9", dark: "#CD853F" }  // Pfirsich/Holz
+    1: { light: "#DEB887", dark: "#8B4513" }, // Wood Board
+    2: { light: "#E0E0E0", dark: "#808080" }, // Gray
+    3: { light: "#ADD8E6", dark: "#4682B4" }, // Blue
+    4: { light: "#90EE90", dark: "#228B22" }, // Green
+    5: { light: "#FFDAB9", dark: "#CD853F" }  // Peach/Wood
   };
 
   window.boardColors = designs[currentDesign];
@@ -116,15 +116,15 @@ document.addEventListener("DOMContentLoaded", () => {
   ];
 
   const openings = [
-    { name: "Italienische Eröffnung", moves: ["e4", "e5", "Nf3", "Nc6", "Bc4"], blackResponses: ["Bc5", "Nf6"] },
-    { name: "Sizilianische Verteidigung", moves: ["e4", "c5"], blackResponses: ["Nc6", "e6"] }
+    { name: "Italian Game", moves: ["e4", "e5", "Nf3", "Nc6", "Bc4"], blackResponses: ["Bc5", "Nf6"] },
+    { name: "Sicilian Defense", moves: ["e4", "c5"], blackResponses: ["Nc6", "e6"] }
   ];
 
   document.body.classList.toggle("darkmode", isDarkmode);
 
   function initializeDarkmodeToggle() {
     if (darkmodeToggleButton && gameStarted) {
-      darkmodeToggleButton.textContent = isDarkmode ? "Hell" : "Dunkel";
+      darkmodeToggleButton.textContent = isDarkmode ? "Light Mode" : "Dark Mode";
       darkmodeToggleButton.removeEventListener("click", toggleDarkmodeHandler);
       darkmodeToggleButton.addEventListener("click", toggleDarkmodeHandler);
     } else if (darkmodeToggleButton && !gameStarted) {
@@ -135,7 +135,7 @@ document.addEventListener("DOMContentLoaded", () => {
   function toggleDarkmodeHandler() {
     isDarkmode = !isDarkmode;
     document.body.classList.toggle("darkmode", isDarkmode);
-    darkmodeToggleButton.textContent = isDarkmode ? "Hell" : "Dunkel";
+    darkmodeToggleButton.textContent = isDarkmode ? "Light Mode" : "Dark Mode";
     localStorage.setItem("darkmode", isDarkmode);
     window.updateBoardColors(currentDesign);
     drawBoard();
@@ -143,7 +143,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function updateOpeningDisplay() {
     const moves = moveNotations.map((m) => m.notation).filter((n) => !n.includes("-"));
-    let displayText = `Zug: ${moves[moves.length - 1] || "Kein Zug"}`;
+    let moveText = `Move: ${moves[moves.length - 1] || "None"}`;
+    let openingText = "";
     for (let opening of openings) {
       const openingMoves = opening.moves;
       let matches = true;
@@ -154,14 +155,15 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       }
       if (matches) {
-        displayText = `${opening.name}`;
+        openingText = `${opening.name}`;
         if (moves.length >= openingMoves.length && opening.blackResponses.length > 0) {
-          displayText += ` (Schwarz: ${opening.blackResponses.join(" oder ")})`;
+          openingText += ` (Black: ${opening.blackResponses.join(" or ")})`;
         }
         break;
       }
     }
-    openingDisplay.textContent = displayText;
+    const timeText = `White: ${formatTime(whiteTime)} | Black: ${formatTime(blackTime)}`;
+    openingDisplay.textContent = `${moveText}${openingText ? " | " + openingText : ""} | ${timeText}`;
   }
 
   function formatTime(seconds) {
@@ -182,7 +184,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (whiteTime <= 0) {
           whiteTime = 0;
           gameOver = true;
-          winnerText = "Schwarz hat gewonnen (Zeit abgelaufen)!";
+          winnerText = "Black wins (Time out)!";
           clearInterval(timerInterval);
         }
       } else {
@@ -190,7 +192,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (blackTime <= 0) {
           blackTime = 0;
           gameOver = true;
-          winnerText = "Weiß hat gewonnen (Zeit abgelaufen)!";
+          winnerText = "White wins (Time out)!";
           clearInterval(timerInterval);
         }
       }
@@ -252,7 +254,11 @@ document.addEventListener("DOMContentLoaded", () => {
         ctx.fillText(i + 1, offsetX - size * 0.4, offsetY + (7 - i) * size + size / 2);
       }
     }
-    updateOpeningDisplay();
+    if (gameOver) {
+      openingDisplay.textContent = winnerText;
+    } else {
+      updateOpeningDisplay();
+    }
   }
 
   function resizeCanvas() {
@@ -278,7 +284,7 @@ document.addEventListener("DOMContentLoaded", () => {
   function toggleFullscreenMode() {
     fullscreenMode = !fullscreenMode;
     document.body.classList.toggle("fullscreen", fullscreenMode);
-    fullscreenButton.textContent = fullscreenMode ? "Vollbild Beenden" : "Vollbild";
+    fullscreenButton.style.display = fullscreenMode ? "none" : "block";
     exitFullscreenButton.style.display = fullscreenMode ? "block" : "none";
     resizeCanvas();
     drawBoard();
@@ -303,7 +309,7 @@ document.addEventListener("DOMContentLoaded", () => {
     whiteTime = CONFIG.initialTime;
     blackTime = CONFIG.initialTime;
     document.body.classList.remove("fullscreen");
-    fullscreenButton.textContent = "Vollbild";
+    fullscreenButton.style.display = "block";
     exitFullscreenButton.style.display = "none";
     moveList.innerHTML = "";
     startScreen.style.display = "none";
@@ -693,27 +699,26 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function updateMoveHistory() {
-    if (lastMove) {
-      const notation = getMoveNotation(lastMove.fromX, lastMove.fromY, lastMove.toX, lastMove.toY);
-      moveNotations.push({ moveCount, notation: notation.simple });
-      moveList.innerHTML = "";
-      let movePairs = [];
-      for (let i = 0; i < moveNotations.length; i++) {
-        if (i % 2 === 0) {
-          movePairs.push({ white: moveNotations[i].notation });
-        } else {
-          movePairs[movePairs.length - 1].black = moveNotations[i].notation;
-        }
+    if (!lastMove) return; // Only update if a move was made
+    const notation = getMoveNotation(lastMove.fromX, lastMove.fromY, lastMove.toX, lastMove.toY);
+    moveNotations.push({ moveCount, notation: notation.simple });
+    moveList.innerHTML = "";
+    let movePairs = [];
+    for (let i = 0; i < moveNotations.length; i++) {
+      if (i % 2 === 0) {
+        movePairs.push({ white: moveNotations[i].notation });
+      } else {
+        movePairs[movePairs.length - 1].black = moveNotations[i].notation;
       }
-      movePairs.forEach((pair, index) => {
-        const moveItem = document.createElement("li");
-        moveItem.textContent = `${index + 1}. ${pair.white}${pair.black ? " " + pair.black : ""}`;
-        moveList.appendChild(moveItem);
-      });
-      if (currentPlayer === "black") moveCount++;
-      moveList.scrollTop = moveList.scrollHeight;
-      updateOpeningDisplay();
     }
+    movePairs.forEach((pair, index) => {
+      const moveItem = document.createElement("li");
+      moveItem.textContent = `${index + 1}. ${pair.white}${pair.black ? " " + pair.black : ""}`;
+      moveList.appendChild(moveItem);
+    });
+    if (currentPlayer === "black") moveCount++;
+    moveList.scrollTop = moveList.scrollHeight;
+    updateOpeningDisplay();
   }
 
   function showPromotionChoice(x, y, isWhite) {
@@ -779,10 +784,10 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!hasMoves) {
       if (isWhiteInCheck || isBlackInCheck) {
         gameOver = true;
-        winnerText = isWhiteInCheck ? "Schwarz hat gewonnen!" : "Weiß hat gewonnen!";
+        winnerText = isWhiteInCheck ? "Black wins!" : "White wins!";
       } else {
         gameOver = true;
-        winnerText = "Unentschieden (Patt)!";
+        winnerText = "Draw (Stalemate)!";
       }
     }
   }
@@ -889,7 +894,7 @@ document.addEventListener("DOMContentLoaded", () => {
         lastMove = { fromX: selectedPiece.x, fromY: selectedPiece.y, toX: boardX, toY: boardY };
         board = newBoard;
         updateKingPositions();
-        currentPlayer = currentPlayer === "white" ? "black" : "white";
+        currentPlayer = currentPlayer === "white" ? "black" : "white"; // Ensure player switch
         updateMoveHistory();
         updateCheckStatus();
         checkGameOver();
@@ -937,16 +942,16 @@ document.addEventListener("DOMContentLoaded", () => {
       rotateBoard = !rotateBoard;
       drawBoard();
     });
-    smartphoneModeButton.textContent = smartphoneMode ? "Mitdrehen Aus" : "Mitdrehen An";
+    smartphoneModeButton.textContent = smartphoneMode ? "Rotate Off" : "Rotate On";
     smartphoneModeButton.addEventListener("click", () => {
       smartphoneMode = !smartphoneMode;
-      smartphoneModeButton.textContent = smartphoneMode ? "Mitdrehen Aus" : "Mitdrehen An";
+      smartphoneModeButton.textContent = smartphoneMode ? "Rotate Off" : "Rotate On";
       drawBoard();
     });
-    soundToggleButton.textContent = soundEnabled ? "Ton Aus" : "Ton An";
+    soundToggleButton.textContent = soundEnabled ? "Sound Off" : "Sound On";
     soundToggleButton.addEventListener("click", () => {
       soundEnabled = !soundEnabled;
-      soundToggleButton.textContent = soundEnabled ? "Ton Aus" : "Ton An";
+      soundToggleButton.textContent = soundEnabled ? "Sound Off" : "Sound On";
     });
     undoButton.addEventListener("click", () => {
       if (moveHistory.length > 0 && !gameOver) {
