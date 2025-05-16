@@ -208,6 +208,15 @@ document.addEventListener("DOMContentLoaded", () => {
       console.error("Canvas context not available.");
       return;
     }
+    // Safeguard: Ensure canvas dimensions match the intended size to prevent unintended scaling
+    const expectedWidth = size * 8 + offsetX * 2;
+    const expectedHeight = size * 8 + offsetY * 2;
+    if (canvas.width !== expectedWidth || canvas.height !== expectedHeight) {
+      console.warn("Canvas dimensions mismatch detected. Expected:", expectedWidth, expectedHeight, "Got:", canvas.width, canvas.height);
+      canvas.width = expectedWidth;
+      canvas.height = expectedHeight;
+    }
+
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     let effectiveRotation = rotateBoard;
     if (smartphoneMode) {
@@ -573,14 +582,8 @@ document.addEventListener("DOMContentLoaded", () => {
           newX += dx;
           newY += dy;
           if (newX < 0 || newX >= 8 || newY < 0 || newY >= 8) break;
-          const targetPiece = tempBoard[newY][newX];
-          if (targetPiece) {
-            if ((targetPiece === targetPiece.toUpperCase()) !== isWhite) {
-              moves.push({ toX: newX, toY: newY });
-            }
-            break;
-          }
           moves.push({ toX: newX, toY: newY });
+          if (tempBoard[newY][newX]) break;
         }
       });
     } else if (piece.toLowerCase() === "q") {
