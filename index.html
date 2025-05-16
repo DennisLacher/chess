@@ -12,23 +12,27 @@
     <button id="startFreestyleButton">Start Freestyle</button>
   </div>
   <div id="gameContainer" class="hidden">
-    <div id="boardContainer">
-      <canvas id="chessboard"></canvas>
-      <div id="openingDisplay"></div>
+    <div id="boardAndControls">
+      <div id="boardContainer">
+        <canvas id="chessboard"></canvas>
+        <div id="openingDisplay"></div>
+      </div>
+      <div id="controlsContainer">
+        <div id="buttonContainer">
+          <button id="rotateButton">Rotate Board</button>
+          <button id="smartphoneModeButton">Rotate On</button>
+          <button id="soundToggleButton">Sound On</button>
+          <button id="undoButton">Undo Move</button>
+          <button id="restartButton" class="hidden">Restart</button>
+          <button id="designButton">Change Design</button>
+          <button id="darkmodeToggleButton">Dark Mode</button>
+          <button id="fullscreenButton">Fullscreen</button>
+          <button id="exitFullscreenButton" style="display: none;">Exit Fullscreen</button>
+        </div>
+      </div>
     </div>
     <div id="moveListContainer">
       <ul id="moveList"></ul>
-    </div>
-    <div id="buttonContainer">
-      <button id="rotateButton">Rotate Board</button>
-      <button id="smartphoneModeButton">Rotate On</button>
-      <button id="soundToggleButton">Sound On</button>
-      <button id="undoButton">Undo Move</button>
-      <button id="restartButton" class="hidden">Restart</button>
-      <button id="designButton">Change Design</button>
-      <button id="darkmodeToggleButton">Dark Mode</button>
-      <button id="fullscreenButton">Fullscreen</button>
-      <button id="exitFullscreenButton" style="display: none;">Exit Fullscreen</button>
     </div>
   </div>
   <script src="script.js"></script>
