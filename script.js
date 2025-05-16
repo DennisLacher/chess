@@ -247,7 +247,10 @@ document.addEventListener("DOMContentLoaded", () => {
       canvas.height = expectedHeight;
     }
 
+    // Reset canvas context properties to avoid mobile rendering issues
     ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.globalCompositeOperation = 'source-over'; // Ensure default blending mode
+
     let effectiveRotation = rotateBoard;
     if (smartphoneMode) {
       effectiveRotation = currentPlayer === "black";
@@ -294,7 +297,8 @@ document.addEventListener("DOMContentLoaded", () => {
         const piece = board[y][x];
         if (piece) {
           const isWhite = piece === piece.toUpperCase();
-          ctx.fillStyle = isWhite ? "#000000" : "#ffffff";
+          // Explicitly set piece colors: black for white pieces, white for black pieces
+          ctx.fillStyle = isWhite ? "#000000" : "#FFFFFF"; // Black for white pieces, white for black pieces
           ctx.font = `${size * 0.7}px sans-serif`;
           ctx.textAlign = "center";
           ctx.textBaseline = "middle";
