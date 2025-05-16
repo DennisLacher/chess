@@ -5,7 +5,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const CONFIG = {
     defaultBoardSize: 50,
     minBoardSize: 40,
-    maxWidthFactor: 1.0,
+    maxWidthFactor: 1.3, // Increased for larger board in fullscreen
     maxHeightFactor: 1.0,
     offset: 0.1,
     initialTime: 600,
@@ -43,6 +43,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const darkmodeToggleButton = document.getElementById("darkmodeToggleButton");
   const fullscreenButton = document.getElementById("fullscreenButton");
   const exitFullscreenButton = document.getElementById("exitFullscreenButton");
+  const closeFullscreenButton = document.getElementById("closeFullscreenButton");
 
   // Detailed DOM validation
   const missingElements = [];
@@ -146,6 +147,7 @@ document.addEventListener("DOMContentLoaded", () => {
   darkmodeToggleButton.style.display = "none";
   fullscreenButton.style.display = "none";
   exitFullscreenButton.style.display = "none";
+  closeFullscreenButton.style.display = "none";
   console.log("Initial visibility set: startScreen visible, gameContainer hidden");
 
   function initializeDarkmodeToggle() {
@@ -329,10 +331,10 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function resizeCanvas() {
-    let maxWidth = window.innerWidth * CONFIG.maxWidthFactor * (fullscreenMode ? 1.2 : 0.7);
+    let maxWidth = window.innerWidth * CONFIG.maxWidthFactor * (fullscreenMode ? 1.3 : 0.7);
     let maxHeight = window.innerHeight * CONFIG.maxHeightFactor * (fullscreenMode ? 1.2 : 0.9);
     if (window.innerWidth <= 768) {
-      maxWidth = window.innerWidth * CONFIG.maxWidthFactor * (fullscreenMode ? 1.2 : 1.0);
+      maxWidth = window.innerWidth * CONFIG.maxWidthFactor * (fullscreenMode ? 1.3 : 1.0);
       maxHeight = window.innerHeight * CONFIG.maxHeightFactor * (fullscreenMode ? 1.2 : 0.6);
     }
     const boardSize = Math.min(maxWidth / 8, maxHeight / 8, CONFIG.defaultBoardSize);
@@ -357,6 +359,20 @@ document.addEventListener("DOMContentLoaded", () => {
       }
       document.body.classList.add("fullscreen");
       fullscreenMode = true;
+      // Hide all UI elements in fullscreen
+      turnDisplay.style.display = "none";
+      rotateButton.style.display = "none";
+      smartphoneModeButton.style.display = "none";
+      soundToggleButton.style.display = "none";
+      undoButton.style.display = "none";
+      restartButton.style.display = "none";
+      designButton.style.display = "none";
+      darkmodeToggleButton.style.display = "none";
+      fullscreenButton.style.display = "none";
+      exitFullscreenButton.style.display = "none";
+      moveList.style.display = "none";
+      openingDisplay.style.display = "none";
+      closeFullscreenButton.style.display = "block";
     } else {
       if (document.exitFullscreen) {
         document.exitFullscreen().catch((err) => {
@@ -365,9 +381,21 @@ document.addEventListener("DOMContentLoaded", () => {
       }
       document.body.classList.remove("fullscreen");
       fullscreenMode = false;
+      // Restore UI elements
+      turnDisplay.style.display = "block";
+      rotateButton.style.display = "block";
+      smartphoneModeButton.style.display = "block";
+      soundToggleButton.style.display = "block";
+      undoButton.style.display = "block";
+      restartButton.style.display = gameStarted ? "block" : "none";
+      designButton.style.display = "block";
+      darkmodeToggleButton.style.display = gameStarted ? "block" : "none";
+      fullscreenButton.style.display = "block";
+      exitFullscreenButton.style.display = "none";
+      moveList.style.display = "block";
+      openingDisplay.style.display = "block";
+      closeFullscreenButton.style.display = "none";
     }
-    fullscreenButton.style.display = fullscreenMode ? "none" : "block";
-    exitFullscreenButton.style.display = fullscreenMode ? "block" : "none";
     resizeCanvas();
     drawBoard();
   }
@@ -375,8 +403,35 @@ document.addEventListener("DOMContentLoaded", () => {
   document.addEventListener('fullscreenchange', () => {
     fullscreenMode = !!document.fullscreenElement;
     document.body.classList.toggle("fullscreen", fullscreenMode);
-    fullscreenButton.style.display = fullscreenMode ? "none" : "block";
-    exitFullscreenButton.style.display = fullscreenMode ? "block" : "none";
+    if (fullscreenMode) {
+      turnDisplay.style.display = "none";
+      rotateButton.style.display = "none";
+      smartphoneModeButton.style.display = "none";
+      soundToggleButton.style.display = "none";
+      undoButton.style.display = "none";
+      restartButton.style.display = "none";
+      designButton.style.display = "none";
+      darkmodeToggleButton.style.display = "none";
+      fullscreenButton.style.display = "none";
+      exitFullscreenButton.style.display = "none";
+      moveList.style.display = "none";
+      openingDisplay.style.display = "none";
+      closeFullscreenButton.style.display = "block";
+    } else {
+      turnDisplay.style.display = "block";
+      rotateButton.style.display = "block";
+      smartphoneModeButton.style.display = "block";
+      soundToggleButton.style.display = "block";
+      undoButton.style.display = "block";
+      restartButton.style.display = gameStarted ? "block" : "none";
+      designButton.style.display = "block";
+      darkmodeToggleButton.style.display = gameStarted ? "block" : "none";
+      fullscreenButton.style.display = "block";
+      exitFullscreenButton.style.display = "none";
+      moveList.style.display = "block";
+      openingDisplay.style.display = "block";
+      closeFullscreenButton.style.display = "none";
+    }
     resizeCanvas();
     drawBoard();
   });
@@ -1106,6 +1161,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
     fullscreenButton.addEventListener("click", toggleFullscreenMode);
     exitFullscreenButton.addEventListener("click", toggleFullscreenMode);
+    closeFullscreenButton.addEventListener("click", toggleFullscreenMode);
   }
 
   const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
