@@ -5,7 +5,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const CONFIG = {
     defaultBoardSize: 50,
     minBoardSize: 40,
-    maxWidthFactor: 1.3, // Increased for larger board in fullscreen
+    maxWidthFactor: 1.3,
     maxHeightFactor: 1.0,
     offset: 0.1,
     initialTime: 600,
@@ -97,11 +97,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Board design configurations
   const designs = {
-    1: { light: "#DEB887", dark: "#8B4513" }, // Wood Board
-    2: { light: "#E0E0E0", dark: "#808080" }, // Gray
-    3: { light: "#ADD8E6", dark: "#4682B4" }, // Blue
-    4: { light: "#90EE90", dark: "#228B22" }, // Green
-    5: { light: "#FFDAB9", dark: "#CD853F" }  // Peach/Wood
+    1: { light: "#DEB887", dark: "#8B4513" },
+    2: { light: "#E0E0E0", dark: "#808080" },
+    3: { light: "#ADD8E6", dark: "#4682B4" },
+    4: { light: "#90EE90", dark: "#228B22" },
+    5: { light: "#FFDAB9", dark: "#CD853F" }
   };
 
   window.boardColors = designs[currentDesign];
@@ -241,17 +241,16 @@ document.addEventListener("DOMContentLoaded", () => {
       console.error("Canvas context not available.");
       return;
     }
-    const expectedWidth = Math.round(size * 8 + offsetX * 2); // Round to nearest integer
-    const expectedHeight = Math.round(size * 8 + offsetY * 2); // Round to nearest integer
+    const expectedWidth = Math.round(size * 8 + offsetX * 2);
+    const expectedHeight = Math.round(size * 8 + offsetY * 2);
     if (canvas.width !== expectedWidth || canvas.height !== expectedHeight) {
       console.warn("Canvas dimensions mismatch detected. Expected:", expectedWidth, expectedHeight, "Got:", canvas.width, canvas.height);
       canvas.width = expectedWidth;
       canvas.height = expectedHeight;
     }
 
-    // Reset canvas context properties to avoid mobile rendering issues
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.globalCompositeOperation = 'source-over'; // Ensure default blending mode
+    ctx.globalCompositeOperation = 'source-over';
 
     let effectiveRotation = rotateBoard;
     if (smartphoneMode) {
@@ -299,8 +298,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const piece = board[y][x];
         if (piece) {
           const isWhite = piece === piece.toUpperCase();
-          // Explicitly set piece colors: black for white pieces, white for black pieces
-          ctx.fillStyle = isWhite ? "#000000" : "#FFFFFF"; // Black for white pieces, white for black pieces
+          ctx.fillStyle = isWhite ? "#000000" : "#FFFFFF";
           ctx.font = `${size * 0.7}px sans-serif`;
           ctx.textAlign = "center";
           ctx.textBaseline = "middle";
@@ -359,7 +357,6 @@ document.addEventListener("DOMContentLoaded", () => {
       }
       document.body.classList.add("fullscreen");
       fullscreenMode = true;
-      // Hide all UI elements in fullscreen
       turnDisplay.style.display = "none";
       rotateButton.style.display = "none";
       smartphoneModeButton.style.display = "none";
@@ -381,7 +378,6 @@ document.addEventListener("DOMContentLoaded", () => {
       }
       document.body.classList.remove("fullscreen");
       fullscreenMode = false;
-      // Restore UI elements
       turnDisplay.style.display = "block";
       rotateButton.style.display = "block";
       smartphoneModeButton.style.display = "block";
@@ -1102,21 +1098,34 @@ document.addEventListener("DOMContentLoaded", () => {
     console.log("startButton:", startButton);
     console.log("startFreestyleButton:", startFreestyleButton);
 
-    // Stricter validation for start buttons
-    if (!startButton || !startFreestyleButton) {
-      console.error("Start buttons not found in DOM. Expected elements with IDs 'startButton' and 'startFreestyleButton'. Check index.html for correct IDs.");
-      alert("Error: Start buttons not found. Please check the HTML for elements with IDs 'startButton' and 'startFreestyleButton'.");
-      throw new Error("Start buttons not found in DOM");
+    // Ensure buttons are initialized with fallback
+    function initializeButton(element, eventHandler, logMessage) {
+      if (!element) {
+        console.error(`${logMessage} not found in DOM. Retrying...`);
+        setTimeout(() => {
+          const retryElement = document.getElementById(logMessage.split(": ")[1].replace(" ", ""));
+          if (retryElement) {
+            console.log(`${logMessage} found on retry:`, retryElement);
+            retryElement.addEventListener("click", eventHandler);
+          } else {
+            console.error(`${logMessage} still not found after retry. Check HTML for ID '${logMessage.split(": ")[1].replace(" ", "")}'.`);
+            alert(`Error: ${logMessage} not found. Please ensure an element with ID '${logMessage.split(": ")[1].replace(" ", "")}' exists in the HTML.`);
+          }
+        }, 100); // Retry after 100ms
+      } else {
+        console.log(`${logMessage} initialized:`, element);
+        element.addEventListener("click", eventHandler);
+      }
     }
 
-    startButton.addEventListener("click", () => {
+    initializeButton(startButton, () => {
       console.log("Start Game button clicked");
       startGame(false);
-    });
-    startFreestyleButton.addEventListener("click", () => {
+    }, "startButton");
+    initializeButton(startFreestyleButton, () => {
       console.log("Start Freestyle button clicked");
       startGame(true);
-    });
+    }, "startFreestyleButton");
     rotateButton.addEventListener("click", () => {
       rotateBoard = !rotateBoard;
       drawBoard();
