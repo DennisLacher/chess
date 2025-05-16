@@ -111,15 +111,16 @@ body.darkmode button:hover {
   background-color: #4a90e2;
 }
 
-/* Sidebar Button Styles (More Compact and Modern) */
+/* Sidebar Button Styles (Modern and Compact, 4 per row) */
 .sidebar button {
   padding: 8px 16px;
   font-size: 14px;
   border-radius: 10px;
   background-color: #5a9cf5;
   box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15);
-  width: 45%; /* Two buttons per row with some spacing */
+  width: 22%; /* Adjusted for 4 buttons per row with spacing */
   margin: 0;
+  text-align: center;
 }
 
 .sidebar button:hover {
@@ -132,6 +133,26 @@ body.darkmode .sidebar button {
 
 body.darkmode .sidebar button:hover {
   background-color: #5a9cf5;
+}
+
+/* Close Fullscreen Button */
+#closeFullscreenButton {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background-color: #ff4444;
+  color: white;
+  padding: 5px 10px;
+  border-radius: 50%;
+  font-size: 18px;
+  width: 30px;
+  height: 30px;
+  line-height: 20px;
+  text-align: center;
+}
+
+#closeFullscreenButton:hover {
+  background-color: #cc0000;
 }
 
 /* Promotion Button Styles */
@@ -186,7 +207,7 @@ body.darkmode .opening-display {
   border: 1px solid #ccc;
   border-radius: 5px;
   padding: 10px;
-  background-color: #e0e0e0;
+  background-color: #e0e0e0; /* Light gray background */
   margin: 10px auto;
   text-align: center;
 }
@@ -225,6 +246,15 @@ body.fullscreen {
   margin: 0;
   width: 100vw;
   height: 100vh;
+}
+
+body.fullscreen .game-container > *:not(.canvas-container) {
+  display: none; /* Hide all UI elements except canvas */
+}
+
+body.fullscreen .canvas-container {
+  width: 100%;
+  height: 100%;
 }
 
 /* Penalty Message Styles */
@@ -268,7 +298,7 @@ body.fullscreen {
   }
 
   .sidebar button {
-    width: 45%;
+    width: 22%; /* 4 buttons per row on mobile */
     padding: 6px 12px;
     font-size: 12px;
   }
