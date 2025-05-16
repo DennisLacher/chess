@@ -44,12 +44,18 @@ document.addEventListener("DOMContentLoaded", () => {
   const fullscreenButton = document.getElementById("fullscreenButton");
   const exitFullscreenButton = document.getElementById("exitFullscreenButton");
 
-  // Validate DOM elements
-  if (!canvas || !startScreen || !startButton || !startFreestyleButton || !gameContainer || !turnDisplay) {
-    console.error("One or more DOM elements are missing. Check index.html for correct IDs:", {
-      canvas, startScreen, startButton, startFreestyleButton, gameContainer, turnDisplay
-    });
-    alert("Error: One or more DOM elements are missing. Please check the console.");
+  // Detailed DOM validation
+  const missingElements = [];
+  if (!canvas) missingElements.push("canvas (id='chessboard')");
+  if (!startScreen) missingElements.push("startScreen (id='startScreen')");
+  if (!startButton) missingElements.push("startButton (id='startButton')");
+  if (!startFreestyleButton) missingElements.push("startFreestyleButton (id='startFreestyleButton')");
+  if (!gameContainer) missingElements.push("gameContainer (id='gameContainer')");
+  if (!turnDisplay) missingElements.push("turnDisplay (id='turnDisplay')");
+
+  if (missingElements.length > 0) {
+    console.error("The following DOM elements are missing:", missingElements.join(", "));
+    alert("Error: Missing DOM elements: " + missingElements.join(", ") + ". Please check the console.");
     return;
   }
 
