@@ -133,6 +133,15 @@ document.addEventListener("DOMContentLoaded", () => {
   // Initialize dark mode
   document.body.classList.toggle("darkmode", isDarkmode);
 
+  // Ensure initial visibility state
+  startScreen.style.display = "block";
+  gameContainer.style.display = "none";
+  restartButton.classList.add("hidden");
+  darkmodeToggleButton.style.display = "none";
+  fullscreenButton.style.display = "none";
+  exitFullscreenButton.style.display = "none";
+  console.log("Initial visibility set: startScreen visible, gameContainer hidden");
+
   function initializeDarkmodeToggle() {
     if (darkmodeToggleButton && gameStarted) {
       darkmodeToggleButton.textContent = isDarkmode ? "Light Mode" : "Dark Mode";
@@ -312,7 +321,7 @@ document.addEventListener("DOMContentLoaded", () => {
   function resizeCanvas() {
     let maxWidth = window.innerWidth * CONFIG.maxWidthFactor * (fullscreenMode ? 1.2 : 0.7);
     let maxHeight = window.innerHeight * CONFIG.maxHeightFactor * (fullscreenMode ? 1.2 : 0.9);
-    if (window.innerWidth <= 768) { // Fixed syntax error: removed 'px'
+    if (window.innerWidth <= 768) {
       maxWidth = window.innerWidth * CONFIG.maxWidthFactor * (fullscreenMode ? 1.2 : 1.0);
       maxHeight = window.innerHeight * CONFIG.maxHeightFactor * (fullscreenMode ? 1.2 : 0.6);
     }
@@ -385,10 +394,10 @@ document.addEventListener("DOMContentLoaded", () => {
     exitFullscreenButton.style.display = "none";
     moveList.innerHTML = "";
     startScreen.style.display = "none";
-    gameContainer.classList.remove("hidden");
-    gameContainer.style.display = "flex"; // Ensure game container is visible only after starting
+    gameContainer.style.display = "flex";
     restartButton.classList.remove("hidden");
     darkmodeToggleButton.style.display = "block";
+    console.log("Game started: startScreen hidden, gameContainer visible");
     if (freestyle) {
       const shuffledRow = shuffleArray(["r", "n", "b", "q", "k", "b", "n", "r"]);
       board = [
@@ -1022,8 +1031,23 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function initializeGameButtons() {
-    startButton.addEventListener("click", () => startGame(false));
-    startFreestyleButton.addEventListener("click", () => startGame(true));
+    console.log("Initializing game buttons...");
+    console.log("startButton:", startButton);
+    console.log("startFreestyleButton:", startFreestyleButton);
+
+    if (!startButton || !startFreestyleButton) {
+      console.error("Start buttons not found in DOM. Check index.html for correct IDs.");
+      return;
+    }
+
+    startButton.addEventListener("click", () => {
+      console.log("Start Game button clicked");
+      startGame(false);
+    });
+    startFreestyleButton.addEventListener("click", () => {
+      console.log("Start Freestyle button clicked");
+      startGame(true);
+    });
     rotateButton.addEventListener("click", () => {
       rotateBoard = !rotateBoard;
       drawBoard();
