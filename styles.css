@@ -47,6 +47,20 @@ body.darkmode {
   margin: 0 auto;
 }
 
+#turnDisplay {
+  width: 100%;
+  text-align: center;
+  padding: 5px;
+  background-color: #f0f0f0;
+  color: #333;
+  font-size: 16px;
+}
+
+body.darkmode #turnDisplay {
+  background-color: #333;
+  color: #e0e0e0;
+}
+
 #boardAndControls {
   display: flex;
   justify-content: center;
@@ -79,7 +93,7 @@ body.darkmode #openingDisplay {
 }
 
 #buttonContainer {
-  margin-left: 20px;
+  margin-left: 5px;
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
@@ -190,7 +204,7 @@ body.darkmode #promotionChoices {
 
   #buttonContainer {
     margin-left: 0;
-    margin-top: 20px;
+    margin-top: 10px;
     justify-content: center;
   }
 
@@ -209,4 +223,13 @@ body.darkmode #promotionChoices {
     padding: 10px;
     font-size: 14px;
   }
+}
+
+.fullscreen #boardAndControls {
+  width: 100%;
+}
+
+.fullscreen #moveListContainer,
+.fullscreen #openingDisplay {
+  display: none;
 }
