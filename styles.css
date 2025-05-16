@@ -1,13 +1,19 @@
-body {
+/* Reset and Base Styles */
+* {
   margin: 0;
   padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: Arial, sans-serif;
+  background-color: #f0f0f0;
+  color: #333;
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: 100vh;
-  background-color: #f0f0f0;
-  font-family: Arial, sans-serif;
-  transition: background-color 0.3s;
+  height: 100vh;
+  overflow: hidden;
 }
 
 body.darkmode {
@@ -15,221 +21,224 @@ body.darkmode {
   color: #e0e0e0;
 }
 
-#startScreen {
+/* Start Screen Styles */
+.start-screen {
   display: flex;
   flex-direction: column;
+  justify-content: center;
   align-items: center;
-  gap: 10px;
+  gap: 20px;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
 }
 
-#startButton, #startFreestyleButton {
-  width: 200px;
-  padding: 12px;
-  font-size: 16px;
-  cursor: pointer;
-  border: none;
-  border-radius: 8px;
-  background-color: #4CAF50;
-  color: white;
-  transition: background-color 0.3s;
-}
-
-#startButton:hover, #startFreestyleButton:hover {
-  background-color: #45a049;
-}
-
-#gameContainer {
+/* Game Container Styles */
+.game-container {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
+  justify-content: center;
   align-items: center;
+  gap: 20px;
   width: 100%;
-  max-width: 800px;
-  margin: 0 auto;
+  height: 100%;
 }
 
-#turnDisplay {
-  width: 100%;
-  text-align: center;
-  padding: 5px;
-  background-color: #f0f0f0;
-  color: #333;
-  font-size: 16px;
-}
-
-body.darkmode #turnDisplay {
-  background-color: #333;
-  color: #e0e0e0;
-}
-
-#boardAndControls {
+.canvas-container {
+  flex: 1;
   display: flex;
   justify-content: center;
-  align-items: flex-start;
-  width: 100%;
-}
-
-#boardContainer {
-  display: flex;
-  flex-direction: column;
   align-items: center;
 }
 
 #chessboard {
-  display: block;
-  width: auto !important;
-  height: auto !important;
-  transform: none !important;
+  max-width: 100%;
+  max-height: 100%;
 }
 
-#openingDisplay {
-  margin-top: 10px;
-  font-size: 14px;
+/* Sidebar Styles */
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 20px;
+  width: 250px;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+/* Modern Button Styles */
+button {
+  background-color: #4a90e2;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.3s, transform 0.1s, box-shadow 0.3s;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  width: 80%;
   text-align: center;
+}
+
+button:hover {
+  background-color: #357abd;
+  transform: scale(1.05);
+}
+
+button:active {
+  transform: scale(0.95);
+}
+
+body.darkmode button {
+  background-color: #66b0ff;
   color: #333;
 }
 
-body.darkmode #openingDisplay {
+body.darkmode button:hover {
+  background-color: #4a90e2;
+}
+
+/* Promotion Button Styles */
+.promotion-button {
+  background-color: #4a90e2;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 5px;
+  font-size: 20px;
+  cursor: pointer;
+  margin: 5px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.promotion-button:hover {
+  background-color: #357abd;
+}
+
+/* Turn Display Styles */
+.turn-display {
+  font-size: 18px;
+  margin-bottom: 10px;
+  text-align: center;
+}
+
+body.darkmode .turn-display {
   color: #e0e0e0;
 }
 
-#buttonContainer {
-  margin-left: 5px;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-}
-
-#buttonContainer button {
-  width: 120px;
-  padding: 10px;
+/* Opening Display Styles */
+.opening-display {
   font-size: 14px;
-  cursor: pointer;
-  border: none;
-  border-radius: 8px;
-  background-color: #4CAF50;
-  color: white;
-  transition: background-color 0.3s;
-}
-
-#buttonContainer button:hover {
-  background-color: #45a049;
-}
-
-body.darkmode #buttonContainer button {
-  background-color: #666;
-}
-
-body.darkmode #buttonContainer button:hover {
-  background-color: #555;
-}
-
-#moveListContainer {
-  margin-top: 20px;
-  max-height: 150px;
-  overflow-y: auto;
+  margin: 10px 0;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
   width: 100%;
-  max-width: 400px;
-  background-color: #fff;
-  border: 1px solid #ccc;
-  padding: 10px;
-  box-sizing: border-box;
 }
 
-body.darkmode #moveListContainer {
-  background-color: #444;
-  border-color: #666;
+body.darkmode .opening-display {
+  color: #e0e0e0;
 }
 
-#moveList {
+/* Move List Styles */
+.move-list {
   list-style: none;
+  width: 100%;
+  max-height: 200px;
+  overflow-y: auto;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  padding: 10px;
+  background-color: #e0e0e0;
+}
+
+body.darkmode .move-list {
+  background-color: #555;
+  border-color: #777;
+}
+
+.move-list li {
+  padding: 5px;
+  font-size: 14px;
+  border-radius: 3px;
+}
+
+.move-list li.last-move {
+  background-color: #f5f5f5;
+}
+
+body.darkmode .move-list li {
+  color: #e0e0e0;
+}
+
+body.darkmode .move-list li.last-move {
+  background-color: #777;
+}
+
+/* Hidden Class */
+.hidden {
+  display: none !important;
+}
+
+/* Fullscreen Styles */
+body.fullscreen {
   padding: 0;
   margin: 0;
-  font-size: 14px;
+  width: 100vw;
+  height: 100vh;
 }
 
-#moveList li {
-  padding: 5px 0;
-}
-
-.hidden {
-  display: none;
-}
-
+/* Penalty Message Styles */
 .penalty-message {
-  position: absolute;
-  background-color: rgba(255, 0, 0, 0.7);
+  background-color: rgba(255, 0, 0, 0.8);
   color: white;
   padding: 5px 10px;
   border-radius: 5px;
   font-size: 14px;
+  position: absolute;
   animation: fadeOut 2s forwards;
 }
 
 @keyframes fadeOut {
   0% { opacity: 1; }
+  80% { opacity: 1; }
   100% { opacity: 0; }
 }
 
-#promotionChoices {
-  display: flex;
-  flex-direction: column;
-  background-color: #fff;
-  border: 1px solid #ccc;
-  z-index: 1000;
-}
-
-body.darkmode #promotionChoices {
-  background-color: #444;
-  border-color: #666;
-}
-
-#promotionChoices button {
-  padding: 5px;
-  border: none;
-  background: none;
-  cursor: pointer;
-  font-size: 24px;
-}
-
+/* Responsive Adjustments */
 @media (max-width: 768px) {
-  #gameContainer {
-    max-width: 100%;
-    padding: 10px;
-  }
-
-  #boardAndControls {
+  .game-container {
     flex-direction: column;
     align-items: center;
   }
 
-  #buttonContainer {
-    margin-left: 0;
-    margin-top: 10px;
+  .sidebar {
+    width: 100%;
+    max-width: 300px;
+    flex-direction: row;
+    flex-wrap: wrap;
     justify-content: center;
+    padding: 10px;
+    max-height: none;
+    overflow-y: visible;
   }
 
-  #buttonContainer button {
-    width: 100px;
-    padding: 8px;
+  button {
+    width: auto;
+    margin: 5px;
+  }
+
+  .move-list {
+    max-height: 100px;
+    width: 80%;
+  }
+
+  .opening-display {
     font-size: 12px;
   }
-
-  #moveListContainer {
-    max-height: 100px;
-  }
-
-  #startButton, #startFreestyleButton {
-    width: 180px;
-    padding: 10px;
-    font-size: 14px;
-  }
-}
-
-.fullscreen #boardAndControls {
-  width: 100%;
-}
-
-.fullscreen #moveListContainer,
-.fullscreen #openingDisplay {
-  display: none;
 }
