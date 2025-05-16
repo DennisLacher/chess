@@ -801,6 +801,9 @@ document.addEventListener("DOMContentLoaded", () => {
     movePairs.forEach((pair, index) => {
       const moveItem = document.createElement("li");
       moveItem.textContent = `${index + 1}. ${pair.white}${pair.black ? " " + pair.black : ""}`;
+      if (index === movePairs.length - 1) {
+        moveItem.classList.add("last-move");
+      }
       moveList.appendChild(moveItem);
     });
     if (currentPlayer === "black") moveCount++;
@@ -831,7 +834,7 @@ document.addEventListener("DOMContentLoaded", () => {
     choices.forEach((p) => {
       const button = document.createElement("button");
       button.textContent = pieces[p];
-      button.style.fontSize = `${size * 0.6}px`;
+      button.className = "promotion-button";
       button.addEventListener("click", () => {
         board[y][x] = p;
         document.body.removeChild(promotionChoices);
