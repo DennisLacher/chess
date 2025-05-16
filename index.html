@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Permissions-Policy" content="interest-cohort=()">
   <title>Chess Game</title>
   <link rel="stylesheet" href="styles.css">
 </head>
@@ -12,6 +13,7 @@
     <button id="startFreestyleButton">Start Freestyle</button>
   </div>
   <div id="gameContainer" class="hidden">
+    <div id="turnDisplay"></div>
     <div id="boardAndControls">
       <div id="boardContainer">
         <canvas id="chessboard"></canvas>
