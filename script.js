@@ -446,12 +446,8 @@ document.addEventListener("DOMContentLoaded", () => {
           newX += dx;
           newY += dy;
           if (newX < 0 || newX >= 8 || newY < 0 || newY >= 8) break;
-          if (tempBoard[newY] && tempBoard[newY][newX] !== undefined) {
-            moves.push({ toX: newX, toY: newY });
-            if (tempBoard[newY][newX]) break;
-          } else {
-            break;
-          }
+          moves.push({ toX: newX, toY: newY });
+          if (tempBoard[newY][newX]) break;
         }
       });
     } else if (piece.toLowerCase() === "n") {
@@ -475,12 +471,8 @@ document.addEventListener("DOMContentLoaded", () => {
           newX += dx;
           newY += dy;
           if (newX < 0 || newX >= 8 || newY < 0 || newY >= 8) break;
-          if (tempBoard[newY] && tempBoard[newY][newX] !== undefined) {
-            moves.push({ toX: newX, toY: newY });
-            if (tempBoard[newY][newX]) break;
-          } else {
-            break;
-          }
+          moves.push({ toX: newX, toY: newY });
+          if (tempBoard[newY][newX]) break;
         }
       });
     } else if (piece.toLowerCase() === "q") {
@@ -492,12 +484,8 @@ document.addEventListener("DOMContentLoaded", () => {
           newX += dx;
           newY += dy;
           if (newX < 0 || newX >= 8 || newY < 0 || newY >= 8) break;
-          if (tempBoard[newY] && tempBoard[newY][newX] !== undefined) {
-            moves.push({ toX: newX, toY: newY });
-            if (tempBoard[newY][newX]) break;
-          } else {
-            break;
-          }
+          moves.push({ toX: newX, toY: newY });
+          if (tempBoard[newY][newX]) break;
         }
       });
     } else if (piece.toLowerCase() === "k") {
@@ -584,7 +572,7 @@ document.addEventListener("DOMContentLoaded", () => {
         while (true) {
           newX += dx;
           newY += dy;
-          if (newX < 0 || newX >= 8 || newY < 0 || newY < 8) break;
+          if (newX < 0 || newX >= 8 || newY < 0 || newY >= 8) break;
           const targetPiece = tempBoard[newY][newX];
           if (targetPiece) {
             if ((targetPiece === targetPiece.toUpperCase()) !== isWhite) {
@@ -604,12 +592,14 @@ document.addEventListener("DOMContentLoaded", () => {
           newX += dx;
           newY += dy;
           if (newX < 0 || newX >= 8 || newY < 0 || newY >= 8) break;
-          if (tempBoard[newY] && tempBoard[newY][newX] !== undefined) {
-            moves.push({ toX: newX, toY: newY });
-            if (tempBoard[newY][newX]) break;
-          } else {
+          const targetPiece = tempBoard[newY][newX];
+          if (targetPiece) {
+            if ((targetPiece === targetPiece.toUpperCase()) !== isWhite) {
+              moves.push({ toX: newX, toY: newY });
+            }
             break;
           }
+          moves.push({ toX: newX, toY: newY });
         }
       });
     } else if (piece.toLowerCase() === "k") {
