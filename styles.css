@@ -28,10 +28,18 @@ body.darkmode {
 
 #gameContainer {
   display: flex;
-  align-items: flex-start;
+  flex-direction: column;
+  align-items: center;
   width: 100%;
   max-width: 800px;
   margin: 0 auto;
+}
+
+#boardAndControls {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  width: 100%;
 }
 
 #boardContainer {
@@ -58,12 +66,22 @@ body.darkmode #openingDisplay {
   color: #e0e0e0;
 }
 
-#moveListContainer {
+#controlsContainer {
   margin-left: 20px;
-  margin-top: 0;
-  max-height: 400px;
+}
+
+#buttonContainer {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+#moveListContainer {
+  margin-top: 20px;
+  max-height: 150px;
   overflow-y: auto;
-  width: 200px;
+  width: 100%;
+  max-width: 400px;
   background-color: #fff;
   border: 1px solid #ccc;
   padding: 10px;
@@ -84,17 +102,6 @@ body.darkmode #moveListContainer {
 
 #moveList li {
   padding: 5px 0;
-}
-
-#buttonContainer {
-  margin-left: 20px;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-}
-
-#buttonContainer button {
-  margin: 5px 0;
 }
 
 .hidden {
@@ -139,30 +146,31 @@ body.darkmode #promotionChoices {
 
 @media (max-width: 768px) {
   #gameContainer {
-    flex-direction: column;
-    align-items: center;
     max-width: 100%;
     padding: 10px;
   }
 
-  #moveListContainer {
+  #boardAndControls {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  #controlsContainer {
     margin-left: 0;
     margin-top: 20px;
-    width: 100%;
-    max-width: 300px;
+  }
+
+  #moveListContainer {
+    max-height: 100px;
   }
 
   #buttonContainer {
-    margin-left: 0;
-    margin-top: 20px;
     flex-direction: row;
-    flex-wrap: wrap;
     justify-content: center;
   }
 
-  #buttonContainer button {
-    margin: 5px;
-    width: 100%;
+  #startButton, #startFreestyleButton, #rotateButton, #smartphoneModeButton, #soundToggleButton, #undoButton, #restartButton, #designButton, #darkmodeToggleButton, #fullscreenButton, #exitFullscreenButton {
+    width: auto;
     max-width: 200px;
   }
 }
