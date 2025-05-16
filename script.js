@@ -312,7 +312,7 @@ document.addEventListener("DOMContentLoaded", () => {
   function resizeCanvas() {
     let maxWidth = window.innerWidth * CONFIG.maxWidthFactor * (fullscreenMode ? 1.2 : 0.7);
     let maxHeight = window.innerHeight * CONFIG.maxHeightFactor * (fullscreenMode ? 1.2 : 0.9);
-    if (window.innerWidth <= 768px) {
+    if (window.innerWidth <= 768) { // Fixed syntax error: removed 'px'
       maxWidth = window.innerWidth * CONFIG.maxWidthFactor * (fullscreenMode ? 1.2 : 1.0);
       maxHeight = window.innerHeight * CONFIG.maxHeightFactor * (fullscreenMode ? 1.2 : 0.6);
     }
@@ -386,7 +386,7 @@ document.addEventListener("DOMContentLoaded", () => {
     moveList.innerHTML = "";
     startScreen.style.display = "none";
     gameContainer.classList.remove("hidden");
-    gameContainer.style.display = "flex";
+    gameContainer.style.display = "flex"; // Ensure game container is visible only after starting
     restartButton.classList.remove("hidden");
     darkmodeToggleButton.style.display = "block";
     if (freestyle) {
