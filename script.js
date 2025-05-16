@@ -145,7 +145,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const moves = moveNotations.map((m) => m.notation).filter((n) => !n.includes("-"));
     let moveText = `Move: ${moves[moves.length - 1] || "None"}`;
     let openingText = "";
-    if (moves.length > 0) { // Only check for openings if moves have been made
+    if (moves.length > 0) {
       for (let opening of openings) {
         const openingMoves = opening.moves;
         let matches = true;
@@ -446,8 +446,12 @@ document.addEventListener("DOMContentLoaded", () => {
           newX += dx;
           newY += dy;
           if (newX < 0 || newX >= 8 || newY < 0 || newY >= 8) break;
-          moves.push({ toX: newX, toY: newY });
-          if (tempBoard[newY][newX]) break;
+          if (tempBoard[newY] && tempBoard[newY][newX] !== undefined) {
+            moves.push({ toX: newX, toY: newY });
+            if (tempBoard[newY][newX]) break;
+          } else {
+            break;
+          }
         }
       });
     } else if (piece.toLowerCase() === "n") {
@@ -470,9 +474,13 @@ document.addEventListener("DOMContentLoaded", () => {
         while (true) {
           newX += dx;
           newY += dy;
-          if (newX < 0 || newX >= 8 || newY < 0 || newY < 8) break;
-          moves.push({ toX: newX, toY: newY });
-          if (tempBoard[newY][newX]) break;
+          if (newX < 0 || newX >= 8 || newY < 0 || newY >= 8) break;
+          if (tempBoard[newY] && tempBoard[newY][newX] !== undefined) {
+            moves.push({ toX: newX, toY: newY });
+            if (tempBoard[newY][newX]) break;
+          } else {
+            break;
+          }
         }
       });
     } else if (piece.toLowerCase() === "q") {
@@ -483,9 +491,13 @@ document.addEventListener("DOMContentLoaded", () => {
         while (true) {
           newX += dx;
           newY += dy;
-          if (newX < 0 || newX >= 8 || newY < 0 || newY < 8) break;
-          moves.push({ toX: newX, toY: newY });
-          if (tempBoard[newY][newX]) break;
+          if (newX < 0 || newX >= 8 || newY < 0 || newY >= 8) break;
+          if (tempBoard[newY] && tempBoard[newY][newX] !== undefined) {
+            moves.push({ toX: newX, toY: newY });
+            if (tempBoard[newY][newX]) break;
+          } else {
+            break;
+          }
         }
       });
     } else if (piece.toLowerCase() === "k") {
@@ -591,15 +603,13 @@ document.addEventListener("DOMContentLoaded", () => {
         while (true) {
           newX += dx;
           newY += dy;
-          if (newX < 0 || newX >= 8 || newY < 0 || newY < 8) break;
-          const targetPiece = tempBoard[newY][newX];
-          if (targetPiece) {
-            if ((targetPiece === targetPiece.toUpperCase()) !== isWhite) {
-              moves.push({ toX: newX, toY: newY });
-            }
+          if (newX < 0 || newX >= 8 || newY < 0 || newY >= 8) break;
+          if (tempBoard[newY] && tempBoard[newY][newX] !== undefined) {
+            moves.push({ toX: newX, toY: newY });
+            if (tempBoard[newY][newX]) break;
+          } else {
             break;
           }
-          moves.push({ toX: newX, toY: newY });
         }
       });
     } else if (piece.toLowerCase() === "k") {
@@ -819,7 +829,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!gameStarted || gameOver) return;
     event.preventDefault();
     const rect = canvas.getBoundingClientRect();
-    const scaleX = canvas.width / rect.width;   // Adjust for canvas scaling
+    const scaleX = canvas.width / rect.width;
     const scaleY = canvas.height / rect.height;
     let clientX, clientY;
     if (event.type === "touchstart" || event.type === "touchmove") {
