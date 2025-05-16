@@ -241,8 +241,8 @@ document.addEventListener("DOMContentLoaded", () => {
       console.error("Canvas context not available.");
       return;
     }
-    const expectedWidth = size * 8 + offsetX * 2;
-    const expectedHeight = size * 8 + offsetY * 2;
+    const expectedWidth = Math.round(size * 8 + offsetX * 2); // Round to nearest integer
+    const expectedHeight = Math.round(size * 8 + offsetY * 2); // Round to nearest integer
     if (canvas.width !== expectedWidth || canvas.height !== expectedHeight) {
       console.warn("Canvas dimensions mismatch detected. Expected:", expectedWidth, expectedHeight, "Got:", canvas.width, canvas.height);
       canvas.width = expectedWidth;
@@ -339,10 +339,10 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     const boardSize = Math.min(maxWidth / 8, maxHeight / 8, CONFIG.defaultBoardSize);
     size = Math.floor(Math.max(boardSize, CONFIG.minBoardSize));
-    const totalWidth = size * 8;
-    const totalHeight = size * 8;
-    offsetX = (maxWidth - totalWidth) / 2 * CONFIG.offset;
-    offsetY = (maxHeight - totalHeight) / 2 * CONFIG.offset;
+    const totalWidth = Math.round(size * 8); // Round to nearest integer
+    const totalHeight = Math.round(size * 8); // Round to nearest integer
+    offsetX = Math.round((maxWidth - totalWidth) / 2 * CONFIG.offset); // Round to nearest integer
+    offsetY = Math.round((maxHeight - totalHeight) / 2 * CONFIG.offset); // Round to nearest integer
     canvas.width = totalWidth + offsetX * 2;
     canvas.height = totalHeight + offsetY * 2;
     if (gameStarted) {
