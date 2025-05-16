@@ -240,7 +240,7 @@ document.addEventListener("DOMContentLoaded", () => {
           ctx.fillStyle = isDarkmode ? "#505050" : "#c0c0c0";
         }
         
-        // Highlight legal moves with darker gray and dots, and captures in light red
+        // Highlight legal moves with darker gray and a single circle, and captures in light red
         const legalMove = legalMoves.find((move) => move.toX === x && move.toY === y);
         if (legalMove) {
           const targetPiece = board[y][x];
@@ -251,19 +251,15 @@ document.addEventListener("DOMContentLoaded", () => {
         // Draw the square
         ctx.fillRect(offsetX + displayX * size, offsetY + displayY * size, size, size);
 
-        // Add dotted pattern for legal moves (excluding captures)
+        // Add a single circle for legal moves (excluding captures)
         if (legalMove && !((board[y][x] && (board[y][x] === board[y][x].toUpperCase()) !== (selectedPiece.piece === selectedPiece.piece.toUpperCase())))) {
           ctx.fillStyle = isDarkmode ? "#a0a0a0" : "#808080";
-          const dotRadius = size * 0.05;
+          const dotRadius = size * 0.1;
           const centerX = offsetX + displayX * size + size / 2;
           const centerY = offsetY + displayY * size + size / 2;
-          for (let dx = -1; dx <= 1; dx += 2) {
-            for (let dy = -1; dy <= 1; dy += 2) {
-              ctx.beginPath();
-              ctx.arc(centerX + dx * size * 0.2, centerY + dy * size * 0.2, dotRadius, 0, 2 * Math.PI);
-              ctx.fill();
-            }
-          }
+          ctx.beginPath();
+          ctx.arc(centerX, centerY, dotRadius, 0, 2 * Math.PI);
+          ctx.fill();
         }
 
         // Highlight king in check
