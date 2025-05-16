@@ -3,37 +3,33 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Modern Chess Player</title>
+  <title>Chess Game</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
   <div id="startScreen">
-    <h1>Modern Chess Player</h1>
     <button id="startButton">Start Game</button>
-    <button id="startFreestyleButton">Freestyle Mode</button>
+    <button id="startFreestyleButton">Start Freestyle</button>
   </div>
   <div id="gameContainer" class="hidden">
-    <div class="game-area">
+    <div id="boardContainer">
       <canvas id="chessboard"></canvas>
-      <div class="side-panel">
-        <div id="controls">
-          <button id="rotateButton">Rotate Board</button>
-          <button id="smartphoneModeButton">Rotate With Player</button>
-          <button id="soundToggleButton">Sound On/Off</button>
-          <button id="undoButton">Undo Move</button>
-          <button id="restartButton">Restart Game</button>
-          <button id="designButton">Change Design</button>
-          <button id="darkmodeToggleButton">Toggle Mode</button>
-          <button id="fullscreenButton">Fullscreen</button>
-          <button id="exitFullscreenButton" style="display: none;">Exit Fullscreen</button>
-        </div>
-        <div id="moveHistory">
-          <h3>Move List</h3>
-          <ul id="moveList"></ul>
-        </div>
-      </div>
+      <div id="openingDisplay"></div>
     </div>
-    <div id="openingDisplay">Move: None | White: 10:00 | Black: 10:00</div>
+    <div id="moveListContainer">
+      <ul id="moveList"></ul>
+    </div>
+    <div id="buttonContainer">
+      <button id="rotateButton">Rotate Board</button>
+      <button id="smartphoneModeButton">Rotate On</button>
+      <button id="soundToggleButton">Sound On</button>
+      <button id="undoButton">Undo Move</button>
+      <button id="restartButton" class="hidden">Restart</button>
+      <button id="designButton">Change Design</button>
+      <button id="darkmodeToggleButton">Dark Mode</button>
+      <button id="fullscreenButton">Fullscreen</button>
+      <button id="exitFullscreenButton" style="display: none;">Exit Fullscreen</button>
+    </div>
   </div>
   <script src="script.js"></script>
 </body>
