@@ -21,6 +21,7 @@ document.addEventListener("DOMContentLoaded", () => {
     moveSound: "move.mp3",
     checkSound: "check.mp3",
     captureSound: "clap.mp3",
+    checkmateSound: "checkmate.mp3",
   };
 
   const canvas = document.getElementById("chessboard");
@@ -208,7 +209,7 @@ document.addEventListener("DOMContentLoaded", () => {
       console.error("Canvas context not available.");
       return;
     }
-    // Safeguard: Ensure canvas dimensions match the intended size to prevent unintended scaling
+    // Safeguard: Ensure canvas dimensions match the intended size
     const expectedWidth = size * 8 + offsetX * 2;
     const expectedHeight = size * 8 + offsetY * 2;
     if (canvas.width !== expectedWidth || canvas.height !== expectedHeight) {
@@ -226,21 +227,53 @@ document.addEventListener("DOMContentLoaded", () => {
       for (let x = 0; x < 8; x++) {
         const displayY = effectiveRotation ? 7 - y : y;
         const displayX = effectiveRotation ? 7 - x : x;
+        // Base square color
         ctx.fillStyle = (displayX + displayY) % 2 === 0 ? window.boardColors.light : window.boardColors.dark;
+        
+        // Highlight last move in light gray
         if (lastMove && ((lastMove.fromX === x && lastMove.fromY === y) || (lastMove.toX === x && lastMove.toY === y))) {
-          ctx.fillStyle = isDarkmode ? "#606060" : "#d3d3d3";
+          ctx.fillStyle = isDarkmode ? "#707070" : "#e0e0e0";
         }
+        
+        // Highlight selected piece
         if (selectedPiece && selectedPiece.x === x && selectedPiece.y === y) {
           ctx.fillStyle = isDarkmode ? "#505050" : "#c0c0c0";
         }
-        if (legalMoves.some((move) => move.toX === x && move.toY === y)) {
-          ctx.fillStyle = isDarkmode ? "#404040" : "#e0e0e0";
+        
+        // Highlight legal moves with darker gray and dots, and captures in light red
+        const legalMove = legalMoves.find((move) => move.toX === x && move.toY === y);
+        if (legalMove) {
+          const targetPiece = board[y][x];
+          const isCapture = targetPiece && (targetPiece === targetPiece.toUpperCase()) !== (selectedPiece.piece === selectedPiece.piece.toUpperCase());
+          ctx.fillStyle = isCapture ? (isDarkmode ? "#cc6666" : "#ffcccc") : (isDarkmode ? "#505050" : "#c0c0c0");
         }
+
+        // Draw the square
+        ctx.fillRect(offsetX + displayX * size, offsetY + displayY * size, size, size);
+
+        // Add dotted pattern for legal moves (excluding captures)
+        if (legalMove && !((board[y][x] && (board[y][x] === board[y][x].toUpperCase()) !== (selectedPiece.piece === selectedPiece.piece.toUpperCase())))) {
+          ctx.fillStyle = isDarkmode ? "#a0a0a0" : "#808080";
+          const dotRadius = size * 0.05;
+          const centerX = offsetX + displayX * size + size / 2;
+          const centerY = offsetY + displayY * size + size / 2;
+          for (let dx = -1; dx <= 1; dx += 2) {
+            for (let dy = -1; dy <= 1; dy += 2) {
+              ctx.beginPath();
+              ctx.arc(centerX + dx * size * 0.2, centerY + dy * size * 0.2, dotRadius, 0, 2 * Math.PI);
+              ctx.fill();
+            }
+          }
+        }
+
+        // Highlight king in check
         if ((isWhiteInCheck && kingPositions.white && kingPositions.white.x === x && kingPositions.white.y === y) ||
             (isBlackInCheck && kingPositions.black && kingPositions.black.x === x && kingPositions.black.y === y)) {
           ctx.fillStyle = gameOver ? "#a94442" : "#d9534f";
+          ctx.fillRect(offsetX + displayX * size, offsetY + displayY * size, size, size);
         }
-        ctx.fillRect(offsetX + displayX * size, offsetY + displayY * size, size, size);
+
+        // Draw piece
         const piece = board[y][x];
         if (piece) {
           const isWhite = piece === piece.toUpperCase();
@@ -252,6 +285,8 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       }
     }
+
+    // Draw coordinates
     ctx.fillStyle = isDarkmode ? "#e0e0e0" : "#333";
     ctx.font = `${size * 0.25}px Arial`;
     if (!effectiveRotation) {
@@ -265,6 +300,7 @@ document.addEventListener("DOMContentLoaded", () => {
         ctx.fillText(i + 1, offsetX - size * 0.4, offsetY + (7 - i) * size + size / 2);
       }
     }
+
     if (gameOver) {
       openingDisplay.textContent = winnerText;
     } else {
@@ -808,9 +844,14 @@ document.addEventListener("DOMContentLoaded", () => {
       if (hasMoves) break;
     }
     if (!hasMoves) {
-      if (isWhiteInCheck || isBlackInCheck) {
+      const isCheckmate = isWhiteInCheck || isBlackInCheck;
+      if (isCheckmate) {
         gameOver = true;
         winnerText = isWhiteInCheck ? "Black wins!" : "White wins!";
+        if (soundEnabled) {
+          const audio = new Audio(SOUND.checkmateSound);
+          audio.play().catch((e) => console.error("Checkmate audio play failed:", e));
+        }
       } else {
         gameOver = true;
         winnerText = "Draw (Stalemate)!";
