@@ -56,15 +56,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
   if (missingElements.length > 0) {
     console.error("The following DOM elements are missing:", missingElements.join(", "));
-    alert("Error: Missing DOM elements: " + missingElements.join(", ") + ". Please check the console.");
-    return;
+    alert("Error: Missing DOM elements: " + missingElements.join(", ") + ". Please check the HTML and console.");
+    throw new Error("Missing DOM elements: " + missingElements.join(", "));
   }
 
   const ctx = canvas.getContext("2d");
   if (!ctx) {
     console.error("Failed to initialize canvas context.");
     alert("Error: Canvas context could not be initialized.");
-    return;
+    throw new Error("Canvas context initialization failed");
   }
 
   // Game state variables
@@ -331,18 +331,18 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function resizeCanvas() {
-    let maxWidth = window.innerWidth * CONFIG.maxWidthFactor * (fullscreenMode ? 1.3 : 0.7);
-    let maxHeight = window.innerHeight * CONFIG.maxHeightFactor * (fullscreenMode ? 1.2 : 0.9);
+    let maxWidth = Math.round(window.innerWidth * CONFIG.maxWidthFactor * (fullscreenMode ? 1.3 : 0.7));
+    let maxHeight = Math.round(window.innerHeight * CONFIG.maxHeightFactor * (fullscreenMode ? 1.2 : 0.9));
     if (window.innerWidth <= 768) {
-      maxWidth = window.innerWidth * CONFIG.maxWidthFactor * (fullscreenMode ? 1.3 : 1.0);
-      maxHeight = window.innerHeight * CONFIG.maxHeightFactor * (fullscreenMode ? 1.2 : 0.6);
+      maxWidth = Math.round(window.innerWidth * CONFIG.maxWidthFactor * (fullscreenMode ? 1.3 : 1.0));
+      maxHeight = Math.round(window.innerHeight * CONFIG.maxHeightFactor * (fullscreenMode ? 1.2 : 0.6));
     }
     const boardSize = Math.min(maxWidth / 8, maxHeight / 8, CONFIG.defaultBoardSize);
     size = Math.floor(Math.max(boardSize, CONFIG.minBoardSize));
-    const totalWidth = Math.round(size * 8); // Round to nearest integer
-    const totalHeight = Math.round(size * 8); // Round to nearest integer
-    offsetX = Math.round((maxWidth - totalWidth) / 2 * CONFIG.offset); // Round to nearest integer
-    offsetY = Math.round((maxHeight - totalHeight) / 2 * CONFIG.offset); // Round to nearest integer
+    const totalWidth = Math.round(size * 8);
+    const totalHeight = Math.round(size * 8);
+    offsetX = Math.round((maxWidth - totalWidth) / 2 * CONFIG.offset);
+    offsetY = Math.round((maxHeight - totalHeight) / 2 * CONFIG.offset);
     canvas.width = totalWidth + offsetX * 2;
     canvas.height = totalHeight + offsetY * 2;
     if (gameStarted) {
@@ -1102,9 +1102,11 @@ document.addEventListener("DOMContentLoaded", () => {
     console.log("startButton:", startButton);
     console.log("startFreestyleButton:", startFreestyleButton);
 
+    // Stricter validation for start buttons
     if (!startButton || !startFreestyleButton) {
-      console.error("Start buttons not found in DOM. Check index.html for correct IDs.");
-      return;
+      console.error("Start buttons not found in DOM. Expected elements with IDs 'startButton' and 'startFreestyleButton'. Check index.html for correct IDs.");
+      alert("Error: Start buttons not found. Please check the HTML for elements with IDs 'startButton' and 'startFreestyleButton'.");
+      throw new Error("Start buttons not found in DOM");
     }
 
     startButton.addEventListener("click", () => {
