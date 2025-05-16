@@ -7,7 +7,11 @@
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <div id="gameContainer" class="game-container">
+  <div id="startScreen" class="start-screen">
+    <button id="startButton">Start Game</button>
+    <button id="startFreestyleButton">Start Freestyle</button>
+  </div>
+  <div id="gameContainer" class="game-container hidden">
     <div id="turnDisplay" class="turn-display">White is next</div>
     <div class="canvas-container">
       <canvas id="chessboard"></canvas>
@@ -18,7 +22,6 @@
       <button id="soundToggleButton">Sound On</button>
       <button id="undoButton">Undo Move</button>
       <button id="restartButton" class="hidden">Restart Game</button>
-      <button id="startFreestyleButton">Start Freestyle</button>
       <button id="designButton">Change Design</button>
       <button id="darkmodeToggleButton">Dark Mode</button>
       <button id="fullscreenButton">Fullscreen</button>
