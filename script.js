@@ -27,9 +27,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // DOM elements
   const canvas = document.getElementById("chessboard");
-  const startScreen = document.getElementById("startScreen");
-  const startButton = document.getElementById("startButton");
-  const startFreestyleButton = document.getElementById("startFreestyleButton");
   const gameContainer = document.getElementById("gameContainer");
   const turnDisplay = document.getElementById("turnDisplay");
   const rotateButton = document.getElementById("rotateButton");
@@ -37,6 +34,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const soundToggleButton = document.getElementById("soundToggleButton");
   const undoButton = document.getElementById("undoButton");
   const restartButton = document.getElementById("restartButton");
+  const startFreestyleButton = document.getElementById("startFreestyleButton");
   const moveList = document.getElementById("moveList");
   const openingDisplay = document.getElementById("openingDisplay");
   const designButton = document.getElementById("designButton");
@@ -45,9 +43,9 @@ document.addEventListener("DOMContentLoaded", () => {
   const exitFullscreenButton = document.getElementById("exitFullscreenButton");
 
   // Validate DOM elements
-  if (!canvas || !startScreen || !startButton || !startFreestyleButton || !gameContainer || !turnDisplay) {
+  if (!canvas || !gameContainer || !turnDisplay || !startFreestyleButton) {
     console.error("One or more DOM elements are missing. Check index.html for correct IDs:", {
-      canvas, startScreen, startButton, startFreestyleButton, gameContainer, turnDisplay
+      canvas, gameContainer, turnDisplay, startFreestyleButton
     });
     alert("Error: One or more DOM elements are missing. Please check the console.");
     return;
@@ -134,21 +132,18 @@ document.addEventListener("DOMContentLoaded", () => {
   document.body.classList.toggle("darkmode", isDarkmode);
 
   // Ensure initial visibility state
-  startScreen.style.display = "block";
-  gameContainer.style.display = "none";
+  gameContainer.style.display = "flex";
   restartButton.classList.add("hidden");
-  darkmodeToggleButton.style.display = "none";
-  fullscreenButton.style.display = "none";
+  darkmodeToggleButton.style.display = "block";
+  fullscreenButton.style.display = "block";
   exitFullscreenButton.style.display = "none";
-  console.log("Initial visibility set: startScreen visible, gameContainer hidden");
+  console.log("Initial visibility set: gameContainer visible");
 
   function initializeDarkmodeToggle() {
-    if (darkmodeToggleButton && gameStarted) {
+    if (darkmodeToggleButton) {
       darkmodeToggleButton.textContent = isDarkmode ? "Light Mode" : "Dark Mode";
       darkmodeToggleButton.removeEventListener("click", toggleDarkmodeHandler);
       darkmodeToggleButton.addEventListener("click", toggleDarkmodeHandler);
-    } else if (darkmodeToggleButton && !gameStarted) {
-      darkmodeToggleButton.style.display = "none";
     }
   }
 
@@ -253,7 +248,7 @@ document.addEventListener("DOMContentLoaded", () => {
         ctx.fillStyle = (displayX + displayY) % 2 === 0 ? window.boardColors.light : window.boardColors.dark;
         
         if (lastMove && ((lastMove.fromX === x && lastMove.fromY === y) || (lastMove.toX === x && lastMove.toY === y))) {
-          ctx.fillStyle = isDarkmode ? "#808080" : "#f0f0f0";
+          ctx.fillStyle = isDarkmode ? "#999999" : "#f5f5f5"; // Lightened last move highlight
         }
         
         if (selectedPiece && selectedPiece.x === x && selectedPiece.y === y) {
@@ -393,11 +388,9 @@ document.addEventListener("DOMContentLoaded", () => {
     fullscreenButton.style.display = "block";
     exitFullscreenButton.style.display = "none";
     moveList.innerHTML = "";
-    startScreen.style.display = "none";
     gameContainer.style.display = "flex";
     restartButton.classList.remove("hidden");
     darkmodeToggleButton.style.display = "block";
-    console.log("Game started: startScreen hidden, gameContainer visible");
     if (freestyle) {
       const shuffledRow = shuffleArray(["r", "n", "b", "q", "k", "b", "n", "r"]);
       board = [
@@ -1032,18 +1025,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function initializeGameButtons() {
     console.log("Initializing game buttons...");
-    console.log("startButton:", startButton);
     console.log("startFreestyleButton:", startFreestyleButton);
 
-    if (!startButton || !startFreestyleButton) {
-      console.error("Start buttons not found in DOM. Check index.html for correct IDs.");
+    if (!startFreestyleButton) {
+      console.error("Start Freestyle button not found in DOM. Check index.html for correct ID.");
       return;
     }
 
-    startButton.addEventListener("click", () => {
-      console.log("Start Game button clicked");
-      startGame(false);
-    });
     startFreestyleButton.addEventListener("click", () => {
       console.log("Start Freestyle button clicked");
       startGame(true);
@@ -1107,4 +1095,7 @@ document.addEventListener("DOMContentLoaded", () => {
   window.addEventListener("resize", resizeCanvas);
   initializeGameButtons();
   resizeCanvas();
+
+  // Start the game automatically in standard mode
+  startGame(false);
 });
