@@ -209,7 +209,6 @@ document.addEventListener("DOMContentLoaded", () => {
       console.error("Canvas context not available.");
       return;
     }
-    // Safeguard: Ensure canvas dimensions match the intended size
     const expectedWidth = size * 8 + offsetX * 2;
     const expectedHeight = size * 8 + offsetY * 2;
     if (canvas.width !== expectedWidth || canvas.height !== expectedHeight) {
@@ -227,20 +226,16 @@ document.addEventListener("DOMContentLoaded", () => {
       for (let x = 0; x < 8; x++) {
         const displayY = effectiveRotation ? 7 - y : y;
         const displayX = effectiveRotation ? 7 - x : x;
-        // Base square color
         ctx.fillStyle = (displayX + displayY) % 2 === 0 ? window.boardColors.light : window.boardColors.dark;
         
-        // Highlight last move in light gray
         if (lastMove && ((lastMove.fromX === x && lastMove.fromY === y) || (lastMove.toX === x && lastMove.toY === y))) {
           ctx.fillStyle = isDarkmode ? "#707070" : "#e0e0e0";
         }
         
-        // Highlight selected piece
         if (selectedPiece && selectedPiece.x === x && selectedPiece.y === y) {
           ctx.fillStyle = isDarkmode ? "#505050" : "#c0c0c0";
         }
         
-        // Highlight legal moves with darker gray and a single circle, and captures in light red
         const legalMove = legalMoves.find((move) => move.toX === x && move.toY === y);
         if (legalMove) {
           const targetPiece = board[y][x];
@@ -248,10 +243,8 @@ document.addEventListener("DOMContentLoaded", () => {
           ctx.fillStyle = isCapture ? (isDarkmode ? "#cc6666" : "#ffcccc") : (isDarkmode ? "#505050" : "#c0c0c0");
         }
 
-        // Draw the square
         ctx.fillRect(offsetX + displayX * size, offsetY + displayY * size, size, size);
 
-        // Add a single circle for legal moves (excluding captures)
         if (legalMove && !((board[y][x] && (board[y][x] === board[y][x].toUpperCase()) !== (selectedPiece.piece === selectedPiece.piece.toUpperCase())))) {
           ctx.fillStyle = isDarkmode ? "#a0a0a0" : "#808080";
           const dotRadius = size * 0.1;
@@ -262,14 +255,12 @@ document.addEventListener("DOMContentLoaded", () => {
           ctx.fill();
         }
 
-        // Highlight king in check
         if ((isWhiteInCheck && kingPositions.white && kingPositions.white.x === x && kingPositions.white.y === y) ||
             (isBlackInCheck && kingPositions.black && kingPositions.black.x === x && kingPositions.black.y === y)) {
           ctx.fillStyle = gameOver ? "#a94442" : "#d9534f";
           ctx.fillRect(offsetX + displayX * size, offsetY + displayY * size, size, size);
         }
 
-        // Draw piece
         const piece = board[y][x];
         if (piece) {
           const isWhite = piece === piece.toUpperCase();
@@ -282,7 +273,6 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     }
 
-    // Draw coordinates
     ctx.fillStyle = isDarkmode ? "#e0e0e0" : "#333";
     ctx.font = `${size * 0.25}px Arial`;
     if (!effectiveRotation) {
