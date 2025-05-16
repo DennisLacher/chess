@@ -63,10 +63,19 @@ body.darkmode {
   flex-direction: column;
   align-items: center;
   gap: 10px;
-  padding: 20px;
+  padding: 10px;
   width: 250px;
   max-height: 90vh;
   overflow-y: auto;
+}
+
+/* Button Container for Sidebar */
+.sidebar-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
 }
 
 /* Modern Button Styles */
@@ -100,6 +109,29 @@ body.darkmode button {
 
 body.darkmode button:hover {
   background-color: #4a90e2;
+}
+
+/* Sidebar Button Styles (More Compact and Modern) */
+.sidebar button {
+  padding: 8px 16px;
+  font-size: 14px;
+  border-radius: 10px;
+  background-color: #5a9cf5;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15);
+  width: 45%; /* Two buttons per row with some spacing */
+  margin: 0;
+}
+
+.sidebar button:hover {
+  background-color: #4682b4;
+}
+
+body.darkmode .sidebar button {
+  background-color: #77b5fe;
+}
+
+body.darkmode .sidebar button:hover {
+  background-color: #5a9cf5;
 }
 
 /* Promotion Button Styles */
@@ -148,13 +180,15 @@ body.darkmode .opening-display {
 /* Move List Styles */
 .move-list {
   list-style: none;
-  width: 100%;
+  width: 90%;
   max-height: 200px;
   overflow-y: auto;
   border: 1px solid #ccc;
   border-radius: 5px;
   padding: 10px;
   background-color: #e0e0e0;
+  margin: 10px auto;
+  text-align: center;
 }
 
 body.darkmode .move-list {
@@ -220,22 +254,29 @@ body.fullscreen {
   .sidebar {
     width: 100%;
     max-width: 300px;
-    flex-direction: row;
-    flex-wrap: wrap;
-    justify-content: center;
+    flex-direction: column;
     padding: 10px;
     max-height: none;
     overflow-y: visible;
   }
 
-  button {
-    width: auto;
-    margin: 5px;
+  .sidebar-buttons {
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
+  }
+
+  .sidebar button {
+    width: 45%;
+    padding: 6px 12px;
+    font-size: 12px;
   }
 
   .move-list {
     max-height: 100px;
-    width: 80%;
+    width: 90%;
+    margin: 10px auto;
   }
 
   .opening-display {
