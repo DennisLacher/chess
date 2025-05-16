@@ -29,6 +29,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const startButton = document.getElementById("startButton");
   const startFreestyleButton = document.getElementById("startFreestyleButton");
   const gameContainer = document.getElementById("gameContainer");
+  const turnDisplay = document.getElementById("turnDisplay");
   const rotateButton = document.getElementById("rotateButton");
   const smartphoneModeButton = document.getElementById("smartphoneModeButton");
   const soundToggleButton = document.getElementById("soundToggleButton");
@@ -41,9 +42,9 @@ document.addEventListener("DOMContentLoaded", () => {
   const fullscreenButton = document.getElementById("fullscreenButton");
   const exitFullscreenButton = document.getElementById("exitFullscreenButton");
 
-  if (!canvas || !startScreen || !startButton || !startFreestyleButton || !gameContainer) {
+  if (!canvas || !startScreen || !startButton || !startFreestyleButton || !gameContainer || !turnDisplay) {
     console.error("One or more DOM elements are missing. Check index.html for correct IDs:", {
-      canvas, startScreen, startButton, startFreestyleButton, gameContainer
+      canvas, startScreen, startButton, startFreestyleButton, gameContainer, turnDisplay
     });
     alert("Error: One or more DOM elements are missing. Please check the console.");
     return;
@@ -142,6 +143,10 @@ document.addEventListener("DOMContentLoaded", () => {
     drawBoard();
   }
 
+  function updateTurnDisplay() {
+    turnDisplay.textContent = gameOver ? winnerText : `${currentPlayer === "white" ? "White" : "Black"} is next`;
+  }
+
   function updateOpeningDisplay() {
     const moves = moveNotations.map((m) => m.notation).filter((n) => !n.includes("-"));
     let moveText = `Move: ${moves[moves.length - 1] || "None"}`;
@@ -200,6 +205,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       }
       updateOpeningDisplay();
+      updateTurnDisplay();
       drawBoard();
     }, 1000);
   }
@@ -295,11 +301,11 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function resizeCanvas() {
-    let maxWidth = window.innerWidth * CONFIG.maxWidthFactor * 0.7;
-    let maxHeight = window.innerHeight * CONFIG.maxHeightFactor * 0.9;
+    let maxWidth = window.innerWidth * CONFIG.maxWidthFactor * (fullscreenMode ? 1.2 : 0.7);
+    let maxHeight = window.innerHeight * CONFIG.maxHeightFactor * (fullscreenMode ? 1.2 : 0.9);
     if (window.innerWidth <= 768) {
-      maxWidth = window.innerWidth * CONFIG.maxWidthFactor;
-      maxHeight = window.innerHeight * CONFIG.maxHeightFactor * 0.6;
+      maxWidth = window.innerWidth * CONFIG.maxWidthFactor * (fullscreenMode ? 1.2 : 1.0);
+      maxHeight = window.innerHeight * CONFIG.maxHeightFactor * (fullscreenMode ? 1.2 : 0.6);
     }
     const boardSize = Math.min(maxWidth / 8, maxHeight / 8, CONFIG.defaultBoardSize);
     size = Math.floor(Math.max(boardSize, CONFIG.minBoardSize));
@@ -321,6 +327,7 @@ document.addEventListener("DOMContentLoaded", () => {
           console.error("Failed to enter fullscreen mode:", err);
         });
       }
+      document.body.classList.add("fullscreen");
       fullscreenMode = true;
     } else {
       if (document.exitFullscreen) {
@@ -328,6 +335,7 @@ document.addEventListener("DOMContentLoaded", () => {
           console.error("Failed to exit fullscreen mode:", err);
         });
       }
+      document.body.classList.remove("fullscreen");
       fullscreenMode = false;
     }
     fullscreenButton.style.display = fullscreenMode ? "none" : "block";
@@ -338,6 +346,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   document.addEventListener('fullscreenchange', () => {
     fullscreenMode = !!document.fullscreenElement;
+    document.body.classList.toggle("fullscreen", fullscreenMode);
     fullscreenButton.style.display = fullscreenMode ? "none" : "block";
     exitFullscreenButton.style.display = fullscreenMode ? "block" : "none";
     resizeCanvas();
@@ -400,6 +409,7 @@ document.addEventListener("DOMContentLoaded", () => {
     drawBoard();
     startTimer();
     initializeDarkmodeToggle();
+    updateTurnDisplay();
   }
 
   function shuffleArray(array) {
