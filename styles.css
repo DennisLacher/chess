@@ -36,13 +36,15 @@ body.darkmode {
 #startScreen .button-group {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  justify-content: center;
+  align-items: center;
+  gap: 15px;
+  width: 100%;
 }
 
 #startScreen button {
-  padding: 10px 20px;
+  padding: 12px 24px;
   font-size: 18px;
-  margin: 5px 0;
   cursor: pointer;
   background-color: #4CAF50;
   color: white;
@@ -116,15 +118,20 @@ body.darkmode {
 /* Game Buttons */
 .game-buttons {
   display: flex;
-  flex-wrap: wrap;
+  flex-direction: column;
   justify-content: center;
+  align-items: center;
   gap: 10px;
   margin: 10px 0;
+  width: 100%;
+  max-width: 600px; /* Begrenzt die Breite, damit die Buttons nicht zu breit werden */
 }
 
 .game-buttons .button-row {
   display: flex;
+  justify-content: center;
   gap: 10px;
+  flex-wrap: nowrap; /* Verhindert das Umbrechen in mehrere Zeilen */
 }
 
 .game-buttons .button-row:nth-child(1),
@@ -222,17 +229,13 @@ body.fullscreen .game-buttons {
   flex-direction: column;
   align-items: center;
   width: 100%;
+  max-width: 600px;
 }
 
 body.fullscreen .game-buttons .button-row {
-  flex-direction: column;
+  flex-direction: row; /* Buttons bleiben nebeneinander */
+  justify-content: center;
   width: 100%;
-  align-items: center;
-}
-
-body.fullscreen button {
-  width: 80%;
-  margin: 5px 0;
 }
 
 /* Responsive Design */
@@ -251,23 +254,23 @@ body.fullscreen button {
     width: 150px;
   }
 
-  .game-buttons {
-    flex-direction: column;
-    align-items: center;
-  }
-
   .game-buttons .button-row {
     flex-direction: column;
+    align-items: center;
     width: 100%;
   }
 
   button {
-    width: 100%;
+    width: 80%;
     margin: 5px 0;
   }
 
   #moveList {
     width: 150px;
     max-height: 150px;
+  }
+
+  body.fullscreen .game-buttons .button-row {
+    flex-direction: column; /* Auf kleinen Bildschirmen im Vollbild vertikal */
   }
 }
