@@ -254,16 +254,22 @@ document.addEventListener("DOMContentLoaded", () => {
       console.error("Canvas context not available.");
       return;
     }
+
+    // Force canvas dimensions and visibility
     const expectedWidth = Math.round(size * 8 + offsetX * 2);
     const expectedHeight = Math.round(size * 8 + offsetY * 2);
-    if (canvas.width !== expectedWidth || canvas.height !== expectedHeight) {
-      console.warn("Canvas dimensions mismatch detected. Expected:", expectedWidth, expectedHeight, "Got:", canvas.width, canvas.height);
-      canvas.width = expectedWidth;
-      canvas.height = expectedHeight;
-    }
+    canvas.width = expectedWidth;
+    canvas.height = expectedHeight;
+    canvas.style.width = `${expectedWidth}px`;
+    canvas.style.height = `${expectedHeight}px`;
+    canvas.style.display = "block";
+    canvas.style.visibility = "visible";
+    canvas.style.opacity = "1";
+    canvas.style.position = "relative";
 
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.globalCompositeOperation = 'source-over';
+    // Test rendering with a simple rectangle
+    ctx.fillStyle = "#FF0000"; // Red rectangle for debugging
+    ctx.fillRect(0, 0, 50, 50); // Draw a small red square in the top-left corner
 
     let effectiveRotation = rotateBoard;
     if (smartphoneMode) {
@@ -340,7 +346,7 @@ document.addEventListener("DOMContentLoaded", () => {
       updateOpeningDisplay();
     }
 
-    // Debug canvas visibility after drawing
+    // Debug canvas visibility and content after drawing
     console.log("Canvas styles after drawBoard:", {
       display: canvas.style.display,
       visibility: canvas.style.visibility,
@@ -348,6 +354,8 @@ document.addEventListener("DOMContentLoaded", () => {
       position: canvas.style.position,
       width: canvas.style.width,
       height: canvas.style.height,
+      computedWidth: canvas.offsetWidth,
+      computedHeight: canvas.offsetHeight,
     });
     console.log("GameContainer styles:", {
       display: gameContainer.style.display,
@@ -386,7 +394,6 @@ document.addEventListener("DOMContentLoaded", () => {
     offsetY = Math.round((maxHeight - totalHeight) / 2 * CONFIG.offset);
     canvas.width = totalWidth + offsetX * 2;
     canvas.height = totalHeight + offsetY * 2;
-    // Set canvas CSS dimensions to match pixel dimensions
     canvas.style.width = `${canvas.width}px`;
     canvas.style.height = `${canvas.height}px`;
     console.log("Canvas resized to:", canvas.width, canvas.height);
