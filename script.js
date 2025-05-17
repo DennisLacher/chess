@@ -45,7 +45,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const exitFullscreenButton = document.getElementById("exitFullscreenButton");
   const closeFullscreenButton = document.getElementById("closeFullscreenButton");
 
-  // Detailed DOM validation
+  // Validate DOM elements
   const missingElements = [];
   if (!canvas) missingElements.push("canvas (id='chessboard')");
   if (!startScreen) missingElements.push("startScreen (id='startScreen')");
@@ -162,21 +162,6 @@ document.addEventListener("DOMContentLoaded", () => {
   closeFullscreenButton.style.display = "none";
   console.log("Initial visibility set: startScreen visible, gameContainer hidden");
 
-  // Debug button alignment in startScreen
-  console.log("StartScreen styles:", {
-    display: startScreen.style.display,
-    justifyContent: getComputedStyle(startScreen).justifyContent,
-    alignItems: getComputedStyle(startScreen).alignItems,
-  });
-  const buttonGroup = startScreen.querySelector(".button-group");
-  if (buttonGroup) {
-    console.log("ButtonGroup styles:", {
-      display: buttonGroup.style.display,
-      justifyContent: getComputedStyle(buttonGroup).justifyContent,
-      alignItems: getComputedStyle(buttonGroup).alignItems,
-    });
-  }
-
   function initializeDarkmodeToggle() {
     if (darkmodeToggleButton && gameStarted) {
       darkmodeToggleButton.textContent = isDarkmode ? "Light Mode" : "Dark Mode";
@@ -270,7 +255,10 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    // Force canvas dimensions and visibility
+    // Debug: Draw a red rectangle to ensure canvas rendering
+    ctx.fillStyle = "red";
+    ctx.fillRect(0, 0, 50, 50);
+
     const expectedWidth = Math.round(size * 8 + offsetX * 2);
     const expectedHeight = Math.round(size * 8 + offsetY * 2);
     canvas.width = expectedWidth;
@@ -357,7 +345,6 @@ document.addEventListener("DOMContentLoaded", () => {
       updateOpeningDisplay();
     }
 
-    // Debug canvas visibility and content after drawing
     console.log("Canvas styles after drawBoard:", {
       display: canvas.style.display,
       visibility: canvas.style.visibility,
@@ -376,7 +363,6 @@ document.addEventListener("DOMContentLoaded", () => {
     console.log("drawBoard completed");
   }
 
-  // Debounce function to prevent excessive resize events
   function debounce(func, wait) {
     let timeout;
     return function executedFunction(...args) {
@@ -415,7 +401,6 @@ document.addEventListener("DOMContentLoaded", () => {
     console.log("resizeCanvas completed");
   }
 
-  // Debounced resize handler
   const debouncedResizeCanvas = debounce(resizeCanvas, 200);
 
   function toggleFullscreenMode() {
@@ -465,24 +450,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     resizeCanvas();
     drawBoard();
-    // Debug button alignment after fullscreen toggle
-    const gameButtons = gameContainer.querySelector(".game-buttons");
-    if (gameButtons) {
-      console.log("GameButtons styles after fullscreen toggle:", {
-        display: gameButtons.style.display,
-        flexDirection: getComputedStyle(gameButtons).flexDirection,
-        justifyContent: getComputedStyle(gameButtons).justifyContent,
-        alignItems: getComputedStyle(gameButtons).alignItems,
-      });
-      const buttonRows = gameButtons.querySelectorAll(".button-row");
-      buttonRows.forEach((row, index) => {
-        console.log(`ButtonRow ${index + 1} styles:`, {
-          display: row.style.display,
-          flexDirection: getComputedStyle(row).flexDirection,
-          justifyContent: getComputedStyle(row).justifyContent,
-        });
-      });
-    }
     console.log("toggleFullscreenMode completed");
   }
 
@@ -521,24 +488,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     resizeCanvas();
     drawBoard();
-    // Debug button alignment after fullscreen change
-    const gameButtons = gameContainer.querySelector(".game-buttons");
-    if (gameButtons) {
-      console.log("GameButtons styles after fullscreenchange:", {
-        display: gameButtons.style.display,
-        flexDirection: getComputedStyle(gameButtons).flexDirection,
-        justifyContent: getComputedStyle(gameButtons).justifyContent,
-        alignItems: getComputedStyle(gameButtons).alignItems,
-      });
-      const buttonRows = gameButtons.querySelectorAll(".button-row");
-      buttonRows.forEach((row, index) => {
-        console.log(`ButtonRow ${index + 1} styles:`, {
-          display: row.style.display,
-          flexDirection: getComputedStyle(row).flexDirection,
-          justifyContent: getComputedStyle(row).justifyContent,
-        });
-      });
-    }
     console.log("fullscreenchange handler completed");
   });
 
@@ -621,25 +570,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
       console.log("Updating turn display...");
       updateTurnDisplay();
-
-      // Debug button alignment after starting game
-      const gameButtons = gameContainer.querySelector(".game-buttons");
-      if (gameButtons) {
-        console.log("GameButtons styles after startGame:", {
-          display: gameButtons.style.display,
-          flexDirection: getComputedStyle(gameButtons).flexDirection,
-          justifyContent: getComputedStyle(gameButtons).justifyContent,
-          alignItems: getComputedStyle(gameButtons).alignItems,
-        });
-        const buttonRows = gameButtons.querySelectorAll(".button-row");
-        buttonRows.forEach((row, index) => {
-          console.log(`ButtonRow ${index + 1} styles:`, {
-            display: row.style.display,
-            flexDirection: getComputedStyle(row).flexDirection,
-            justifyContent: getComputedStyle(row).justifyContent,
-          });
-        });
-      }
 
       console.log("startGame completed successfully");
     } catch (error) {
@@ -1301,16 +1231,90 @@ document.addEventListener("DOMContentLoaded", () => {
     console.log("startButton:", startButton);
     console.log("startFreestyleButton:", startFreestyleButton);
 
-    // Simplified button initialization
-    function initializeButton(element, eventHandler, logMessage) {
-      if (!element) {
-        console.error(`${logMessage} not found. Check HTML for ID.`);
-        alert(`Error: ${logMessage} not found. Please ensure the element exists in the HTML.`);
-        return;
-      }
-      console.log(`${logMessage} initialized:`, element);
-      // Remove any existing listeners to avoid duplicates
-      element.removeEventListener("click", eventHandler);
-      element.addEventListener("click", (event) => {
-        console.log(`${logMessage} clicked, calling handler`);
-        event.stopPropagation(); // Prevent any parent handlers from interfering
+    if (!startButton) {
+      console.error("startButton not found. Check HTML for ID 'startButton'.");
+      alert("Error: Start Button not found. Please ensure the button with ID 'startButton' exists in the HTML.");
+      return;
+    }
+    console.log("startButton initialized:", startButton);
+    startButton.removeEventListener("click", startGameHandler);
+    startButton.addEventListener("click", startGameHandler);
+
+    if (!startFreestyleButton) {
+      console.error("startFreestyleButton not found. Check HTML for ID 'startFreestyleButton'.");
+      alert("Error: Start Freestyle Button not found. Please ensure the button with ID 'startFreestyleButton' exists in the HTML.");
+      return;
+    }
+    console.log("startFreestyleButton initialized:", startFreestyleButton);
+    startFreestyleButton.removeEventListener("click", startFreestyleHandler);
+    startFreestyleButton.addEventListener("click", startFreestyleHandler);
+
+    function startGameHandler() {
+      console.log("startButton handler triggered");
+      startGame(false);
+    }
+
+    function startFreestyleHandler() {
+      console.log("startFreestyleButton handler triggered");
+      startGame(true);
+    }
+
+    rotateButton.addEventListener("click", () => {
+      rotateBoard = !rotateBoard;
+      drawBoard();
+    });
+
+    smartphoneModeButton.addEventListener("click", () => {
+      smartphoneMode = !smartphoneMode;
+      smartphoneModeButton.textContent = `Rotate ${smartphoneMode ? "Off" : "On"}`;
+      drawBoard();
+    });
+
+    soundToggleButton.addEventListener("click", () => {
+      soundEnabled = !soundEnabled;
+      soundToggleButton.textContent = `Sound ${soundEnabled ? "Off" : "On"}`;
+    });
+
+    undoButton.addEventListener("click", () => {
+      if (moveHistory.length === 0) return;
+      const lastState = moveHistory.pop();
+      board = lastState.board;
+      currentPlayer = lastState.currentPlayer;
+      moveCount = lastState.moveCount;
+      castlingAvailability = lastState.castlingAvailability;
+      updateKingPositions();
+      updateCheckStatus();
+      if (currentPlayer === "white") whiteTime = Math.max(whiteTime - CONFIG.undoPenalty, 0);
+      else blackTime = Math.max(blackTime - CONFIG.undoPenalty, 0);
+      showPenaltyMessage();
+      selectedPiece = null;
+      legalMoves = [];
+      moveNotations.pop();
+      lastMove = moveHistory.length > 0 ? moveHistory[moveHistory.length - 1] : null;
+      updateMoveHistory();
+      drawBoard();
+    });
+
+    restartButton.addEventListener("click", () => {
+      startGame(false);
+    });
+
+    designButton.addEventListener("click", () => {
+      console.log("Design button clicked");
+      currentDesign = currentDesign % 5 + 1;
+      window.updateBoardColors(currentDesign);
+      drawBoard();
+    });
+
+    fullscreenButton.addEventListener("click", toggleFullscreenMode);
+    exitFullscreenButton.addEventListener("click", toggleFullscreenMode);
+    closeFullscreenButton.addEventListener("click", toggleFullscreenMode);
+
+    canvas.addEventListener("click", handleCanvasClick);
+    canvas.addEventListener("touchstart", handleCanvasClick, { passive: false });
+  }
+
+  window.addEventListener("resize", debouncedResizeCanvas);
+  resizeCanvas();
+  initializeGameButtons();
+});
