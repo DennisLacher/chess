@@ -237,6 +237,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function drawBoard() {
+    console.log("drawBoard called");
     if (!ctx) {
       console.error("Canvas context not available.");
       return;
@@ -326,9 +327,11 @@ document.addEventListener("DOMContentLoaded", () => {
     } else {
       updateOpeningDisplay();
     }
+    console.log("drawBoard completed");
   }
 
   function resizeCanvas() {
+    console.log("resizeCanvas called");
     let maxWidth = Math.round(window.innerWidth * CONFIG.maxWidthFactor * (fullscreenMode ? 1.3 : 0.7));
     let maxHeight = Math.round(window.innerHeight * CONFIG.maxHeightFactor * (fullscreenMode ? 1.2 : 0.9));
     if (window.innerWidth <= 768) {
@@ -343,12 +346,16 @@ document.addEventListener("DOMContentLoaded", () => {
     offsetY = Math.round((maxHeight - totalHeight) / 2 * CONFIG.offset);
     canvas.width = totalWidth + offsetX * 2;
     canvas.height = totalHeight + offsetY * 2;
+    console.log("Canvas resized to:", canvas.width, canvas.height);
     if (gameStarted) {
+      console.log("Calling drawBoard from resizeCanvas");
       drawBoard();
     }
+    console.log("resizeCanvas completed");
   }
 
   function toggleFullscreenMode() {
+    console.log("toggleFullscreenMode called");
     if (!fullscreenMode) {
       if (document.documentElement.requestFullscreen) {
         document.documentElement.requestFullscreen().catch((err) => {
@@ -394,9 +401,11 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     resizeCanvas();
     drawBoard();
+    console.log("toggleFullscreenMode completed");
   }
 
   document.addEventListener('fullscreenchange', () => {
+    console.log("fullscreenchange event fired");
     fullscreenMode = !!document.fullscreenElement;
     document.body.classList.toggle("fullscreen", fullscreenMode);
     if (fullscreenMode) {
@@ -430,76 +439,108 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     resizeCanvas();
     drawBoard();
+    console.log("fullscreenchange handler completed");
   });
 
   function startGame(freestyle = false) {
-    currentPlayer = "white";
-    gameStarted = true;
-    gameOver = false;
-    selectedPiece = null;
-    legalMoves = [];
-    moveHistory = [];
-    moveNotations = [];
-    lastMove = null;
-    moveCount = 1;
-    kingPositions = { white: null, black: null };
-    castlingAvailability = { white: { kingside: true, queenside: true }, black: { kingside: true, queenside: true } };
-    isWhiteInCheck = false;
-    isBlackInCheck = false;
-    winnerText = "";
-    fullscreenMode = false;
-    whiteTime = CONFIG.initialTime;
-    blackTime = CONFIG.initialTime;
-    document.body.classList.remove("fullscreen");
-    fullscreenButton.style.display = "block";
-    exitFullscreenButton.style.display = "none";
-    moveList.innerHTML = "";
-    startScreen.style.display = "none";
-    gameContainer.style.display = "flex";
-    restartButton.classList.remove("hidden");
-    darkmodeToggleButton.style.display = "block";
-    if (freestyle) {
-      const shuffledRow = shuffleArray(["r", "n", "b", "q", "k", "b", "n", "r"]);
-      board = [
-        shuffledRow,
-        ["p", "p", "p", "p", "p", "p", "p", "p"],
-        ["", "", "", "", "", "", "", ""],
-        ["", "", "", "", "", "", "", ""],
-        ["", "", "", "", "", "", "", ""],
-        ["", "", "", "", "", "", "", ""],
-        ["P", "P", "P", "P", "P", "P", "P", "P"],
-        shuffledRow.map((p) => p.toUpperCase())
-      ];
-    } else {
-      board = [
-        ["r", "n", "b", "q", "k", "b", "n", "r"],
-        ["p", "p", "p", "p", "p", "p", "p", "p"],
-        ["", "", "", "", "", "", "", ""],
-        ["", "", "", "", "", "", "", ""],
-        ["", "", "", "", "", "", "", ""],
-        ["", "", "", "", "", "", "", ""],
-        ["P", "P", "P", "P", "P", "P", "P", "P"],
-        ["R", "N", "B", "Q", "K", "B", "N", "R"]
-      ];
+    console.log("startGame called with freestyle:", freestyle);
+    try {
+      console.log("Setting initial game state...");
+      currentPlayer = "white";
+      gameStarted = true;
+      gameOver = false;
+      selectedPiece = null;
+      legalMoves = [];
+      moveHistory = [];
+      moveNotations = [];
+      lastMove = null;
+      moveCount = 1;
+      kingPositions = { white: null, black: null };
+      castlingAvailability = { white: { kingside: true, queenside: true }, black: { kingside: true, queenside: true } };
+      isWhiteInCheck = false;
+      isBlackInCheck = false;
+      winnerText = "";
+      fullscreenMode = false;
+      whiteTime = CONFIG.initialTime;
+      blackTime = CONFIG.initialTime;
+
+      console.log("Updating DOM elements visibility...");
+      document.body.classList.remove("fullscreen");
+      fullscreenButton.style.display = "block";
+      exitFullscreenButton.style.display = "none";
+      moveList.innerHTML = "";
+      startScreen.style.display = "none";
+      gameContainer.style.display = "flex";
+      restartButton.classList.remove("hidden");
+      darkmodeToggleButton.style.display = "block";
+      console.log("startScreen display:", startScreen.style.display);
+      console.log("gameContainer display:", gameContainer.style.display);
+
+      console.log("Setting up the board...");
+      if (freestyle) {
+        const shuffledRow = shuffleArray(["r", "n", "b", "q", "k", "b", "n", "r"]);
+        board = [
+          shuffledRow,
+          ["p", "p", "p", "p", "p", "p", "p", "p"],
+          ["", "", "", "", "", "", "", ""],
+          ["", "", "", "", "", "", "", ""],
+          ["", "", "", "", "", "", "", ""],
+          ["", "", "", "", "", "", "", ""],
+          ["P", "P", "P", "P", "P", "P", "P", "P"],
+          shuffledRow.map((p) => p.toUpperCase())
+        ];
+      } else {
+        board = [
+          ["r", "n", "b", "q", "k", "b", "n", "r"],
+          ["p", "p", "p", "p", "p", "p", "p", "p"],
+          ["", "", "", "", "", "", "", ""],
+          ["", "", "", "", "", "", "", ""],
+          ["", "", "", "", "", "", "", ""],
+          ["", "", "", "", "", "", "", ""],
+          ["P", "P", "P", "P", "P", "P", "P", "P"],
+          ["R", "N", "B", "Q", "K", "B", "N", "R"]
+        ];
+      }
+
+      console.log("Updating king positions...");
+      updateKingPositions();
+
+      console.log("Resizing canvas...");
+      resizeCanvas();
+
+      console.log("Drawing board...");
+      drawBoard();
+
+      console.log("Starting timer...");
+      startTimer();
+
+      console.log("Initializing dark mode toggle...");
+      initializeDarkmodeToggle();
+
+      console.log("Updating turn display...");
+      updateTurnDisplay();
+
+      console.log("startGame completed successfully");
+    } catch (error) {
+      console.error("Error in startGame:", error);
+      alert("Failed to start the game. Check the console for details.");
+      throw error;
     }
-    updateKingPositions();
-    resizeCanvas();
-    drawBoard();
-    startTimer();
-    initializeDarkmodeToggle();
-    updateTurnDisplay();
   }
 
   function shuffleArray(array) {
+    console.log("shuffleArray called");
     let shuffled = [...array];
     for (let i = shuffled.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
       [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
     }
+    console.log("shuffleArray completed");
     return shuffled;
   }
 
   function updateKingPositions(tempBoard = board) {
+    console.log("updateKingPositions called");
     for (let y = 0; y < 8; y++) {
       for (let x = 0; x < 8; x++) {
         const piece = tempBoard[y][x];
@@ -507,11 +548,17 @@ document.addEventListener("DOMContentLoaded", () => {
         if (piece === "K") kingPositions.white = { x, y };
       }
     }
+    console.log("King positions updated:", kingPositions);
+    console.log("updateKingPositions completed");
   }
 
   function isInCheck(color, tempBoard = board, tempKingPos = null) {
+    console.log("isInCheck called for color:", color);
     const kingPos = tempKingPos || (color === "white" ? kingPositions.white : kingPositions.black);
-    if (!kingPos) return false;
+    if (!kingPos) {
+      console.log("No king position found for", color);
+      return false;
+    }
     const opponentColor = color === "white" ? "black" : "white";
     for (let y = 0; y < 8; y++) {
       for (let x = 0; x < 8; x++) {
@@ -520,15 +567,18 @@ document.addEventListener("DOMContentLoaded", () => {
         if (isOpponent) {
           const moves = getLegalMovesForCheck(x, y, tempBoard);
           if (moves.some((m) => m.toX === kingPos.x && m.toY === kingPos.y)) {
+            console.log("King in check at", kingPos, "by", piece, "at", x, y);
             return true;
           }
         }
       }
     }
+    console.log("isInCheck completed, no check found");
     return false;
   }
 
   function updateCheckStatus() {
+    console.log("updateCheckStatus called");
     const whiteWasInCheck = isWhiteInCheck;
     const blackWasInCheck = isBlackInCheck;
     isWhiteInCheck = isInCheck("white");
@@ -539,12 +589,17 @@ document.addEventListener("DOMContentLoaded", () => {
         audio.play().catch((e) => console.error("Check audio play failed:", e));
       }
     }
+    console.log("updateCheckStatus completed");
   }
 
   function getLegalMovesForCheck(x, y, tempBoard = board) {
+    console.log("getLegalMovesForCheck called for", x, y);
     const moves = [];
     const piece = tempBoard[y][x];
-    if (!piece) return moves;
+    if (!piece) {
+      console.log("No piece at", x, y);
+      return moves;
+    }
     const isWhite = piece === piece.toUpperCase();
     if (piece.toLowerCase() === "p") {
       const direction = isWhite ? -1 : 1;
@@ -620,15 +675,23 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       });
     }
+    console.log("getLegalMovesForCheck completed with moves:", moves);
     return moves;
   }
 
   function getLegalMoves(x, y, tempBoard = board) {
+    console.log("getLegalMoves called for", x, y);
     const moves = [];
     const piece = tempBoard[y][x];
-    if (!piece) return moves;
+    if (!piece) {
+      console.log("No piece at", x, y);
+      return moves;
+    }
     const isWhite = piece === piece.toUpperCase();
-    if ((isWhite && currentPlayer !== "white") || (!isWhite && currentPlayer !== "black")) return moves;
+    if ((isWhite && currentPlayer !== "white") || (!isWhite && currentPlayer !== "black")) {
+      console.log("Not player's turn:", currentPlayer);
+      return moves;
+    }
     if (piece.toLowerCase() === "p") {
       const direction = isWhite ? -1 : 1;
       const startRow = isWhite ? 6 : 1;
@@ -829,6 +892,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function getMoveNotation(fromX, fromY, toX, toY) {
+    console.log("getMoveNotation called");
     const fileFrom = String.fromCharCode(97 + fromX);
     const rankFrom = 8 - fromY;
     const fileTo = String.fromCharCode(97 + toX);
@@ -837,11 +901,16 @@ document.addEventListener("DOMContentLoaded", () => {
     const pieceSymbol = piece === "p" ? "" : piece.toUpperCase();
     const simpleNotation = pieceSymbol === "" ? `${fileTo}${rankTo}` : `${pieceSymbol}${fileTo}${rankTo}`;
     const fullNotation = `${pieceSymbol}${fileFrom}${rankFrom}-${fileTo}${rankTo}`;
+    console.log("getMoveNotation completed");
     return { simple: simpleNotation, full: fullNotation };
   }
 
   function updateMoveHistory() {
-    if (!lastMove) return;
+    console.log("updateMoveHistory called");
+    if (!lastMove) {
+      console.log("No last move to update");
+      return;
+    }
     const notation = getMoveNotation(lastMove.fromX, lastMove.fromY, lastMove.toX, lastMove.toY);
     moveNotations.push({ moveCount, notation: notation.simple });
     moveList.innerHTML = "";
@@ -864,9 +933,11 @@ document.addEventListener("DOMContentLoaded", () => {
     if (currentPlayer === "black") moveCount++;
     moveList.scrollTop = moveList.scrollHeight;
     updateOpeningDisplay();
+    console.log("updateMoveHistory completed");
   }
 
   function showPromotionChoice(x, y, isWhite) {
+    console.log("showPromotionChoice called");
     const existingMenu = document.getElementById("promotionChoices");
     if (existingMenu) {
       document.body.removeChild(existingMenu);
@@ -909,9 +980,11 @@ document.addEventListener("DOMContentLoaded", () => {
       promotionChoices.appendChild(button);
     });
     document.body.appendChild(promotionChoices);
+    console.log("showPromotionChoice completed");
   }
 
   function checkGameOver() {
+    console.log("checkGameOver called");
     let hasMoves = false;
     for (let y = 0; y < 8; y++) {
       for (let x = 0; x < 8; x++) {
@@ -940,10 +1013,15 @@ document.addEventListener("DOMContentLoaded", () => {
         winnerText = "Draw (Stalemate)!";
       }
     }
+    console.log("checkGameOver completed");
   }
 
   function handleCanvasClick(event) {
-    if (!gameStarted || gameOver) return;
+    console.log("handleCanvasClick called");
+    if (!gameStarted || gameOver) {
+      console.log("Game not started or game over");
+      return;
+    }
     event.preventDefault();
     const rect = canvas.getBoundingClientRect();
     const scaleX = canvas.width / rect.width;
@@ -978,6 +1056,7 @@ document.addEventListener("DOMContentLoaded", () => {
       selectedPiece = null;
       legalMoves = [];
       drawBoard();
+      console.log("Click outside board");
       return;
     }
     const piece = board[boardY][boardX];
@@ -1076,9 +1155,11 @@ document.addEventListener("DOMContentLoaded", () => {
       }
       drawBoard();
     }
+    console.log("handleCanvasClick completed");
   }
 
   function showPenaltyMessage() {
+    console.log("showPenaltyMessage called");
     const penaltyMessage = document.createElement("div");
     penaltyMessage.classList.add("penalty-message");
     penaltyMessage.textContent = "- 1 Minute";
@@ -1091,6 +1172,7 @@ document.addEventListener("DOMContentLoaded", () => {
     setTimeout(() => {
       document.body.removeChild(penaltyMessage);
     }, 2000);
+    console.log("showPenaltyMessage completed");
   }
 
   function initializeGameButtons() {
@@ -1133,21 +1215,25 @@ document.addEventListener("DOMContentLoaded", () => {
       startGame(true);
     }, "startFreestyleButton");
     rotateButton.addEventListener("click", () => {
+      console.log("Rotate button clicked");
       rotateBoard = !rotateBoard;
       drawBoard();
     });
     smartphoneModeButton.textContent = smartphoneMode ? "Rotate Off" : "Rotate On";
     smartphoneModeButton.addEventListener("click", () => {
+      console.log("Smartphone mode button clicked");
       smartphoneMode = !smartphoneMode;
       smartphoneModeButton.textContent = smartphoneMode ? "Rotate Off" : "Rotate On";
       drawBoard();
     });
     soundToggleButton.textContent = soundEnabled ? "Sound Off" : "Sound On";
     soundToggleButton.addEventListener("click", () => {
+      console.log("Sound toggle button clicked");
       soundEnabled = !soundEnabled;
       soundToggleButton.textContent = soundEnabled ? "Sound Off" : "Sound On";
     });
     undoButton.addEventListener("click", () => {
+      console.log("Undo button clicked");
       if (moveHistory.length > 0 && !gameOver) {
         if (currentPlayer === "white") {
           whiteTime = Math.max(0, whiteTime - CONFIG.undoPenalty);
@@ -1171,8 +1257,12 @@ document.addEventListener("DOMContentLoaded", () => {
         drawBoard();
       }
     });
-    restartButton.addEventListener("click", () => startGame(false));
+    restartButton.addEventListener("click", () => {
+      console.log("Restart button clicked");
+      startGame(false);
+    });
     designButton.addEventListener("click", () => {
+      console.log("Design button clicked");
       currentDesign = (currentDesign % 5) + 1;
       window.updateBoardColors(currentDesign);
     });
