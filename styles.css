@@ -33,16 +33,23 @@ body.darkmode {
   z-index: 1000;
 }
 
+#startScreen .button-group {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
 #startScreen button {
   padding: 10px 20px;
   font-size: 18px;
-  margin: 10px;
+  margin: 5px 0;
   cursor: pointer;
   background-color: #4CAF50;
   color: white;
   border: none;
   border-radius: 5px;
   transition: background-color 0.3s;
+  width: 200px;
 }
 
 #startScreen button:hover {
@@ -73,7 +80,7 @@ body.darkmode {
   opacity: 1 !important;
   position: relative !important;
   max-width: 100%;
-  max-height: 100vh;
+  max-height: 80vh;
   background-color: #fff;
   border: 1px solid #ccc;
   touch-action: none; /* Verhindert Zoom auf Touch-Geräten */
@@ -95,15 +102,8 @@ body.darkmode {
   max-height: 200px;
   overflow-y: auto;
   width: 200px;
-  margin: 10px 0;
-}
-
-#moveList li {
-  padding: 5px;
-}
-
-#moveList li.last-move {
-  background-color: #f0f0f0;
+  margin: 10px auto; /* Zentriert die Zugliste */
+  align-self: center; /* Zentriert im Flex-Container */
 }
 
 /* Opening Display */
@@ -113,10 +113,27 @@ body.darkmode {
   text-align: center;
 }
 
-/* Buttons */
+/* Game Buttons */
+.game-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  margin: 10px 0;
+}
+
+.game-buttons .button-row {
+  display: flex;
+  gap: 10px;
+}
+
+.game-buttons .button-row:nth-child(1),
+.game-buttons .button-row:nth-child(2) {
+  margin-bottom: 10px;
+}
+
 button {
   padding: 8px 16px;
-  margin: 5px;
   font-size: 14px;
   cursor: pointer;
   background-color: #008CBA;
@@ -124,6 +141,7 @@ button {
   border: none;
   border-radius: 4px;
   transition: background-color 0.3s;
+  min-width: 120px;
 }
 
 button:hover {
@@ -185,11 +203,36 @@ body.fullscreen {
 
 body.fullscreen #gameContainer {
   padding: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  width: 100vw;
 }
 
 body.fullscreen #chessboard {
   max-width: none;
   max-height: none;
+  width: 80vw;
+  height: 80vh;
+}
+
+body.fullscreen .game-buttons {
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+
+body.fullscreen .game-buttons .button-row {
+  flex-direction: column;
+  width: 100%;
+  align-items: center;
+}
+
+body.fullscreen button {
+  width: 80%;
+  margin: 5px 0;
 }
 
 /* Responsive Design */
@@ -201,11 +244,26 @@ body.fullscreen #chessboard {
   #chessboard {
     width: 100%;
     height: auto;
+    max-height: 60vh;
+  }
+
+  #startScreen button {
+    width: 150px;
+  }
+
+  .game-buttons {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .game-buttons .button-row {
+    flex-direction: column;
+    width: 100%;
   }
 
   button {
-    padding: 6px 12px;
-    font-size: 12px;
+    width: 100%;
+    margin: 5px 0;
   }
 
   #moveList {
