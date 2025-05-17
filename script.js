@@ -1180,51 +1180,38 @@ document.addEventListener("DOMContentLoaded", () => {
     console.log("startButton:", startButton);
     console.log("startFreestyleButton:", startFreestyleButton);
 
-    // Initialize buttons with MutationObserver for dynamic DOM updates
-    function initializeButton(elementId, eventHandler, logMessage) {
-      let element = document.getElementById(elementId);
-      if (element) {
-        console.log(`${logMessage} initialized:`, element);
-        element.addEventListener("click", () => {
-          console.log(`${logMessage} clicked, calling handler`);
-          eventHandler();
-        });
-      } else {
-        console.warn(`${logMessage} not found initially. Setting up MutationObserver...`);
-        const observer = new MutationObserver((mutations, obs) => {
-          element = document.getElementById(elementId);
-          if (element) {
-            console.log(`${logMessage} found via MutationObserver:`, element);
-            element.addEventListener("click", () => {
-              console.log(`${logMessage} clicked via MutationObserver, calling handler`);
-              eventHandler();
-            });
-            obs.disconnect(); // Stop observing once element is found
-          }
-        });
-        observer.observe(document.body, { childList: true, subtree: true });
-        setTimeout(() => {
-          if (!element) {
-            console.error(`${logMessage} still not found after timeout. Check HTML for ID '${elementId}'.`);
-            alert(`Error: ${logMessage} not found. Please ensure an element with ID '${elementId}' exists in the HTML.`);
-          }
-        }, 500); // Timeout after 500ms
+    // Simplified button initialization
+    function initializeButton(element, eventHandler, logMessage) {
+      if (!element) {
+        console.error(`${logMessage} not found. Check HTML for ID.`);
+        alert(`Error: ${logMessage} not found. Please ensure the element exists in the HTML.`);
+        return;
       }
+      console.log(`${logMessage} initialized:`, element);
+      // Remove any existing listeners to avoid duplicates
+      element.removeEventListener("click", eventHandler);
+      element.addEventListener("click", (event) => {
+        console.log(`${logMessage} clicked`);
+        event.stopPropagation(); // Prevent any parent handlers from interfering
+        try {
+          eventHandler();
+          console.log(`${logMessage} handler executed successfully`);
+        } catch (error) {
+          console.error(`Error in ${logMessage} handler:`, error);
+          alert(`Error in ${logMessage} action. Check console for details.`);
+        }
+      });
     }
 
-    initializeButton("startButton", () => {
-      console.log("Start Game button handler triggered");
-      startGame(false);
-    }, "startButton");
-    initializeButton("startFreestyleButton", () => {
-      console.log("Start Freestyle button handler triggered");
-      startGame(true);
-    }, "startFreestyleButton");
+    initializeButton(startButton, () => startGame(false), "Start Game button");
+    initializeButton(startFreestyleButton, () => startGame(true), "Start Freestyle button");
+
     rotateButton.addEventListener("click", () => {
       console.log("Rotate button clicked");
       rotateBoard = !rotateBoard;
       drawBoard();
     });
+
     smartphoneModeButton.textContent = smartphoneMode ? "Rotate Off" : "Rotate On";
     smartphoneModeButton.addEventListener("click", () => {
       console.log("Smartphone mode button clicked");
@@ -1232,12 +1219,14 @@ document.addEventListener("DOMContentLoaded", () => {
       smartphoneModeButton.textContent = smartphoneMode ? "Rotate Off" : "Rotate On";
       drawBoard();
     });
+
     soundToggleButton.textContent = soundEnabled ? "Sound Off" : "Sound On";
     soundToggleButton.addEventListener("click", () => {
       console.log("Sound toggle button clicked");
       soundEnabled = !soundEnabled;
       soundToggleButton.textContent = soundEnabled ? "Sound Off" : "Sound On";
     });
+
     undoButton.addEventListener("click", () => {
       console.log("Undo button clicked");
       if (moveHistory.length > 0 && !gameOver) {
@@ -1263,15 +1252,18 @@ document.addEventListener("DOMContentLoaded", () => {
         drawBoard();
       }
     });
+
     restartButton.addEventListener("click", () => {
       console.log("Restart button clicked");
       startGame(false);
     });
+
     designButton.addEventListener("click", () => {
       console.log("Design button clicked");
       currentDesign = (currentDesign % 5) + 1;
       window.updateBoardColors(currentDesign);
     });
+
     fullscreenButton.addEventListener("click", toggleFullscreenMode);
     exitFullscreenButton.addEventListener("click", toggleFullscreenMode);
     closeFullscreenButton.addEventListener("click", toggleFullscreenMode);
