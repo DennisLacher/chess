@@ -162,6 +162,21 @@ document.addEventListener("DOMContentLoaded", () => {
   closeFullscreenButton.style.display = "none";
   console.log("Initial visibility set: startScreen visible, gameContainer hidden");
 
+  // Debug button alignment in startScreen
+  console.log("StartScreen styles:", {
+    display: startScreen.style.display,
+    justifyContent: getComputedStyle(startScreen).justifyContent,
+    alignItems: getComputedStyle(startScreen).alignItems,
+  });
+  const buttonGroup = startScreen.querySelector(".button-group");
+  if (buttonGroup) {
+    console.log("ButtonGroup styles:", {
+      display: buttonGroup.style.display,
+      justifyContent: getComputedStyle(buttonGroup).justifyContent,
+      alignItems: getComputedStyle(buttonGroup).alignItems,
+    });
+  }
+
   function initializeDarkmodeToggle() {
     if (darkmodeToggleButton && gameStarted) {
       darkmodeToggleButton.textContent = isDarkmode ? "Light Mode" : "Dark Mode";
@@ -266,10 +281,6 @@ document.addEventListener("DOMContentLoaded", () => {
     canvas.style.visibility = "visible";
     canvas.style.opacity = "1";
     canvas.style.position = "relative";
-
-    // Test rendering with a simple rectangle
-    ctx.fillStyle = "#FF0000"; // Red rectangle for debugging
-    ctx.fillRect(0, 0, 50, 50); // Draw a small red square in the top-left corner
 
     let effectiveRotation = rotateBoard;
     if (smartphoneMode) {
@@ -454,6 +465,24 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     resizeCanvas();
     drawBoard();
+    // Debug button alignment after fullscreen toggle
+    const gameButtons = gameContainer.querySelector(".game-buttons");
+    if (gameButtons) {
+      console.log("GameButtons styles after fullscreen toggle:", {
+        display: gameButtons.style.display,
+        flexDirection: getComputedStyle(gameButtons).flexDirection,
+        justifyContent: getComputedStyle(gameButtons).justifyContent,
+        alignItems: getComputedStyle(gameButtons).alignItems,
+      });
+      const buttonRows = gameButtons.querySelectorAll(".button-row");
+      buttonRows.forEach((row, index) => {
+        console.log(`ButtonRow ${index + 1} styles:`, {
+          display: row.style.display,
+          flexDirection: getComputedStyle(row).flexDirection,
+          justifyContent: getComputedStyle(row).justifyContent,
+        });
+      });
+    }
     console.log("toggleFullscreenMode completed");
   }
 
@@ -492,6 +521,24 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     resizeCanvas();
     drawBoard();
+    // Debug button alignment after fullscreen change
+    const gameButtons = gameContainer.querySelector(".game-buttons");
+    if (gameButtons) {
+      console.log("GameButtons styles after fullscreenchange:", {
+        display: gameButtons.style.display,
+        flexDirection: getComputedStyle(gameButtons).flexDirection,
+        justifyContent: getComputedStyle(gameButtons).justifyContent,
+        alignItems: getComputedStyle(gameButtons).alignItems,
+      });
+      const buttonRows = gameButtons.querySelectorAll(".button-row");
+      buttonRows.forEach((row, index) => {
+        console.log(`ButtonRow ${index + 1} styles:`, {
+          display: row.style.display,
+          flexDirection: getComputedStyle(row).flexDirection,
+          justifyContent: getComputedStyle(row).justifyContent,
+        });
+      });
+    }
     console.log("fullscreenchange handler completed");
   });
 
@@ -574,6 +621,25 @@ document.addEventListener("DOMContentLoaded", () => {
 
       console.log("Updating turn display...");
       updateTurnDisplay();
+
+      // Debug button alignment after starting game
+      const gameButtons = gameContainer.querySelector(".game-buttons");
+      if (gameButtons) {
+        console.log("GameButtons styles after startGame:", {
+          display: gameButtons.style.display,
+          flexDirection: getComputedStyle(gameButtons).flexDirection,
+          justifyContent: getComputedStyle(gameButtons).justifyContent,
+          alignItems: getComputedStyle(gameButtons).alignItems,
+        });
+        const buttonRows = gameButtons.querySelectorAll(".button-row");
+        buttonRows.forEach((row, index) => {
+          console.log(`ButtonRow ${index + 1} styles:`, {
+            display: row.style.display,
+            flexDirection: getComputedStyle(row).flexDirection,
+            justifyContent: getComputedStyle(row).justifyContent,
+          });
+        });
+      }
 
       console.log("startGame completed successfully");
     } catch (error) {
@@ -1248,91 +1314,3 @@ document.addEventListener("DOMContentLoaded", () => {
       element.addEventListener("click", (event) => {
         console.log(`${logMessage} clicked, calling handler`);
         event.stopPropagation(); // Prevent any parent handlers from interfering
-        try {
-          eventHandler();
-          console.log(`${logMessage} handler triggered`);
-        } catch (error) {
-          console.error(`Error in ${logMessage} handler:`, error);
-          alert(`Error in ${logMessage} action. Check console for details.`);
-        }
-      });
-    }
-
-    initializeButton(startButton, () => startGame(false), "startButton");
-    initializeButton(startFreestyleButton, () => startGame(true), "startFreestyleButton");
-
-    rotateButton.addEventListener("click", () => {
-      console.log("Rotate button clicked");
-      rotateBoard = !rotateBoard;
-      drawBoard();
-    });
-
-    smartphoneModeButton.textContent = smartphoneMode ? "Rotate Off" : "Rotate On";
-    smartphoneModeButton.addEventListener("click", () => {
-      console.log("Smartphone mode button clicked");
-      smartphoneMode = !smartphoneMode;
-      smartphoneModeButton.textContent = smartphoneMode ? "Rotate Off" : "Rotate On";
-      drawBoard();
-    });
-
-    soundToggleButton.textContent = soundEnabled ? "Sound Off" : "Sound On";
-    soundToggleButton.addEventListener("click", () => {
-      console.log("Sound toggle button clicked");
-      soundEnabled = !soundEnabled;
-      soundToggleButton.textContent = soundEnabled ? "Sound Off" : "Sound On";
-    });
-
-    undoButton.addEventListener("click", () => {
-      console.log("Undo button clicked");
-      if (moveHistory.length > 0 && !gameOver) {
-        if (currentPlayer === "white") {
-          whiteTime = Math.max(0, whiteTime - CONFIG.undoPenalty);
-        } else {
-          blackTime = Math.max(0, blackTime - CONFIG.undoPenalty);
-        }
-        showPenaltyMessage();
-        const lastState = moveHistory.pop();
-        board = lastState.board;
-        currentPlayer = lastState.currentPlayer;
-        moveCount = lastState.moveCount;
-        castlingAvailability = lastState.castlingAvailability;
-        moveNotations.pop();
-        if (currentPlayer === "white" && moveNotations.length % 2 === 0) moveCount--;
-        lastMove = moveHistory.length > 0 ? moveHistory[moveHistory.length - 1] : null;
-        updateKingPositions();
-        updateCheckStatus();
-        gameOver = false;
-        winnerText = "";
-        updateMoveHistory();
-        drawBoard();
-      }
-    });
-
-    restartButton.addEventListener("click", () => {
-      console.log("Restart button clicked");
-      startGame(false);
-    });
-
-    designButton.addEventListener("click", () => {
-      console.log("Design button clicked");
-      currentDesign = (currentDesign % 5) + 1;
-      window.updateBoardColors(currentDesign);
-    });
-
-    fullscreenButton.addEventListener("click", toggleFullscreenMode);
-    exitFullscreenButton.addEventListener("click", toggleFullscreenMode);
-    closeFullscreenButton.addEventListener("click", toggleFullscreenMode);
-  }
-
-  const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
-  if (isTouchDevice) {
-    canvas.addEventListener("touchstart", handleCanvasClick, { passive: false });
-    canvas.addEventListener("touchmove", (e) => e.preventDefault(), { passive: false });
-  } else {
-    canvas.addEventListener("click", handleCanvasClick);
-  }
-
-  window.addEventListener("resize", debouncedResizeCanvas);
-  initializeGameButtons();
-  resizeCanvas();
-});
