@@ -4,33 +4,46 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Chess Game</title>
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div id="startScreen" class="start-screen">
-    <button id="startButton">Start Game</button>
-    <button id="startFreestyleButton">Start Freestyle</button>
-  </div>
-  <div id="gameContainer" class="game-container hidden">
-    <div id="turnDisplay" class="turn-display">White is next</div>
-    <div class="canvas-container">
-      <canvas id="chessboard"></canvas>
-    </div>
-    <div class="sidebar">
-      <button id="rotateButton">Rotate Board</button>
-      <button id="smartphoneModeButton">Rotate On</button>
-      <button id="soundToggleButton">Sound On</button>
-      <button id="undoButton">Undo Move</button>
-      <button id="restartButton" class="hidden">Restart Game</button>
-      <button id="designButton">Change Design</button>
-      <button id="darkmodeToggleButton">Dark Mode</button>
-      <button id="fullscreenButton">Fullscreen</button>
-      <button id="exitFullscreenButton" class="hidden">Exit Fullscreen</button>
-      <button id="closeFullscreenButton" class="hidden">X</button>
-      <div id="openingDisplay" class="opening-display">Move: None | White: 10:00 | Black: 10:00</div>
-      <ul id="moveList" class="move-list"></ul>
+  <!-- Start Screen -->
+  <div id="startScreen">
+    <div class="button-group">
+      <button id="startButton">Start Game</button>
+      <button id="startFreestyleButton">Start Freestyle</button>
     </div>
   </div>
+
+  <!-- Game Container -->
+  <div id="gameContainer">
+    <div id="turnDisplay">White is next</div>
+    <canvas id="chessboard"></canvas>
+    <div id="openingDisplay">Move: None | White: 10:00 | Black: 10:00</div>
+    <ul id="moveList"></ul>
+    <div class="game-buttons">
+      <div class="button-row">
+        <button id="rotateButton">Rotate</button>
+        <button id="smartphoneModeButton">Rotate On</button>
+      </div>
+      <div class="button-row">
+        <button id="soundToggleButton">Sound On</button>
+        <button id="undoButton">Undo</button>
+        <button id="restartButton" class="hidden">Restart</button>
+      </div>
+    </div>
+    <div class="game-buttons">
+      <div class="button-row">
+        <button id="designButton">Design</button>
+        <button id="darkmodeToggleButton">Dark Mode</button>
+        <button id="fullscreenButton">Fullscreen</button>
+        <button id="exitFullscreenButton" style="display: none;">Exit Fullscreen</button>
+        <button id="closeFullscreenButton" style="display: none;">Close Fullscreen</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Include the script -->
   <script src="script.js"></script>
 </body>
 </html>
