@@ -1098,31 +1098,37 @@ document.addEventListener("DOMContentLoaded", () => {
     console.log("startButton:", startButton);
     console.log("startFreestyleButton:", startFreestyleButton);
 
-    // Ensure buttons are initialized with fallback
-    function initializeButton(element, eventHandler, logMessage) {
-      if (!element) {
-        console.error(`${logMessage} not found in DOM. Retrying...`);
-        setTimeout(() => {
-          const retryElement = document.getElementById(logMessage.split(": ")[1].replace(" ", ""));
-          if (retryElement) {
-            console.log(`${logMessage} found on retry:`, retryElement);
-            retryElement.addEventListener("click", eventHandler);
-          } else {
-            console.error(`${logMessage} still not found after retry. Check HTML for ID '${logMessage.split(": ")[1].replace(" ", "")}'.`);
-            alert(`Error: ${logMessage} not found. Please ensure an element with ID '${logMessage.split(": ")[1].replace(" ", "")}' exists in the HTML.`);
-          }
-        }, 100); // Retry after 100ms
-      } else {
+    // Initialize buttons with MutationObserver for dynamic DOM updates
+    function initializeButton(elementId, eventHandler, logMessage) {
+      let element = document.getElementById(elementId);
+      if (element) {
         console.log(`${logMessage} initialized:`, element);
         element.addEventListener("click", eventHandler);
+      } else {
+        console.warn(`${logMessage} not found initially. Setting up MutationObserver...`);
+        const observer = new MutationObserver((mutations, obs) => {
+          element = document.getElementById(elementId);
+          if (element) {
+            console.log(`${logMessage} found via MutationObserver:`, element);
+            element.addEventListener("click", eventHandler);
+            obs.disconnect(); // Stop observing once element is found
+          }
+        });
+        observer.observe(document.body, { childList: true, subtree: true });
+        setTimeout(() => {
+          if (!element) {
+            console.error(`${logMessage} still not found after timeout. Check HTML for ID '${elementId}'.`);
+            alert(`Error: ${logMessage} not found. Please ensure an element with ID '${elementId}' exists in the HTML.`);
+          }
+        }, 500); // Timeout after 500ms
       }
     }
 
-    initializeButton(startButton, () => {
+    initializeButton("startButton", () => {
       console.log("Start Game button clicked");
       startGame(false);
     }, "startButton");
-    initializeButton(startFreestyleButton, () => {
+    initializeButton("startFreestyleButton", () => {
       console.log("Start Freestyle button clicked");
       startGame(true);
     }, "startFreestyleButton");
