@@ -1,4 +1,4 @@
-/* Reset and Base Styles */
+/* Reset und Basisstile */
 * {
   margin: 0;
   padding: 0;
@@ -9,307 +9,207 @@ body {
   font-family: Arial, sans-serif;
   background-color: #f0f0f0;
   color: #333;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-  overflow: hidden;
+  overflow-x: hidden;
+  transition: background-color 0.3s;
 }
 
 body.darkmode {
-  background-color: #333;
+  background-color: #1a1a1a;
   color: #e0e0e0;
 }
 
-/* Start Screen Styles */
-.start-screen {
+/* Start Screen */
+#startScreen {
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  gap: 20px;
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-}
-
-/* Game Container Styles */
-.game-container {
-  display: flex;
-  flex-direction: row;
-  justify-content: center;
-  align-items: center;
-  gap: 20px;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.8);
+  position: fixed;
+  top: 0;
+  left: 0;
   width: 100%;
-  height: 100%;
+  z-index: 1000;
 }
 
-.canvas-container {
-  flex: 1;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-#chessboard {
-  max-width: 100%;
-  max-height: 100%;
-}
-
-/* Sidebar Styles */
-.sidebar {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 10px;
-  padding: 10px;
-  width: 250px;
-  max-height: 90vh;
-  overflow-y: auto;
-}
-
-/* Button Container for Sidebar */
-.sidebar-buttons {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 8px;
-  width: 100%;
-}
-
-/* Modern Button Styles */
-button {
-  background-color: #4a90e2;
+#startScreen button {
+  padding: 10px 20px;
+  font-size: 18px;
+  margin: 10px;
+  cursor: pointer;
+  background-color: #4CAF50;
   color: white;
   border: none;
-  padding: 10px 20px;
-  border-radius: 8px;
-  font-size: 16px;
-  cursor: pointer;
-  transition: background-color 0.3s, transform 0.1s, box-shadow 0.3s;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-  width: 80%;
+  border-radius: 5px;
+  transition: background-color 0.3s;
+}
+
+#startScreen button:hover {
+  background-color: #45a049;
+}
+
+/* Game Container */
+#gameContainer {
+  display: none; /* Wird von JavaScript auf flex gesetzt */
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 20px;
+  visibility: visible !important;
+  opacity: 1 !important;
+  transition: opacity 0.3s;
+}
+
+#gameContainer.active {
+  display: flex;
+}
+
+/* Canvas (Schachbrett) */
+#chessboard {
+  display: block !important; /* Erzwingt Sichtbarkeit */
+  visibility: visible !important;
+  opacity: 1 !important;
+  position: relative !important;
+  max-width: 100%;
+  max-height: 100vh;
+  background-color: #fff;
+  border: 1px solid #ccc;
+  touch-action: none; /* Verhindert Zoom auf Touch-Geräten */
+}
+
+/* Turn Display */
+#turnDisplay {
+  font-size: 24px;
+  margin: 10px 0;
   text-align: center;
+}
+
+/* Move List */
+#moveList {
+  list-style-type: none;
+  padding: 10px;
+  background-color: #fff;
+  border: 1px solid #ddd;
+  max-height: 200px;
+  overflow-y: auto;
+  width: 200px;
+  margin: 10px 0;
+}
+
+#moveList li {
+  padding: 5px;
+}
+
+#moveList li.last-move {
+  background-color: #f0f0f0;
+}
+
+/* Opening Display */
+#openingDisplay {
+  font-size: 16px;
+  margin: 10px 0;
+  text-align: center;
+}
+
+/* Buttons */
+button {
+  padding: 8px 16px;
+  margin: 5px;
+  font-size: 14px;
+  cursor: pointer;
+  background-color: #008CBA;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  transition: background-color 0.3s;
 }
 
 button:hover {
-  background-color: #357abd;
-  transform: scale(1.05);
+  background-color: #007B9A;
 }
 
-button:active {
-  transform: scale(0.95);
+button.hidden {
+  display: none;
 }
 
-body.darkmode button {
-  background-color: #66b0ff;
-  color: #333;
-}
-
-body.darkmode button:hover {
-  background-color: #4a90e2;
-}
-
-/* Sidebar Button Styles (Modern and Compact, 4 per row) */
-.sidebar button {
-  padding: 8px 16px;
-  font-size: 14px;
-  border-radius: 10px;
-  background-color: #5a9cf5;
-  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15);
-  width: 22%; /* Adjusted for 4 buttons per row with spacing */
-  margin: 0;
-  text-align: center;
-}
-
-.sidebar button:hover {
-  background-color: #4682b4;
-}
-
-body.darkmode .sidebar button {
-  background-color: #77b5fe;
-}
-
-body.darkmode .sidebar button:hover {
-  background-color: #5a9cf5;
-}
-
-/* Close Fullscreen Button */
-#closeFullscreenButton {
+/* Promotion Choices */
+#promotionChoices {
   position: absolute;
-  top: 10px;
-  right: 10px;
-  background-color: #ff4444;
-  color: white;
-  padding: 5px 10px;
-  border-radius: 50%;
-  font-size: 18px;
-  width: 30px;
-  height: 30px;
-  line-height: 20px;
-  text-align: center;
+  background-color: #fff;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 5px;
+  z-index: 1001;
 }
 
-#closeFullscreenButton:hover {
-  background-color: #cc0000;
-}
-
-/* Promotion Button Styles */
 .promotion-button {
-  background-color: #4a90e2;
-  color: white;
-  border: none;
-  padding: 5px 10px;
-  border-radius: 5px;
-  font-size: 20px;
-  cursor: pointer;
+  display: block;
+  width: 40px;
+  height: 40px;
+  font-size: 24px;
+  text-align: center;
   margin: 5px;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+  background-color: #f0f0f0;
+  border: 1px solid #ddd;
+  border-radius: 4px;
 }
 
 .promotion-button:hover {
-  background-color: #357abd;
+  background-color: #e0e0e0;
 }
 
-/* Turn Display Styles */
-.turn-display {
-  font-size: 18px;
-  margin-bottom: 10px;
-  text-align: center;
-}
-
-body.darkmode .turn-display {
-  color: #e0e0e0;
-}
-
-/* Opening Display Styles */
-.opening-display {
-  font-size: 14px;
-  margin: 10px 0;
-  text-align: center;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  width: 100%;
-}
-
-body.darkmode .opening-display {
-  color: #e0e0e0;
-}
-
-/* Move List Styles */
-.move-list {
-  list-style: none;
-  width: 90%;
-  max-height: 200px;
-  overflow-y: auto;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  padding: 10px;
-  background-color: #e0e0e0; /* Light gray background */
-  margin: 10px auto;
-  text-align: center;
-}
-
-body.darkmode .move-list {
-  background-color: #555;
-  border-color: #777;
-}
-
-.move-list li {
-  padding: 5px;
-  font-size: 14px;
-  border-radius: 3px;
-}
-
-.move-list li.last-move {
-  background-color: #f5f5f5;
-}
-
-body.darkmode .move-list li {
-  color: #e0e0e0;
-}
-
-body.darkmode .move-list li.last-move {
-  background-color: #777;
-}
-
-/* Hidden Class */
-.hidden {
-  display: none !important;
-}
-
-/* Fullscreen Styles */
-body.fullscreen {
-  padding: 0;
-  margin: 0;
-  width: 100vw;
-  height: 100vh;
-}
-
-body.fullscreen .game-container > *:not(.canvas-container) {
-  display: none; /* Hide all UI elements except canvas */
-}
-
-body.fullscreen .canvas-container {
-  width: 100%;
-  height: 100%;
-}
-
-/* Penalty Message Styles */
+/* Penalty Message */
 .penalty-message {
-  background-color: rgba(255, 0, 0, 0.8);
+  position: absolute;
+  background-color: #ff4444;
   color: white;
   padding: 5px 10px;
-  border-radius: 5px;
-  font-size: 14px;
-  position: absolute;
+  border-radius: 3px;
+  z-index: 1002;
   animation: fadeOut 2s forwards;
 }
 
 @keyframes fadeOut {
   0% { opacity: 1; }
-  80% { opacity: 1; }
+  90% { opacity: 1; }
   100% { opacity: 0; }
 }
 
-/* Responsive Adjustments */
+/* Fullscreen Mode */
+body.fullscreen {
+  overflow: hidden;
+}
+
+body.fullscreen #gameContainer {
+  padding: 0;
+}
+
+body.fullscreen #chessboard {
+  max-width: none;
+  max-height: none;
+}
+
+/* Responsive Design */
 @media (max-width: 768px) {
-  .game-container {
-    flex-direction: column;
-    align-items: center;
-  }
-
-  .sidebar {
-    width: 100%;
-    max-width: 300px;
-    flex-direction: column;
+  #gameContainer {
     padding: 10px;
-    max-height: none;
-    overflow-y: visible;
   }
 
-  .sidebar-buttons {
-    flex-direction: row;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 8px;
+  #chessboard {
+    width: 100%;
+    height: auto;
   }
 
-  .sidebar button {
-    width: 22%; /* 4 buttons per row on mobile */
+  button {
     padding: 6px 12px;
     font-size: 12px;
   }
 
-  .move-list {
-    max-height: 100px;
-    width: 90%;
-    margin: 10px auto;
-  }
-
-  .opening-display {
-    font-size: 12px;
+  #moveList {
+    width: 150px;
+    max-height: 150px;
   }
 }
