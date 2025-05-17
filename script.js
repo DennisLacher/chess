@@ -67,6 +67,18 @@ document.addEventListener("DOMContentLoaded", () => {
     throw new Error("Canvas context initialization failed");
   }
 
+  // Ensure canvas visibility at initialization
+  canvas.style.display = "block";
+  canvas.style.visibility = "visible";
+  canvas.style.opacity = "1";
+  canvas.style.position = "relative";
+  console.log("Canvas initial styles set:", {
+    display: canvas.style.display,
+    visibility: canvas.style.visibility,
+    opacity: canvas.style.opacity,
+    position: canvas.style.position,
+  });
+
   // Game state variables
   let size = CONFIG.defaultBoardSize;
   let offsetX = size * CONFIG.offset;
@@ -327,7 +339,35 @@ document.addEventListener("DOMContentLoaded", () => {
     } else {
       updateOpeningDisplay();
     }
+
+    // Debug canvas visibility after drawing
+    console.log("Canvas styles after drawBoard:", {
+      display: canvas.style.display,
+      visibility: canvas.style.visibility,
+      opacity: canvas.style.opacity,
+      position: canvas.style.position,
+      width: canvas.style.width,
+      height: canvas.style.height,
+    });
+    console.log("GameContainer styles:", {
+      display: gameContainer.style.display,
+      visibility: gameContainer.style.visibility,
+      opacity: gameContainer.style.opacity,
+    });
     console.log("drawBoard completed");
+  }
+
+  // Debounce function to prevent excessive resize events
+  function debounce(func, wait) {
+    let timeout;
+    return function executedFunction(...args) {
+      const later = () => {
+        clearTimeout(timeout);
+        func(...args);
+      };
+      clearTimeout(timeout);
+      timeout = setTimeout(later, wait);
+    };
   }
 
   function resizeCanvas() {
@@ -346,6 +386,9 @@ document.addEventListener("DOMContentLoaded", () => {
     offsetY = Math.round((maxHeight - totalHeight) / 2 * CONFIG.offset);
     canvas.width = totalWidth + offsetX * 2;
     canvas.height = totalHeight + offsetY * 2;
+    // Set canvas CSS dimensions to match pixel dimensions
+    canvas.style.width = `${canvas.width}px`;
+    canvas.style.height = `${canvas.height}px`;
     console.log("Canvas resized to:", canvas.width, canvas.height);
     if (gameStarted) {
       console.log("Calling drawBoard from resizeCanvas");
@@ -353,6 +396,9 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     console.log("resizeCanvas completed");
   }
+
+  // Debounced resize handler
+  const debouncedResizeCanvas = debounce(resizeCanvas, 200);
 
   function toggleFullscreenMode() {
     console.log("toggleFullscreenMode called");
@@ -471,6 +517,8 @@ document.addEventListener("DOMContentLoaded", () => {
       moveList.innerHTML = "";
       startScreen.style.display = "none";
       gameContainer.style.display = "flex";
+      gameContainer.style.visibility = "visible";
+      gameContainer.style.opacity = "1";
       restartButton.classList.remove("hidden");
       darkmodeToggleButton.style.display = "block";
       console.log("startScreen display:", startScreen.style.display);
@@ -1191,11 +1239,11 @@ document.addEventListener("DOMContentLoaded", () => {
       // Remove any existing listeners to avoid duplicates
       element.removeEventListener("click", eventHandler);
       element.addEventListener("click", (event) => {
-        console.log(`${logMessage} clicked`);
+        console.log(`${logMessage} clicked, calling handler`);
         event.stopPropagation(); // Prevent any parent handlers from interfering
         try {
           eventHandler();
-          console.log(`${logMessage} handler executed successfully`);
+          console.log(`${logMessage} handler triggered`);
         } catch (error) {
           console.error(`Error in ${logMessage} handler:`, error);
           alert(`Error in ${logMessage} action. Check console for details.`);
@@ -1203,8 +1251,8 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     }
 
-    initializeButton(startButton, () => startGame(false), "Start Game button");
-    initializeButton(startFreestyleButton, () => startGame(true), "Start Freestyle button");
+    initializeButton(startButton, () => startGame(false), "startButton");
+    initializeButton(startFreestyleButton, () => startGame(true), "startFreestyleButton");
 
     rotateButton.addEventListener("click", () => {
       console.log("Rotate button clicked");
@@ -1277,7 +1325,7 @@ document.addEventListener("DOMContentLoaded", () => {
     canvas.addEventListener("click", handleCanvasClick);
   }
 
-  window.addEventListener("resize", resizeCanvas);
+  window.addEventListener("resize", debouncedResizeCanvas);
   initializeGameButtons();
   resizeCanvas();
 });
