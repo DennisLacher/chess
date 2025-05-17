@@ -33,25 +33,16 @@ body.darkmode {
   z-index: 1000;
 }
 
-#startScreen .button-group {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  gap: 15px;
-  width: 100%;
-}
-
 #startScreen button {
-  padding: 12px 24px;
+  padding: 10px 20px;
   font-size: 18px;
+  margin: 10px;
   cursor: pointer;
   background-color: #4CAF50;
   color: white;
   border: none;
   border-radius: 5px;
   transition: background-color 0.3s;
-  width: 200px;
 }
 
 #startScreen button:hover {
@@ -60,7 +51,7 @@ body.darkmode {
 
 /* Game Container */
 #gameContainer {
-  display: none; /* Wird von JavaScript auf flex gesetzt */
+  display: none;
   flex-direction: column;
   align-items: center;
   justify-content: center;
@@ -77,15 +68,15 @@ body.darkmode {
 
 /* Canvas (Schachbrett) */
 #chessboard {
-  display: block !important; /* Erzwingt Sichtbarkeit */
+  display: block !important;
   visibility: visible !important;
   opacity: 1 !important;
   position: relative !important;
   max-width: 100%;
-  max-height: 80vh;
+  max-height: 100vh;
   background-color: #fff;
   border: 1px solid #ccc;
-  touch-action: none; /* Verhindert Zoom auf Touch-Geräten */
+  touch-action: none;
 }
 
 /* Turn Display */
@@ -104,8 +95,15 @@ body.darkmode {
   max-height: 200px;
   overflow-y: auto;
   width: 200px;
-  margin: 10px auto; /* Zentriert die Zugliste */
-  align-self: center; /* Zentriert im Flex-Container */
+  margin: 10px 0;
+}
+
+#moveList li {
+  padding: 5px;
+}
+
+#moveList li.last-move {
+  background-color: #f0f0f0;
 }
 
 /* Opening Display */
@@ -115,32 +113,10 @@ body.darkmode {
   text-align: center;
 }
 
-/* Game Buttons */
-.game-buttons {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  gap: 10px;
-  margin: 10px 0;
-  width: 100%;
-  max-width: 600px; /* Begrenzt die Breite, damit die Buttons nicht zu breit werden */
-}
-
-.game-buttons .button-row {
-  display: flex;
-  justify-content: center;
-  gap: 10px;
-  flex-wrap: nowrap; /* Verhindert das Umbrechen in mehrere Zeilen */
-}
-
-.game-buttons .button-row:nth-child(1),
-.game-buttons .button-row:nth-child(2) {
-  margin-bottom: 10px;
-}
-
+/* Buttons */
 button {
   padding: 8px 16px;
+  margin: 5px;
   font-size: 14px;
   cursor: pointer;
   background-color: #008CBA;
@@ -148,7 +124,6 @@ button {
   border: none;
   border-radius: 4px;
   transition: background-color 0.3s;
-  min-width: 120px;
 }
 
 button:hover {
@@ -210,32 +185,11 @@ body.fullscreen {
 
 body.fullscreen #gameContainer {
   padding: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  height: 100vh;
-  width: 100vw;
 }
 
 body.fullscreen #chessboard {
   max-width: none;
   max-height: none;
-  width: 80vw;
-  height: 80vh;
-}
-
-body.fullscreen .game-buttons {
-  flex-direction: column;
-  align-items: center;
-  width: 100%;
-  max-width: 600px;
-}
-
-body.fullscreen .game-buttons .button-row {
-  flex-direction: row; /* Buttons bleiben nebeneinander */
-  justify-content: center;
-  width: 100%;
 }
 
 /* Responsive Design */
@@ -247,30 +201,15 @@ body.fullscreen .game-buttons .button-row {
   #chessboard {
     width: 100%;
     height: auto;
-    max-height: 60vh;
-  }
-
-  #startScreen button {
-    width: 150px;
-  }
-
-  .game-buttons .button-row {
-    flex-direction: column;
-    align-items: center;
-    width: 100%;
   }
 
   button {
-    width: 80%;
-    margin: 5px 0;
+    padding: 6px 12px;
+    font-size: 12px;
   }
 
   #moveList {
     width: 150px;
     max-height: 150px;
-  }
-
-  body.fullscreen .game-buttons .button-row {
-    flex-direction: column; /* Auf kleinen Bildschirmen im Vollbild vertikal */
   }
 }
