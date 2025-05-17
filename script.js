@@ -1185,14 +1185,20 @@ document.addEventListener("DOMContentLoaded", () => {
       let element = document.getElementById(elementId);
       if (element) {
         console.log(`${logMessage} initialized:`, element);
-        element.addEventListener("click", eventHandler);
+        element.addEventListener("click", () => {
+          console.log(`${logMessage} clicked, calling handler`);
+          eventHandler();
+        });
       } else {
         console.warn(`${logMessage} not found initially. Setting up MutationObserver...`);
         const observer = new MutationObserver((mutations, obs) => {
           element = document.getElementById(elementId);
           if (element) {
             console.log(`${logMessage} found via MutationObserver:`, element);
-            element.addEventListener("click", eventHandler);
+            element.addEventListener("click", () => {
+              console.log(`${logMessage} clicked via MutationObserver, calling handler`);
+              eventHandler();
+            });
             obs.disconnect(); // Stop observing once element is found
           }
         });
@@ -1207,11 +1213,11 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     initializeButton("startButton", () => {
-      console.log("Start Game button clicked");
+      console.log("Start Game button handler triggered");
       startGame(false);
     }, "startButton");
     initializeButton("startFreestyleButton", () => {
-      console.log("Start Freestyle button clicked");
+      console.log("Start Freestyle button handler triggered");
       startGame(true);
     }, "startFreestyleButton");
     rotateButton.addEventListener("click", () => {
