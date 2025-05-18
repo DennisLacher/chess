@@ -255,10 +255,6 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    // Debug: Draw a red rectangle to ensure canvas rendering
-    ctx.fillStyle = "red";
-    ctx.fillRect(0, 0, 50, 50);
-
     const expectedWidth = Math.round(size * 8 + offsetX * 2);
     const expectedHeight = Math.round(size * 8 + offsetY * 2);
     canvas.width = expectedWidth;
@@ -379,7 +375,7 @@ document.addEventListener("DOMContentLoaded", () => {
     console.log("resizeCanvas called");
     let maxWidth = Math.round(window.innerWidth * CONFIG.maxWidthFactor * (fullscreenMode ? 1.3 : 0.7));
     let maxHeight = Math.round(window.innerHeight * CONFIG.maxHeightFactor * (fullscreenMode ? 1.2 : 0.9));
-    if (window.innerWidth <= 768) {
+    if (window.innerWidth <= 768px) {
       maxWidth = Math.round(window.innerWidth * CONFIG.maxWidthFactor * (fullscreenMode ? 1.3 : 1.0));
       maxHeight = Math.round(window.innerHeight * CONFIG.maxHeightFactor * (fullscreenMode ? 1.2 : 0.6));
     }
@@ -414,17 +410,10 @@ document.addEventListener("DOMContentLoaded", () => {
       document.body.classList.add("fullscreen");
       fullscreenMode = true;
       turnDisplay.style.display = "none";
-      rotateButton.style.display = "none";
-      smartphoneModeButton.style.display = "none";
-      soundToggleButton.style.display = "none";
-      undoButton.style.display = "none";
-      restartButton.style.display = "none";
-      designButton.style.display = "none";
-      darkmodeToggleButton.style.display = "none";
-      fullscreenButton.style.display = "none";
-      exitFullscreenButton.style.display = "none";
       moveList.style.display = "none";
       openingDisplay.style.display = "none";
+      fullscreenButton.style.display = "none";
+      exitFullscreenButton.style.display = "none";
       closeFullscreenButton.style.display = "block";
     } else {
       if (document.exitFullscreen) {
@@ -435,17 +424,10 @@ document.addEventListener("DOMContentLoaded", () => {
       document.body.classList.remove("fullscreen");
       fullscreenMode = false;
       turnDisplay.style.display = "block";
-      rotateButton.style.display = "block";
-      smartphoneModeButton.style.display = "block";
-      soundToggleButton.style.display = "block";
-      undoButton.style.display = "block";
-      restartButton.style.display = gameStarted ? "block" : "none";
-      designButton.style.display = "block";
-      darkmodeToggleButton.style.display = gameStarted ? "block" : "none";
-      fullscreenButton.style.display = "block";
-      exitFullscreenButton.style.display = "none";
       moveList.style.display = "block";
       openingDisplay.style.display = "block";
+      fullscreenButton.style.display = "block";
+      exitFullscreenButton.style.display = "none";
       closeFullscreenButton.style.display = "none";
     }
     resizeCanvas();
@@ -459,31 +441,17 @@ document.addEventListener("DOMContentLoaded", () => {
     document.body.classList.toggle("fullscreen", fullscreenMode);
     if (fullscreenMode) {
       turnDisplay.style.display = "none";
-      rotateButton.style.display = "none";
-      smartphoneModeButton.style.display = "none";
-      soundToggleButton.style.display = "none";
-      undoButton.style.display = "none";
-      restartButton.style.display = "none";
-      designButton.style.display = "none";
-      darkmodeToggleButton.style.display = "none";
-      fullscreenButton.style.display = "none";
-      exitFullscreenButton.style.display = "none";
       moveList.style.display = "none";
       openingDisplay.style.display = "none";
+      fullscreenButton.style.display = "none";
+      exitFullscreenButton.style.display = "none";
       closeFullscreenButton.style.display = "block";
     } else {
       turnDisplay.style.display = "block";
-      rotateButton.style.display = "block";
-      smartphoneModeButton.style.display = "block";
-      soundToggleButton.style.display = "block";
-      undoButton.style.display = "block";
-      restartButton.style.display = gameStarted ? "block" : "none";
-      designButton.style.display = "block";
-      darkmodeToggleButton.style.display = gameStarted ? "block" : "none";
-      fullscreenButton.style.display = "block";
-      exitFullscreenButton.style.display = "none";
       moveList.style.display = "block";
       openingDisplay.style.display = "block";
+      fullscreenButton.style.display = "block";
+      exitFullscreenButton.style.display = "none";
       closeFullscreenButton.style.display = "none";
     }
     resizeCanvas();
