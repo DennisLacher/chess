@@ -781,7 +781,7 @@ document.addEventListener("DOMContentLoaded", () => {
           newX += dx;
           newY += dy;
           if (newX < 0 || newX >= 8 || newY < 0 || newY >= 8) break;
-          const targetPiece = tempBoard[newY][newX];
+          const targetLex = tempBoard[newY][newX];
           if (targetPiece) {
             if ((targetPiece === targetPiece.toUpperCase()) !== isWhite) {
               moves.push({ toX: newX, toY: newY });
