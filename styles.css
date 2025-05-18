@@ -127,10 +127,11 @@ body.darkmode {
   gap: 5px;
   margin-top: 10px;
   max-width: 600px;
+  width: 100%;
 }
 
 .game-buttons button {
-  flex: 1 1 calc(50% - 10px);
+  flex: 0 0 calc(50% - 10px);
   max-width: calc(50% - 10px);
   padding: 8px 16px;
   font-size: 14px;
@@ -140,6 +141,7 @@ body.darkmode {
   border: none;
   border-radius: 4px;
   transition: background-color 0.3s;
+  box-sizing: border-box;
 }
 
 .game-buttons button:hover {
@@ -212,14 +214,18 @@ body.fullscreen .game-buttons {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
+  align-items: center;
   gap: 5px;
   margin-top: 10px;
   max-width: 100%;
+  width: 100%;
 }
 
 body.fullscreen .game-buttons button {
-  flex: 1 1 calc(50% - 10px);
+  flex: 0 0 calc(50% - 10px);
   max-width: calc(50% - 10px);
+  padding: 8px 16px;
+  font-size: 14px;
 }
 
 /* Responsive Design */
@@ -233,8 +239,12 @@ body.fullscreen .game-buttons button {
     height: auto;
   }
 
+  .game-buttons {
+    gap: 5px;
+  }
+
   .game-buttons button {
-    flex: 1 1 calc(50% - 10px);
+    flex: 0 0 calc(50% - 10px);
     max-width: calc(50% - 10px);
     padding: 6px 12px;
     font-size: 12px;
