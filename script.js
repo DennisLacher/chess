@@ -116,13 +116,19 @@ document.addEventListener("DOMContentLoaded", () => {
     5: { light: "#FFDAB9", dark: "#CD853F" }
   };
 
-  window.boardColors = designs[currentDesign];
+  // Initialize board colors
+  window.boardColors = designs[currentDesign] || designs[1]; // Fallback to design 1 if currentDesign invalid
   console.log("Initial design and colors:", currentDesign, window.boardColors);
 
   window.updateBoardColors = function (designNum) {
-    currentDesign = designNum;
-    window.boardColors = designs[currentDesign];
-    if (gameStarted) drawBoard();
+    if (designs[designNum]) {
+      currentDesign = designNum;
+      window.boardColors = designs[currentDesign];
+      console.log("Updated board colors to design", currentDesign, window.boardColors);
+      if (gameStarted) drawBoard();
+    } else {
+      console.error("Invalid design number:", designNum);
+    }
   };
 
   // Chess piece Unicode symbols
@@ -151,6 +157,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Initialize dark mode
   document.body.classList.toggle("darkmode", isDarkmode);
+  console.log("Dark mode initialized:", isDarkmode);
 
   // Ensure initial visibility state
   startScreen.style.display = "block";
