@@ -1,573 +1,3 @@
-document.addEventListener("DOMContentLoaded", () => {
-    console.log("Script loaded and DOMContentLoaded event fired at", new Date().toISOString());
-
-    const CONFIG = {
-        defaultBoardSize: 60,
-        minBoardSize: 40,
-        maxWidthFactor: 1.5,
-        maxHeightFactor: 1.2,
-        offset: 0.1,
-        initialTime: 600,
-        undoPenalty: 60,
-    };
-
-    const DEBUG = {
-        enableLogging: true,
-        logLevel: "debug",
-    };
-
-    const SOUND = {
-        enabledByDefault: true,
-        moveSound: "move.mp3",
-        checkSound: "check.mp3",
-        captureSound: "clap.mp3",
-        checkmateSound: "checkmate.mp3",
-    };
-
-    const canvas = document.getElementById("chessboard");
-    const startScreen = document.getElementById("startScreen");
-    const startButton = document.getElementById("startButton");
-    const startFreestyleButton = document.getElementById("startFreestyleButton");
-    const gameContainer = document.getElementById("gameContainer");
-    const turnDisplay = document.getElementById("turnDisplay");
-    const rotateButton = document.getElementById("rotateButton");
-    const smartphoneModeButton = document.getElementById("smartphoneModeButton");
-    const soundToggleButton = document.getElementById("soundToggleButton");
-    const undoButton = document.getElementById("undoButton");
-    const restartButton = document.getElementById("restartButton");
-    const moveList = document.getElementById("moveList");
-    const openingDisplay = document.getElementById("openingDisplay");
-    const designButton = document.getElementById("designButton");
-    const darkmodeToggleButton = document.getElementById("darkmodeToggleButton");
-    const fullscreenButton = document.getElementById("fullscreenButton");
-    const exitFullscreenButton = document.getElementById("exitFullscreenButton");
-    const closeFullscreenButton = document.getElementById("closeFullscreenButton");
-
-    const missingElements = [];
-    if (!canvas) missingElements.push("canvas (id='chessboard')");
-    if (!startScreen) missingElements.push("startScreen (id='startScreen')");
-    if (!startButton) missingElements.push("startButton (id='startButton')");
-    if (!startFreestyleButton) missingElements.push("startFreestyleButton (id='startFreestyleButton')");
-    if (!gameContainer) missingElements.push("gameContainer (id='gameContainer')");
-    if (!turnDisplay) missingElements.push("turnDisplay (id='turnDisplay')");
-    if (!closeFullscreenButton) missingElements.push("closeFullscreenButton (id='closeFullscreenButton')");
-    if (missingElements.length > 0) {
-        console.error("The following DOM elements are missing:", missingElements.join(", "));
-        alert("Error: Missing DOM elements: " + missingElements.join(", ") + ". Please check the HTML and console.");
-        throw new Error("Missing DOM elements: " + missingElements.join(", "));
-    }
-
-    const ctx = canvas.getContext("2d");
-    if (!ctx) {
-        console.error("Failed to initialize canvas context.");
-        alert("Error: Canvas context could not be initialized.");
-        throw new Error("Canvas context initialization failed");
-    }
-
-    canvas.style.display = "block";
-    canvas.style.visibility = "visible";
-    canvas.style.opacity = "1";
-    canvas.style.position = "relative";
-    console.log("Canvas initial styles set:", {
-        display: canvas.style.display,
-        visibility: canvas.style.visibility,
-        opacity: canvas.style.opacity,
-        position: canvas.style.position,
-    });
-
-    let size = CONFIG.defaultBoardSize;
-    let offsetX = size * CONFIG.offset;
-    let offsetY = size * CONFIG.offset;
-    let selectedPiece = null;
-    let currentPlayer = "white";
-    let gameStarted = false;
-    let rotateBoard = false;
-    let smartphoneMode = false;
-    let soundEnabled = SOUND.enabledByDefault;
-    let moveHistory = [];
-    let legalMoves = [];
-    let lastMove = null;
-    let moveCount = 1;
-    let moveNotations = [];
-    let kingPositions = { white: null, black: null };
-    let castlingAvailability = { white: { kingside: true, queenside: true }, black: { kingside: true, queenside: true } };
-    let isWhiteInCheck = false;
-    let isBlackInCheck = false;
-    let currentDesign = 3;
-    let isDarkmode = true; // Standardmäßig im Dark-Mode starten
-    let fullscreenMode = false;
-    let gameOver = false;
-    let winnerText = "";
-    let whiteTime = CONFIG.initialTime;
-    let blackTime = CONFIG.initialTime;
-    let timerInterval = null;
-
-    const designs = {
-        1: { light: "#DEB887", dark: "#8B4513" },
-        2: { light: "#E0E0E0", dark: "#808080" },
-        3: { light: "#ADD8E6", dark: "#4682B4" },
-        4: { light: "#90EE90", dark: "#228B22" },
-        5: { light: "#FFDAB9", dark: "#CD853F" }
-    };
-
-    window.boardColors = designs[currentDesign];
-    console.log("Initial design and colors:", currentDesign, window.boardColors);
-
-    window.updateBoardColors = function (designNum) {
-        if (designs[designNum]) {
-            currentDesign = designNum;
-            window.boardColors = designs[currentDesign];
-            console.log("Updated board colors to design", currentDesign, window.boardColors);
-            if (gameStarted) drawBoard();
-        } else {
-            console.error("Invalid design number:", designNum);
-        }
-    };
-
-    const pieces = {
-        r: "♜", n: "♞", b: "♝", q: "♛", k: "♚", p: "♟",
-        R: "♖", N: "♘", B: "♗", Q: "♕", K: "♔", P: "♙"
-    };
-
-    let board = [
-        ["r", "n", "b", "q", "k", "b", "n", "r"],
-        ["p", "p", "p", "p", "p", "p", "p", "p"],
-        ["", "", "", "", "", "", "", ""],
-        ["", "", "", "", "", "", "", ""],
-        ["", "", "", "", "", "", "", ""],
-        ["", "", "", "", "", "", "", ""],
-        ["P", "P", "P", "P", "P", "P", "P", "P"],
-        ["R", "N", "B", "Q", "K", "B", "N", "R"]
-    ];
-
-    const openings = [
-        { name: "Italian Game", moves: ["e4", "e5", "Nf3", "Nc6", "Bc4"], blackResponses: ["Bc5", "Nf6"] },
-        { name: "Sicilian Defense", moves: ["e4", "c5"], blackResponses: ["Nc6", "e6"] }
-    ];
-
-    startScreen.style.display = "block";
-    gameContainer.style.display = "none";
-    restartButton.classList.add("hidden");
-    darkmodeToggleButton.style.display = "none";
-    fullscreenButton.style.display = "none";
-    exitFullscreenButton.style.display = "none";
-    closeFullscreenButton.style.display = "none";
-    console.log("Initial visibility set: startScreen visible, gameContainer hidden");
-
-    function initializeDarkmodeToggle() {
-        if (darkmodeToggleButton && gameStarted) {
-            darkmodeToggleButton.textContent = isDarkmode ? "Light Mode" : "Dark Mode";
-            darkmodeToggleButton.addEventListener("click", toggleDarkmodeHandler);
-        } else if (darkmodeToggleButton && !gameStarted) {
-            darkmodeToggleButton.style.display = "none";
-        }
-    }
-
-    function toggleDarkmodeHandler() {
-        isDarkmode = !isDarkmode;
-        document.body.classList.toggle("darkmode", isDarkmode);
-        darkmodeToggleButton.textContent = isDarkmode ? "Light Mode" : "Dark Mode";
-        localStorage.setItem("darkmode", isDarkmode);
-        window.updateBoardColors(currentDesign);
-        drawBoard();
-    }
-
-    function updateTurnDisplay() {
-        turnDisplay.textContent = gameOver ? winnerText : `${currentPlayer === "white" ? "White" : "Black"} is next`;
-    }
-
-    function updateOpeningDisplay() {
-        const moves = moveNotations.map((m) => m.notation).filter((n) => !n.includes("-"));
-        let moveText = `Move: ${moves[moves.length - 1] || "None"}`;
-        let openingText = "";
-        if (moves.length > 0) {
-            for (let opening of openings) {
-                const openingMoves = opening.moves;
-                let matches = true;
-                for (let i = 0; i < Math.min(moves.length, openingMoves.length); i++) {
-                    if (moves[i] !== openingMoves[i]) {
-                        matches = false;
-                        break;
-                    }
-                }
-                if (matches) {
-                    openingText = `${opening.name}`;
-                    if (moves.length >= openingMoves.length && opening.blackResponses.length > 0) {
-                        openingText += ` (Black: ${opening.blackResponses.join(" or ")})`;
-                    }
-                    break;
-                }
-            }
-        }
-        const timeText = `White: ${formatTime(whiteTime)} | Black: ${formatTime(blackTime)}`;
-        openingDisplay.textContent = `${moveText}${openingText ? " | " + openingText : ""} | ${timeText}`;
-    }
-
-    function formatTime(seconds) {
-        const minutes = Math.floor(seconds / 60);
-        const secs = seconds % 60;
-        return `${minutes}:${secs < 10 ? "0" : ""}${secs}`;
-    }
-
-    function startTimer() {
-        if (timerInterval) clearInterval(timerInterval);
-        timerInterval = setInterval(() => {
-            if (gameOver) {
-                clearInterval(timerInterval);
-                return;
-            }
-            if (currentPlayer === "white") {
-                whiteTime--;
-                if (whiteTime <= 0) {
-                    whiteTime = 0;
-                    gameOver = true;
-                    winnerText = "Black wins (Time out)!";
-                    clearInterval(timerInterval);
-                }
-            } else {
-                blackTime--;
-                if (blackTime <= 0) {
-                    blackTime = 0;
-                    gameOver = true;
-                    winnerText = "White wins (Time out)!";
-                    clearInterval(timerInterval);
-                }
-            }
-            updateOpeningDisplay();
-            updateTurnDisplay();
-            drawBoard();
-        }, 1000);
-    }
-
-    function drawBoard() {
-        console.log("drawBoard called with colors:", window.boardColors);
-        if (!ctx) {
-            console.error("Canvas context not available.");
-            return;
-        }
-
-        const boardWidth = size * 8;
-        const boardHeight = size * 8;
-        offsetX = Math.max(0, (window.innerWidth - boardWidth) / 2);
-        offsetY = Math.max(0, (window.innerHeight - boardHeight) / 2);
-        canvas.width = boardWidth + offsetX * 2;
-        canvas.height = boardHeight + offsetY * 2;
-        canvas.style.width = `${boardWidth}px`;
-        canvas.style.height = `${boardHeight}px`;
-        canvas.style.marginLeft = `${offsetX}px`;
-        canvas.style.marginTop = `${offsetY}px`;
-        canvas.style.display = "block";
-        canvas.style.visibility = "visible";
-        canvas.style.opacity = "1";
-        canvas.style.position = "relative";
-
-        let effectiveRotation = rotateBoard;
-        if (smartphoneMode) {
-            effectiveRotation = currentPlayer === "black";
-        }
-        for (let y = 0; y < 8; y++) {
-            for (let x = 0; x < 8; x++) {
-                const displayY = effectiveRotation ? 7 - y : y;
-                const displayX = effectiveRotation ? 7 - x : x;
-                ctx.fillStyle = (displayX + displayY) % 2 === 0 ? window.boardColors.light : window.boardColors.dark;
-
-                if (lastMove && ((lastMove.fromX === x && lastMove.fromY === y) || (lastMove.toX === x && lastMove.toY === y))) {
-                    ctx.fillStyle = isDarkmode ? "#808080" : "#f0f0f0";
-                }
-
-                if (selectedPiece && selectedPiece.x === x && selectedPiece.y === y) {
-                    ctx.fillStyle = isDarkmode ? "#505050" : "#c0c0c0";
-                }
-
-                const legalMove = legalMoves.find((move) => move.toX === x && move.toY === y);
-                if (legalMove) {
-                    const targetPiece = board[y][x];
-                    const isCapture = targetPiece && (targetPiece === targetPiece.toUpperCase()) !== (selectedPiece.piece === selectedPiece.piece.toUpperCase());
-                    ctx.fillStyle = isCapture ? (isDarkmode ? "#cc6666" : "#ffcccc") : (isDarkmode ? "#505050" : "#c0c0c0");
-                }
-
-                ctx.fillRect(offsetX + displayX * size, offsetY + displayY * size, size, size);
-
-                if (legalMove && !((board[y][x] && (board[y][x] === board[y][x].toUpperCase()) !== (selectedPiece.piece === selectedPiece.piece.toUpperCase())))) {
-                    ctx.fillStyle = isDarkmode ? "#a0a0a0" : "#808080";
-                    const dotRadius = size * 0.1;
-                    const centerX = offsetX + displayX * size + size / 2;
-                    const centerY = offsetY + displayY * size + size / 2;
-                    ctx.beginPath();
-                    ctx.arc(centerX, centerY, dotRadius, 0, 2 * Math.PI);
-                    ctx.fill();
-                }
-
-                if ((isWhiteInCheck && kingPositions.white && kingPositions.white.x === x && kingPositions.white.y === y) ||
-                    (isBlackInCheck && kingPositions.black && kingPositions.black.x === x && kingPositions.black.y === y)) {
-                    ctx.fillStyle = gameOver ? "#a94442" : "#d9534f";
-                    ctx.fillRect(offsetX + displayX * size, offsetY + displayY * size, size, size);
-                }
-
-                const piece = board[y][x];
-                if (piece) {
-                    const isWhite = piece === piece.toUpperCase();
-                    ctx.fillStyle = isWhite ? "#FFFFFF" : "#000000";
-                    ctx.font = `${size * 0.7}px sans-serif`;
-                    ctx.textAlign = "center";
-                    ctx.textBaseline = "middle";
-                    ctx.fillText(pieces[piece], offsetX + displayX * size + size / 2, offsetY + displayY * size + size / 2);
-                }
-            }
-        }
-
-        // Beschriftungen hinzufügen (1-8 und a-h)
-        ctx.fillStyle = isDarkmode ? "#FFFFFF" : "#000000";
-        ctx.font = `${size * 0.5}px sans-serif`;
-        ctx.textAlign = "center";
-        ctx.textBaseline = "middle";
-        for (let i = 0; i < 8; i++) {
-            const displayX = effectiveRotation ? 7 - i : i;
-            const displayY = effectiveRotation ? 7 - i : i;
-            // Spaltenbeschriftung (a-h) unten
-            ctx.fillText(String.fromCharCode(97 + i), offsetX + i * size + size / 2, offsetY + boardHeight + size * 0.25);
-            // Zeilenbeschriftung (1-8) links
-            ctx.fillText(8 - i, offsetX - size * 0.25, offsetY + i * size + size / 2);
-            if (!effectiveRotation) {
-                // Spaltenbeschriftung (a-h) oben
-                ctx.fillText(String.fromCharCode(97 + i), offsetX + i * size + size / 2, offsetY - size * 0.25);
-                // Zeilenbeschriftung (1-8) rechts
-                ctx.fillText(8 - i, offsetX + boardWidth + size * 0.25, offsetY + i * size + size / 2);
-            } else {
-                // Spaltenbeschriftung (a-h) oben
-                ctx.fillText(String.fromCharCode(97 + i), offsetX + i * size + size / 2, offsetY - size * 0.25);
-                // Zeilenbeschriftung (1-8) rechts
-                ctx.fillText(8 - i, offsetX + boardWidth + size * 0.25, offsetY + i * size + size / 2);
-            }
-        }
-
-        if (gameOver) {
-            openingDisplay.textContent = winnerText;
-        } else {
-            updateOpeningDisplay();
-        }
-
-        console.log("Canvas styles after drawBoard:", {
-            display: canvas.style.display,
-            visibility: canvas.style.visibility,
-            opacity: canvas.style.opacity,
-            position: canvas.style.position,
-            width: canvas.style.width,
-            height: canvas.style.height,
-            computedWidth: canvas.offsetWidth,
-            computedHeight: canvas.offsetHeight,
-        });
-        console.log("GameContainer styles:", {
-            display: gameContainer.style.display,
-            visibility: gameContainer.style.visibility,
-            opacity: gameContainer.style.opacity,
-        });
-        console.log("drawBoard completed");
-    }
-
-    function debounce(func, wait) {
-        let timeout;
-        return function executedFunction(...args) {
-            const later = () => {
-                clearTimeout(timeout);
-                func(...args);
-            };
-            clearTimeout(timeout);
-            timeout = setTimeout(later, wait);
-        };
-    }
-
-    function resizeCanvas() {
-        console.log("resizeCanvas called");
-        let maxWidth = window.innerWidth * (fullscreenMode ? 0.95 : 0.7);
-        let maxHeight = window.innerHeight * (fullscreenMode ? 0.95 : 0.6);
-        
-        if (window.innerWidth <= 768) {
-            maxWidth = window.innerWidth * (fullscreenMode ? 0.98 : 0.9);
-            maxHeight = window.innerHeight * (fullscreenMode ? 0.8 : 0.5);
-        }
-
-        const boardDimension = Math.min(maxWidth, maxHeight);
-        size = Math.floor(Math.max(boardDimension / 8, CONFIG.minBoardSize));
-        const totalWidth = size * 8;
-        const totalHeight = size * 8;
-
-        offsetX = Math.max(0, (window.innerWidth - totalWidth) / 2);
-        offsetY = Math.max(0, (window.innerHeight - totalHeight) / 2);
-
-        canvas.width = totalWidth + offsetX * 2;
-        canvas.height = totalHeight + offsetY * 2;
-        canvas.style.width = `${totalWidth}px`;
-        canvas.style.height = `${totalHeight}px`;
-        canvas.style.marginLeft = `${offsetX}px`;
-        canvas.style.marginTop = `${offsetY}px`;
-
-        console.log("Canvas resized to:", canvas.width, canvas.height, "with offsets:", offsetX, offsetY);
-        if (gameStarted) {
-            console.log("Calling drawBoard from resizeCanvas");
-            drawBoard();
-        }
-        console.log("resizeCanvas completed");
-    }
-
-    const debouncedResizeCanvas = debounce(resizeCanvas, 200);
-
-    function toggleFullscreenMode() {
-        console.log("toggleFullscreenMode called");
-        if (!fullscreenMode) {
-            if (document.documentElement.requestFullscreen) {
-                document.documentElement.requestFullscreen().catch((err) => {
-                    console.error("Failed to enter fullscreen mode:", err);
-                });
-            }
-            document.body.classList.add("fullscreen");
-            fullscreenMode = true;
-            turnDisplay.style.display = "none";
-            moveList.style.display = "none";
-            openingDisplay.style.display = "none";
-            fullscreenButton.style.display = "none";
-            exitFullscreenButton.style.display = "none";
-            closeFullscreenButton.style.display = "block";
-            closeFullscreenButton.textContent = "Back";
-
-            // Handy-spezifische "X"-Schaltfläche hinzufügen
-            if (window.innerWidth <= 768 && !document.getElementById("mobileExitButton")) {
-                const mobileExitButton = document.createElement("button");
-                mobileExitButton.id = "mobileExitButton";
-                mobileExitButton.textContent = "X";
-                mobileExitButton.style.position = "absolute";
-                mobileExitButton.style.top = "10px";
-                mobileExitButton.style.right = "10px";
-                mobileExitButton.style.width = "30px";
-                mobileExitButton.style.height = "30px";
-                mobileExitButton.style.fontSize = "20px";
-                mobileExitButton.style.backgroundColor = isDarkmode ? "#333" : "#fff";
-                mobileExitButton.style.color = isDarkmode ? "#fff" : "#333";
-                mobileExitButton.style.border = "none";
-                mobileExitButton.style.borderRadius = "50%";
-                mobileExitButton.style.cursor = "pointer";
-                mobileExitButton.style.zIndex = "1000";
-                mobileExitButton.addEventListener("click", () => {
-                    if (document.exitFullscreen) {
-                        document.exitFullscreen().catch((err) => {
-                            console.error("Failed to exit fullscreen mode:", err);
-                        });
-                    }
-                });
-                document.body.appendChild(mobileExitButton);
-            }
-
-            console.log("closeFullscreenButton styles:", {
-                display: closeFullscreenButton.style.display,
-                visibility: closeFullscreenButton.style.visibility,
-                opacity: closeFullscreenButton.style.opacity,
-            });
-        } else {
-            if (document.exitFullscreen) {
-                document.exitFullscreen().catch((err) => {
-                    console.error("Failed to exit fullscreen mode:", err);
-                });
-            }
-            document.body.classList.remove("fullscreen");
-            fullscreenMode = false;
-            turnDisplay.style.display = "block";
-            moveList.style.display = "block";
-            openingDisplay.style.display = "block";
-            fullscreenButton.style.display = "block";
-            exitFullscreenButton.style.display = "none";
-            closeFullscreenButton.style.display = "none";
-
-            // "X"-Schaltfläche entfernen
-            const mobileExitButton = document.getElementById("mobileExitButton");
-            if (mobileExitButton) {
-                document.body.removeChild(mobileExitButton);
-            }
-        }
-        resizeCanvas();
-        drawBoard();
-        console.log("toggleFullscreenMode completed");
-    }
-
-    document.addEventListener('fullscreenchange', () => {
-        console.log("fullscreenchange event fired");
-        fullscreenMode = !!document.fullscreenElement;
-        document.body.classList.toggle("fullscreen", fullscreenMode);
-        if (fullscreenMode) {
-            turnDisplay.style.display = "none";
-            moveList.style.display = "none";
-            openingDisplay.style.display = "none";
-            fullscreenButton.style.display = "none";
-            exitFullscreenButton.style.display = "none";
-            closeFullscreenButton.style.display = "block";
-            closeFullscreenButton.textContent = "Back";
-
-            // Handy-spezifische "X"-Schaltfläche hinzufügen
-            if (window.innerWidth <= 768 && !document.getElementById("mobileExitButton")) {
-                const mobileExitButton = document.createElement("button");
-                mobileExitButton.id = "mobileExitButton";
-                mobileExitButton.textContent = "X";
-                mobileExitButton.style.position = "absolute";
-                mobileExitButton.style.top = "10px";
-                mobileExitButton.style.right = "10px";
-                mobileExitButton.style.width = "30px";
-                mobileExitButton.style.height = "30px";
-                mobileExitButton.style.fontSize = "20px";
-                mobileExitButton.style.backgroundColor = isDarkmode ? "#333" : "#fff";
-                mobileExitButton.style.color = isDarkmode ? "#fff" : "#333";
-                mobileExitButton.style.border = "none";
-                mobileExitButton.style.borderRadius = "50%";
-                mobileExitButton.style.cursor = "pointer";
-                mobileExitButton.style.zIndex = "1000";
-                mobileExitButton.addEventListener("click", () => {
-                    if (document.exitFullscreen) {
-                        document.exitFullscreen().catch((err) => {
-                            console.error("Failed to exit fullscreen mode:", err);
-                        });
-                    }
-                });
-                document.body.appendChild(mobileExitButton);
-            }
-        } else {
-            turnDisplay.style.display = "block";
-            moveList.style.display = "block";
-            openingDisplay.style.display = "block";
-            fullscreenButton.style.display = "block";
-            exitFullscreenButton.style.display = "none";
-            closeFullscreenButton.style.display = "none";
-
-            // "X"-Schaltfläche entfernen
-            const mobileExitButton = document.getElementById("mobileExitButton");
-            if (mobileExitButton) {
-                document.body.removeChild(mobileExitButton);
-            }
-        }
-        resizeCanvas();
-        drawBoard();
-        console.log("fullscreenchange handler completed");
-    });
-
-    // Escape-Taste für Vollbildmodus
-    document.addEventListener('keydown', (event) => {
-        if (event.key === 'Escape' && fullscreenMode) {
-            console.log("Escape key pressed, exiting fullscreen mode");
-            if (document.exitFullscreen) {
-                document.exitFullscreen().catch((err) => {
-                    console.error("Failed to exit fullscreen mode:", err);
-                });
-            }
-            document.body.classList.remove("fullscreen");
-            fullscreenMode = false;
-            turnDisplay.style.display = "block";
-            moveList.style.display = "block";
-            openingDisplay.style.display = "block";
-            fullscreenButton.style.display = "block";
-            exitFullscreenButton.style.display = "none";
-            closeFullscreenButton.style.display = "none";
-            resizeCanvas();
-            drawBoard();
-        }
-    });
-
     function startGame(freestyle = false) {
         console.log("startGame called with freestyle:", freestyle);
         try {
@@ -743,7 +173,7 @@ document.addEventListener("DOMContentLoaded", () => {
             });
         } else if (piece.toLowerCase() === "r") {
             const directions = [[0, 1], [0, -1], [1, 0], [-1, 0]];
-            directions.forEach(([dx, dy]) => {
+            directions.forEach([dx, dy] => {
                 let newX = x;
                 let newY = y;
                 while (true) {
@@ -759,7 +189,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 [-2, -1], [-2, 1], [-1, -2], [-1, 2],
                 [1, -2], [1, 2], [2, -1], [2, 1]
             ];
-            knightMoves.forEach(([dx, dy]) => {
+            knightMoves.forEach([dx, dy] => {
                 const newX = x + dx;
                 const newY = y + dy;
                 if (newX >= 0 && newX < 8 && newY >= 0 && newY < 8) {
@@ -768,7 +198,7 @@ document.addEventListener("DOMContentLoaded", () => {
             });
         } else if (piece.toLowerCase() === "b") {
             const directions = [[1, 1], [1, -1], [-1, 1], [-1, -1]];
-            directions.forEach(([dx, dy]) => {
+            directions.forEach([dx, dy] => {
                 let newX = x;
                 let newY = y;
                 while (true) {
@@ -781,7 +211,7 @@ document.addEventListener("DOMContentLoaded", () => {
             });
         } else if (piece.toLowerCase() === "q") {
             const directions = [[0, 1], [0, -1], [1, 0], [-1, 0], [1, 1], [1, -1], [-1, 1], [-1, -1]];
-            directions.forEach(([dx, dy]) => {
+            directions.forEach([dx, dy] => {
                 let newX = x;
                 let newY = y;
                 while (true) {
@@ -797,7 +227,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 [0, 1], [0, -1], [1, 0], [-1, 0],
                 [1, 1], [1, -1], [-1, 1], [-1, -1]
             ];
-            kingMoves.forEach(([dx, dy]) => {
+            kingMoves.forEach([dx, dy] => {
                 const newX = x + dx;
                 const newY = y + dy;
                 if (newX >= 0 && newX < 8 && newY >= 0 && newY < 8) {
@@ -844,7 +274,7 @@ document.addEventListener("DOMContentLoaded", () => {
             });
         } else if (piece.toLowerCase() === "r") {
             const directions = [[0, 1], [0, -1], [1, 0], [-1, 0]];
-            directions.forEach(([dx, dy]) => {
+            directions.forEach([dx, dy] => {
                 let newX = x;
                 let newY = y;
                 while (true) {
@@ -866,7 +296,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 [-2, -1], [-2, 1], [-1, -2], [-1, 2],
                 [1, -2], [1, 2], [2, -1], [2, 1]
             ];
-            knightMoves.forEach(([dx, dy]) => {
+            knightMoves.forEach([dx, dy] => {
                 const newX = x + dx;
                 const newY = y + dy;
                 if (newX >= 0 && newX < 8 && newY >= 0 && newY < 8) {
@@ -878,7 +308,7 @@ document.addEventListener("DOMContentLoaded", () => {
             });
         } else if (piece.toLowerCase() === "b") {
             const directions = [[1, 1], [1, -1], [-1, 1], [-1, -1]];
-            directions.forEach(([dx, dy]) => {
+            directions.forEach([dx, dy] => {
                 let newX = x;
                 let newY = y;
                 while (true) {
@@ -897,7 +327,7 @@ document.addEventListener("DOMContentLoaded", () => {
             });
         } else if (piece.toLowerCase() === "q") {
             const directions = [[0, 1], [0, -1], [1, 0], [-1, 0], [1, 1], [1, -1], [-1, 1], [-1, -1]];
-            directions.forEach(([dx, dy]) => {
+            directions.forEach([dx, dy] => {
                 let newX = x;
                 let newY = y;
                 while (true) {
@@ -919,7 +349,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 [0, 1], [0, -1], [1, 0], [-1, 0],
                 [1, 1], [1, -1], [-1, 1], [-1, -1]
             ];
-            kingMoves.forEach(([dx, dy]) => {
+            kingMoves.forEach([dx, dy] => {
                 const newX = x + dx;
                 const newY = y + dy;
                 if (newX >= 0 && newX < 8 && newY >= 0 && newY < 8) {
@@ -1066,7 +496,7 @@ document.addEventListener("DOMContentLoaded", () => {
         console.log("updateMoveHistory completed");
     }
 
-  function showPromotionChoice(x, y, isWhite) {
+    function showPromotionChoice(x, y, isWhite) {
         console.log("showPromotionChoice called");
         const existingMenu = document.getElementById("promotionChoices");
         if (existingMenu) {
