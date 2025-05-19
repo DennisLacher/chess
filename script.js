@@ -78,7 +78,7 @@ document.addEventListener("DOMContentLoaded", () => {
     let offsetX = size * CONFIG.offset;
     let offsetY = size * CONFIG.offset;
     let selectedPiece = null;
-    let currentPlayer = "white"; // Sicherstellen, dass Weiß startet
+    let currentPlayer = "white";
     let gameStarted = false;
     let rotateBoard = false;
     let smartphoneMode = false;
@@ -302,7 +302,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 const piece = board[y][x];
                 if (piece) {
                     const isWhite = piece === piece.toUpperCase();
-                    ctx.fillStyle = isWhite ? "#000000" : "#FFFFFF";
+                    ctx.fillStyle = isWhite ? "#000000" : "#FFFFFF"; // Weiße Figuren sind schwarz, schwarze Figuren sind weiß
                     ctx.font = `${size * 0.7}px sans-serif`;
                     ctx.textAlign = "center";
                     ctx.textBaseline = "middle";
@@ -363,22 +363,27 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function resizeCanvas() {
         console.log("resizeCanvas called");
-        let maxWidth = Math.round(window.innerWidth * CONFIG.maxWidthFactor * (fullscreenMode ? 1.9 : 0.7));
-        let maxHeight = Math.round(window.innerHeight * CONFIG.maxHeightFactor * (fullscreenMode ? 1.6 : 0.9));
+        let maxWidth = window.innerWidth * (fullscreenMode ? 0.9 : 0.7);
+        let maxHeight = window.innerHeight * (fullscreenMode ? 0.9 : 0.6);
+        
         if (window.innerWidth <= 768) {
-            maxWidth = Math.round(window.innerWidth * CONFIG.maxWidthFactor * (fullscreenMode ? 1.9 : 1.0));
-            maxHeight = Math.round(window.innerHeight * CONFIG.maxHeightFactor * (fullscreenMode ? 1.6 : 0.6));
+            maxWidth = window.innerWidth * (fullscreenMode ? 0.95 : 0.9);
+            maxHeight = window.innerHeight * (fullscreenMode ? 0.7 : 0.5);
         }
-        const boardSize = Math.min(maxWidth / 8, maxHeight / 8, CONFIG.defaultBoardSize);
-        size = Math.floor(Math.max(boardSize, CONFIG.minBoardSize));
-        const totalWidth = Math.round(size * 8);
-        const totalHeight = Math.round(size * 8);
-        offsetX = Math.round((maxWidth - totalWidth) / 2 * CONFIG.offset);
-        offsetY = Math.round((maxHeight - totalHeight) / 2 * CONFIG.offset);
+
+        const boardDimension = Math.min(maxWidth, maxHeight);
+        size = Math.floor(Math.max(boardDimension / 8, CONFIG.minBoardSize));
+        const totalWidth = size * 8;
+        const totalHeight = size * 8;
+
+        offsetX = (window.innerWidth - totalWidth) / 2 * CONFIG.offset;
+        offsetY = (window.innerHeight - totalHeight) / 2 * CONFIG.offset;
+
         canvas.width = totalWidth + offsetX * 2;
         canvas.height = totalHeight + offsetY * 2;
         canvas.style.width = `${canvas.width}px`;
         canvas.style.height = `${canvas.height}px`;
+
         console.log("Canvas resized to:", canvas.width, canvas.height);
         if (gameStarted) {
             console.log("Calling drawBoard from resizeCanvas");
@@ -453,7 +458,7 @@ document.addEventListener("DOMContentLoaded", () => {
         console.log("startGame called with freestyle:", freestyle);
         try {
             console.log("Setting initial game state...");
-            currentPlayer = "white"; // Sicherstellen, dass Weiß startet
+            currentPlayer = "white";
             gameStarted = true;
             gameOver = false;
             selectedPiece = null;
@@ -528,7 +533,7 @@ document.addEventListener("DOMContentLoaded", () => {
             initializeDarkmodeToggle();
 
             console.log("Updating turn display...");
-            updateTurnDisplay(); // Sofort aktualisieren, um sicherzustellen, dass "White is next" angezeigt wird
+            updateTurnDisplay();
 
             console.log("startGame completed successfully");
         } catch (error) {
