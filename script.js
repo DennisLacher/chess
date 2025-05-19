@@ -247,7 +247,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         const expectedWidth = Math.round(size * 8 + offsetX * 2);
-        const expectedHeight = Math.round(size * 8 + offsetY * 2 + size); // Mehr Platz für Beschriftung
+        const expectedHeight = Math.round(size * 8 + offsetY * 2); // Beschriftung entfernt, daher kein Extra-Platz nötig
         canvas.width = expectedWidth;
         canvas.height = expectedHeight;
         canvas.style.width = `${expectedWidth}px`;
@@ -312,32 +312,7 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         }
 
-        // Beschriftung: Buchstaben (a-h) nur unten, Zahlen (1-8) nur links
-        ctx.fillStyle = isDarkmode ? "#e0e0e0" : "#333";
-        ctx.font = `${size * 0.25}px Arial`; // Schriftgröße reduziert
-        ctx.textAlign = "center";
-        ctx.textBaseline = "middle";
-        ctx.fontWeight = "normal"; // Fett entfernen
-
-        if (!effectiveRotation) {
-            for (let i = 0; i < 8; i++) {
-                // Buchstaben (a-h) nur unten
-                const letterY = offsetY + 8 * size + size * 0.7; // Mehr Abstand
-                ctx.fillText(String.fromCharCode(97 + i), offsetX + i * size + size / 2, letterY);
-                // Zahlen (1-8) nur links
-                const numberX = offsetX - size * 0.7; // Mehr Abstand
-                ctx.fillText(8 - i, numberX, offsetY + i * size + size / 2);
-            }
-        } else {
-            for (let i = 0; i < 8; i++) {
-                // Buchstaben (a-h) nur unten (umgedreht)
-                const letterY = offsetY + 8 * size + size * 0.7; // Mehr Abstand
-                ctx.fillText(String.fromCharCode(97 + (7 - i)), offsetX + i * size + size / 2, letterY);
-                // Zahlen (1-8) nur links (umgedreht)
-                const numberX = offsetX - size * 0.7; // Mehr Abstand
-                ctx.fillText(i + 1, numberX, offsetY + (7 - i) * size + size / 2);
-            }
-        }
+        // Beschriftung (a-h und 1-8) wurde komplett entfernt
 
         if (gameOver) {
             openingDisplay.textContent = winnerText;
@@ -394,7 +369,7 @@ document.addEventListener("DOMContentLoaded", () => {
         offsetY = (window.innerHeight - totalHeight) / 2 * CONFIG.offset;
 
         canvas.width = totalWidth + offsetX * 2;
-        canvas.height = totalHeight + offsetY * 2 + size * 1.2; // Extra Platz für Beschriftung
+        canvas.height = totalHeight + offsetY * 2; // Kein Extra-Platz mehr für Beschriftung
         canvas.style.width = `${canvas.width}px`;
         canvas.style.height = `${canvas.height}px`;
 
@@ -480,7 +455,7 @@ document.addEventListener("DOMContentLoaded", () => {
         console.log("fullscreenchange handler completed");
     });
 
-    // Neue Escape-Taste für Vollbildmodus
+    // Escape-Taste für Vollbildmodus
     document.addEventListener('keydown', (event) => {
         if (event.key === 'Escape' && fullscreenMode) {
             console.log("Escape key pressed, exiting fullscreen mode");
@@ -838,14 +813,8 @@ document.addEventListener("DOMContentLoaded", () => {
                     newX += dx;
                     newY += dy;
                     if (newX < 0 || newX >= 8 || newY < 0 || newY >= 8) break;
-                    const targetPiece = tempBoard[newY][newX];
-                    if (targetPiece) {
-                        if ((targetPiece === targetPiece.toUpperCase()) !== isWhite) {
-                            moves.push({ toX: newX, toY: newY });
-                        }
-                        break;
-                    }
                     moves.push({ toX: newX, toY: newY });
+                    if (tempBoard[newY][newX]) break;
                 }
             });
         } else if (piece.toLowerCase() === "k") {
