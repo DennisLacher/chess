@@ -78,7 +78,7 @@ document.addEventListener("DOMContentLoaded", () => {
   let offsetX = size * CONFIG.offset;
   let offsetY = size * CONFIG.offset;
   let selectedPiece = null;
-  let currentPlayer = "white";
+  let currentPlayer = "white"; // Korrigierter Start mit Weiß
   let gameStarted = false;
   let rotateBoard = false;
   let smartphoneMode = false;
@@ -159,7 +159,6 @@ document.addEventListener("DOMContentLoaded", () => {
   function initializeDarkmodeToggle() {
     if (darkmodeToggleButton && gameStarted) {
       darkmodeToggleButton.textContent = isDarkmode ? "Light Mode" : "Dark Mode";
-      darkmodeToggleButton.removeEventListener("click", toggleDarkmodeHandler);
       darkmodeToggleButton.addEventListener("click", toggleDarkmodeHandler);
     } else if (darkmodeToggleButton && !gameStarted) {
       darkmodeToggleButton.style.display = "none";
@@ -457,7 +456,7 @@ document.addEventListener("DOMContentLoaded", () => {
     console.log("startGame called with freestyle:", freestyle);
     try {
       console.log("Setting initial game state...");
-      currentPlayer = "white";
+      currentPlayer = "white"; // Sicherstellung, dass das Spiel mit Weiß startet
       gameStarted = true;
       gameOver = false;
       selectedPiece = null;
@@ -1199,8 +1198,7 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
     console.log("startButton initialized:", startButton);
-    startButton.removeEventListener("click", startGameHandler);
-    startButton.addEventListener("click", startGameHandler);
+    startButton.addEventListener("click", () => startGame(false));
 
     if (!startFreestyleButton) {
       console.error("startFreestyleButton not found. Check HTML for ID 'startFreestyleButton'.");
@@ -1208,18 +1206,7 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
     console.log("startFreestyleButton initialized:", startFreestyleButton);
-    startFreestyleButton.removeEventListener("click", startFreestyleHandler);
-    startFreestyleButton.addEventListener("click", startFreestyleHandler);
-
-    function startGameHandler() {
-      console.log("startButton handler triggered");
-      startGame(false);
-    }
-
-    function startFreestyleHandler() {
-      console.log("startFreestyleButton handler triggered");
-      startGame(true);
-    }
+    startFreestyleButton.addEventListener("click", () => startGame(true));
 
     rotateButton.addEventListener("click", () => {
       rotateBoard = !rotateBoard;
