@@ -1,7 +1,6 @@
 document.addEventListener("DOMContentLoaded", () => {
   console.log("Script loaded and DOMContentLoaded event fired at", new Date().toISOString());
 
-  // Configuration constants
   const CONFIG = {
     defaultBoardSize: 50,
     minBoardSize: 40,
@@ -25,7 +24,6 @@ document.addEventListener("DOMContentLoaded", () => {
     checkmateSound: "checkmate.mp3",
   };
 
-  // DOM elements
   const canvas = document.getElementById("chessboard");
   const startScreen = document.getElementById("startScreen");
   const startButton = document.getElementById("startButton");
@@ -45,7 +43,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const exitFullscreenButton = document.getElementById("exitFullscreenButton");
   const closeFullscreenButton = document.getElementById("closeFullscreenButton");
 
-  // Validate DOM elements
   const missingElements = [];
   if (!canvas) missingElements.push("canvas (id='chessboard')");
   if (!startScreen) missingElements.push("startScreen (id='startScreen')");
@@ -53,7 +50,6 @@ document.addEventListener("DOMContentLoaded", () => {
   if (!startFreestyleButton) missingElements.push("startFreestyleButton (id='startFreestyleButton')");
   if (!gameContainer) missingElements.push("gameContainer (id='gameContainer')");
   if (!turnDisplay) missingElements.push("turnDisplay (id='turnDisplay')");
-
   if (missingElements.length > 0) {
     console.error("The following DOM elements are missing:", missingElements.join(", "));
     alert("Error: Missing DOM elements: " + missingElements.join(", ") + ". Please check the HTML and console.");
@@ -67,7 +63,6 @@ document.addEventListener("DOMContentLoaded", () => {
     throw new Error("Canvas context initialization failed");
   }
 
-  // Ensure canvas visibility at initialization
   canvas.style.display = "block";
   canvas.style.visibility = "visible";
   canvas.style.opacity = "1";
@@ -79,7 +74,6 @@ document.addEventListener("DOMContentLoaded", () => {
     position: canvas.style.position,
   });
 
-  // Game state variables
   let size = CONFIG.defaultBoardSize;
   let offsetX = size * CONFIG.offset;
   let offsetY = size * CONFIG.offset;
@@ -107,7 +101,6 @@ document.addEventListener("DOMContentLoaded", () => {
   let blackTime = CONFIG.initialTime;
   let timerInterval = null;
 
-  // Board design configurations
   const designs = {
     1: { light: "#DEB887", dark: "#8B4513" },
     2: { light: "#E0E0E0", dark: "#808080" },
@@ -116,8 +109,7 @@ document.addEventListener("DOMContentLoaded", () => {
     5: { light: "#FFDAB9", dark: "#CD853F" }
   };
 
-  // Initialize board colors
-  window.boardColors = designs[currentDesign] || designs[1]; // Fallback to design 1 if currentDesign invalid
+  window.boardColors = designs[currentDesign] || designs[1];
   console.log("Initial design and colors:", currentDesign, window.boardColors);
 
   window.updateBoardColors = function (designNum) {
@@ -131,13 +123,11 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   };
 
-  // Chess piece Unicode symbols
   const pieces = {
     r: "♜", n: "♞", b: "♝", q: "♛", k: "♚", p: "♟",
     R: "♖", N: "♘", B: "♗", Q: "♕", K: "♔", P: "♙"
   };
 
-  // Initial board setup
   let board = [
     ["r", "n", "b", "q", "k", "b", "n", "r"],
     ["p", "p", "p", "p", "p", "p", "p", "p"],
@@ -149,17 +139,14 @@ document.addEventListener("DOMContentLoaded", () => {
     ["R", "N", "B", "Q", "K", "B", "N", "R"]
   ];
 
-  // Chess openings for display
   const openings = [
     { name: "Italian Game", moves: ["e4", "e5", "Nf3", "Nc6", "Bc4"], blackResponses: ["Bc5", "Nf6"] },
     { name: "Sicilian Defense", moves: ["e4", "c5"], blackResponses: ["Nc6", "e6"] }
   ];
 
-  // Initialize dark mode
   document.body.classList.toggle("darkmode", isDarkmode);
   console.log("Dark mode initialized:", isDarkmode);
 
-  // Ensure initial visibility state
   startScreen.style.display = "block";
   gameContainer.style.display = "none";
   restartButton.classList.add("hidden");
@@ -382,7 +369,7 @@ document.addEventListener("DOMContentLoaded", () => {
     console.log("resizeCanvas called");
     let maxWidth = Math.round(window.innerWidth * CONFIG.maxWidthFactor * (fullscreenMode ? 1.3 : 0.7));
     let maxHeight = Math.round(window.innerHeight * CONFIG.maxHeightFactor * (fullscreenMode ? 1.2 : 0.9));
-    if (window.innerWidth <= 768px) {
+    if (window.innerWidth <= 768) {
       maxWidth = Math.round(window.innerWidth * CONFIG.maxWidthFactor * (fullscreenMode ? 1.3 : 1.0));
       maxHeight = Math.round(window.innerHeight * CONFIG.maxHeightFactor * (fullscreenMode ? 1.2 : 0.6));
     }
@@ -781,7 +768,7 @@ document.addEventListener("DOMContentLoaded", () => {
           newX += dx;
           newY += dy;
           if (newX < 0 || newX >= 8 || newY < 0 || newY >= 8) break;
-          const targetLex = tempBoard[newY][newX];
+          const targetPiece = tempBoard[newY][newX];
           if (targetPiece) {
             if ((targetPiece === targetPiece.toUpperCase()) !== isWhite) {
               moves.push({ toX: newX, toY: newY });
