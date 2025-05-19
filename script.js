@@ -78,7 +78,7 @@ document.addEventListener("DOMContentLoaded", () => {
   let offsetX = size * CONFIG.offset;
   let offsetY = size * CONFIG.offset;
   let selectedPiece = null;
-  let currentPlayer = "white"; // Korrigierter Start mit Weiß
+  let currentPlayer = "white"; // Explizit auf Weiß gesetzt
   let gameStarted = false;
   let rotateBoard = false;
   let smartphoneMode = false;
@@ -109,7 +109,7 @@ document.addEventListener("DOMContentLoaded", () => {
     5: { light: "#FFDAB9", dark: "#CD853F" }
   };
 
-  window.boardColors = designs[currentDesign] || designs[1];
+  window.boardColors = designs[currentDesign] || designs[1]; // Sicherstellen, dass Farben sofort gesetzt werden
   console.log("Initial design and colors:", currentDesign, window.boardColors);
 
   window.updateBoardColors = function (designNum) {
@@ -242,7 +242,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function drawBoard() {
-    console.log("drawBoard called");
+    console.log("drawBoard called with colors:", window.boardColors);
     if (!ctx) {
       console.error("Canvas context not available.");
       return;
@@ -268,15 +268,15 @@ document.addEventListener("DOMContentLoaded", () => {
         const displayY = effectiveRotation ? 7 - y : y;
         const displayX = effectiveRotation ? 7 - x : x;
         ctx.fillStyle = (displayX + displayY) % 2 === 0 ? window.boardColors.light : window.boardColors.dark;
-        
+
         if (lastMove && ((lastMove.fromX === x && lastMove.fromY === y) || (lastMove.toX === x && lastMove.toY === y))) {
           ctx.fillStyle = isDarkmode ? "#808080" : "#f0f0f0";
         }
-        
+
         if (selectedPiece && selectedPiece.x === x && selectedPiece.y === y) {
           ctx.fillStyle = isDarkmode ? "#505050" : "#c0c0c0";
         }
-        
+
         const legalMove = legalMoves.find((move) => move.toX === x && move.toY === y);
         if (legalMove) {
           const targetPiece = board[y][x];
@@ -456,7 +456,7 @@ document.addEventListener("DOMContentLoaded", () => {
     console.log("startGame called with freestyle:", freestyle);
     try {
       console.log("Setting initial game state...");
-      currentPlayer = "white"; // Sicherstellung, dass das Spiel mit Weiß startet
+      currentPlayer = "white"; // Explizit auf Weiß gesetzt
       gameStarted = true;
       gameOver = false;
       selectedPiece = null;
@@ -520,7 +520,7 @@ document.addEventListener("DOMContentLoaded", () => {
       console.log("Resizing canvas...");
       resizeCanvas();
 
-      console.log("Drawing board...");
+      console.log("Drawing board with initial design...");
       drawBoard();
 
       console.log("Starting timer...");
