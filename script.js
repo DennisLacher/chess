@@ -2,10 +2,10 @@ document.addEventListener("DOMContentLoaded", () => {
     console.log("Script loaded and DOMContentLoaded event fired at", new Date().toISOString());
 
     const CONFIG = {
-        defaultBoardSize: 50,
+        defaultBoardSize: 60, // Größeres Start-Brett
         minBoardSize: 40,
-        maxWidthFactor: 1.3,
-        maxHeightFactor: 1.0,
+        maxWidthFactor: 1.5, // Größeres Brett im Fullscreen
+        maxHeightFactor: 1.2,
         offset: 0.1,
         initialTime: 600,
         undoPenalty: 60,
@@ -78,7 +78,7 @@ document.addEventListener("DOMContentLoaded", () => {
     let offsetX = size * CONFIG.offset;
     let offsetY = size * CONFIG.offset;
     let selectedPiece = null;
-    let currentPlayer = "white"; // Explicitly set to white
+    let currentPlayer = "white"; // Start mit Weiß
     let gameStarted = false;
     let rotateBoard = false;
     let smartphoneMode = false;
@@ -92,8 +92,8 @@ document.addEventListener("DOMContentLoaded", () => {
     let castlingAvailability = { white: { kingside: true, queenside: true }, black: { kingside: true, queenside: true } };
     let isWhiteInCheck = false;
     let isBlackInCheck = false;
-    let currentDesign = 1;
-    let isDarkmode = localStorage.getItem("darkmode") === "true";
+    let currentDesign = 3; // Blaues Brett (Design 3)
+    let isDarkmode = true; // Dark Mode standardmäßig aktiviert
     let fullscreenMode = false;
     let gameOver = false;
     let winnerText = "";
@@ -104,12 +104,12 @@ document.addEventListener("DOMContentLoaded", () => {
     const designs = {
         1: { light: "#DEB887", dark: "#8B4513" },
         2: { light: "#E0E0E0", dark: "#808080" },
-        3: { light: "#ADD8E6", dark: "#4682B4" },
+        3: { light: "#ADD8E6", dark: "#4682B4" }, // Blaues Brett
         4: { light: "#90EE90", dark: "#228B22" },
         5: { light: "#FFDAB9", dark: "#CD853F" }
     };
 
-    window.boardColors = designs[currentDesign]; // Ensure colors are set immediately
+    window.boardColors = designs[currentDesign];
     console.log("Initial design and colors:", currentDesign, window.boardColors);
 
     window.updateBoardColors = function (designNum) {
@@ -143,9 +143,6 @@ document.addEventListener("DOMContentLoaded", () => {
         { name: "Italian Game", moves: ["e4", "e5", "Nf3", "Nc6", "Bc4"], blackResponses: ["Bc5", "Nf6"] },
         { name: "Sicilian Defense", moves: ["e4", "c5"], blackResponses: ["Nc6", "e6"] }
     ];
-
-    document.body.classList.toggle("darkmode", isDarkmode);
-    console.log("Dark mode initialized:", isDarkmode);
 
     startScreen.style.display = "block";
     gameContainer.style.display = "none";
@@ -366,11 +363,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function resizeCanvas() {
         console.log("resizeCanvas called");
-        let maxWidth = Math.round(window.innerWidth * CONFIG.maxWidthFactor * (fullscreenMode ? 1.3 : 0.7));
-        let maxHeight = Math.round(window.innerHeight * CONFIG.maxHeightFactor * (fullscreenMode ? 1.2 : 0.9));
+        let maxWidth = Math.round(window.innerWidth * CONFIG.maxWidthFactor * (fullscreenMode ? 1.8 : 0.7)); // Größeres Brett im Fullscreen
+        let maxHeight = Math.round(window.innerHeight * CONFIG.maxHeightFactor * (fullscreenMode ? 1.5 : 0.9));
         if (window.innerWidth <= 768) {
-            maxWidth = Math.round(window.innerWidth * CONFIG.maxWidthFactor * (fullscreenMode ? 1.3 : 1.0));
-            maxHeight = Math.round(window.innerHeight * CONFIG.maxHeightFactor * (fullscreenMode ? 1.2 : 0.6));
+            maxWidth = Math.round(window.innerWidth * CONFIG.maxWidthFactor * (fullscreenMode ? 1.8 : 1.0)); // Anpassung für Mobil
+            maxHeight = Math.round(window.innerHeight * CONFIG.maxHeightFactor * (fullscreenMode ? 1.5 : 0.6));
         }
         const boardSize = Math.min(maxWidth / 8, maxHeight / 8, CONFIG.defaultBoardSize);
         size = Math.floor(Math.max(boardSize, CONFIG.minBoardSize));
@@ -406,7 +403,7 @@ document.addEventListener("DOMContentLoaded", () => {
             moveList.style.display = "none";
             openingDisplay.style.display = "none";
             fullscreenButton.style.display = "none";
-            exitFullscreenButton.style.display = "block";
+            exitFullscreenButton.style.display = "none";
             closeFullscreenButton.style.display = "block";
         } else {
             if (document.exitFullscreen) {
@@ -437,7 +434,7 @@ document.addEventListener("DOMContentLoaded", () => {
             moveList.style.display = "none";
             openingDisplay.style.display = "none";
             fullscreenButton.style.display = "none";
-            exitFullscreenButton.style.display = "block";
+            exitFullscreenButton.style.display = "none";
             closeFullscreenButton.style.display = "block";
         } else {
             turnDisplay.style.display = "block";
@@ -456,7 +453,7 @@ document.addEventListener("DOMContentLoaded", () => {
         console.log("startGame called with freestyle:", freestyle);
         try {
             console.log("Setting initial game state...");
-            currentPlayer = "white"; // Explicitly set to white
+            currentPlayer = "white"; // Start mit Weiß
             gameStarted = true;
             gameOver = false;
             selectedPiece = null;
