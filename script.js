@@ -713,7 +713,7 @@ document.addEventListener("DOMContentLoaded", () => {
             });
         } else if (piece.toLowerCase() === "r") {
             const directions = [[0, 1], [0, -1], [1, 0], [-1, 0]];
-            directions.forEach([dx, dy] => {
+            directions.forEach(([dx, dy]) => {
                 let newX = x;
                 let newY = y;
                 while (true) {
@@ -729,7 +729,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 [-2, -1], [-2, 1], [-1, -2], [-1, 2],
                 [1, -2], [1, 2], [2, -1], [2, 1]
             ];
-            knightMoves.forEach([dx, dy] => {
+            knightMoves.forEach(([dx, dy]) => {
                 const newX = x + dx;
                 const newY = y + dy;
                 if (newX >= 0 && newX < 8 && newY >= 0 && newY < 8) {
@@ -738,7 +738,7 @@ document.addEventListener("DOMContentLoaded", () => {
             });
         } else if (piece.toLowerCase() === "b") {
             const directions = [[1, 1], [1, -1], [-1, 1], [-1, -1]];
-            directions.forEach([dx, dy] => {
+            directions.forEach(([dx, dy]) => {
                 let newX = x;
                 let newY = y;
                 while (true) {
@@ -751,7 +751,7 @@ document.addEventListener("DOMContentLoaded", () => {
             });
         } else if (piece.toLowerCase() === "q") {
             const directions = [[0, 1], [0, -1], [1, 0], [-1, 0], [1, 1], [1, -1], [-1, 1], [-1, -1]];
-            directions.forEach([dx, dy] => {
+            directions.forEach(([dx, dy]) => {
                 let newX = x;
                 let newY = y;
                 while (true) {
@@ -767,7 +767,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 [0, 1], [0, -1], [1, 0], [-1, 0],
                 [1, 1], [1, -1], [-1, 1], [-1, -1]
             ];
-            kingMoves.forEach([dx, dy] => {
+            kingMoves.forEach(([dx, dy]) => {
                 const newX = x + dx;
                 const newY = y + dy;
                 if (newX >= 0 && newX < 8 && newY >= 0 && newY < 8) {
@@ -814,7 +814,7 @@ document.addEventListener("DOMContentLoaded", () => {
             });
         } else if (piece.toLowerCase() === "r") {
             const directions = [[0, 1], [0, -1], [1, 0], [-1, 0]];
-            directions.forEach([dx, dy] => {
+            directions.forEach(([dx, dy]) => {
                 let newX = x;
                 let newY = y;
                 while (true) {
@@ -836,7 +836,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 [-2, -1], [-2, 1], [-1, -2], [-1, 2],
                 [1, -2], [1, 2], [2, -1], [2, 1]
             ];
-            knightMoves.forEach([dx, dy] => {
+            knightMoves.forEach(([dx, dy]) => {
                 const newX = x + dx;
                 const newY = y + dy;
                 if (newX >= 0 && newX < 8 && newY >= 0 && newY < 8) {
@@ -848,7 +848,7 @@ document.addEventListener("DOMContentLoaded", () => {
             });
         } else if (piece.toLowerCase() === "b") {
             const directions = [[1, 1], [1, -1], [-1, 1], [-1, -1]];
-            directions.forEach([dx, dy] => {
+            directions.forEach(([dx, dy]) => {
                 let newX = x;
                 let newY = y;
                 while (true) {
@@ -867,7 +867,7 @@ document.addEventListener("DOMContentLoaded", () => {
             });
         } else if (piece.toLowerCase() === "q") {
             const directions = [[0, 1], [0, -1], [1, 0], [-1, 0], [1, 1], [1, -1], [-1, 1], [-1, -1]];
-            directions.forEach([dx, dy] => {
+            directions.forEach(([dx, dy]) => {
                 let newX = x;
                 let newY = y;
                 while (true) {
@@ -889,7 +889,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 [0, 1], [0, -1], [1, 0], [-1, 0],
                 [1, 1], [1, -1], [-1, 1], [-1, -1]
             ];
-            kingMoves.forEach([dx, dy] => {
+            kingMoves.forEach(([dx, dy]) => {
                 const newX = x + dx;
                 const newY = y + dy;
                 if (newX >= 0 && newX < 8 && newY >= 0 && newY < 8) {
