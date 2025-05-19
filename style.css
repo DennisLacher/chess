@@ -8,6 +8,7 @@ body {
     justify-content: center;
     align-items: center;
     min-height: 100vh;
+    flex-direction: column;
 }
 
 canvas {
@@ -184,7 +185,7 @@ canvas {
 }
 
 .fullscreen #closeFullscreenButton {
-    display: block;
+    display: block !important;
     position: fixed;
     top: 10px;
     right: 10px;
@@ -204,6 +205,16 @@ canvas {
 
 .fullscreen #closeFullscreenButton:hover {
     background-color: #cc0000;
+}
+
+#version {
+    position: fixed;
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 12px;
+    color: #e0e0e0;
+    opacity: 0.7;
 }
 
 @media (max-width: 768px) {
