@@ -9,6 +9,17 @@ body {
     align-items: center;
     min-height: 100vh;
     flex-direction: column;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+body.darkmode {
+    background-color: #333;
+    color: #e0e0e0;
+}
+
+body:not(.darkmode) {
+    background-color: #f0f0f0;
+    color: #333;
 }
 
 canvas {
