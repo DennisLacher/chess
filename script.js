@@ -363,11 +363,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function resizeCanvas() {
         console.log("resizeCanvas called");
-        let maxWidth = Math.round(window.innerWidth * CONFIG.maxWidthFactor * (fullscreenMode ? 1.8 : 0.7));
-        let maxHeight = Math.round(window.innerHeight * CONFIG.maxHeightFactor * (fullscreenMode ? 1.5 : 0.9));
+        let maxWidth = Math.round(window.innerWidth * CONFIG.maxWidthFactor * (fullscreenMode ? 1.9 : 0.7));
+        let maxHeight = Math.round(window.innerHeight * CONFIG.maxHeightFactor * (fullscreenMode ? 1.6 : 0.9));
         if (window.innerWidth <= 768) {
-            maxWidth = Math.round(window.innerWidth * CONFIG.maxWidthFactor * (fullscreenMode ? 1.8 : 1.0));
-            maxHeight = Math.round(window.innerHeight * CONFIG.maxHeightFactor * (fullscreenMode ? 1.5 : 0.6));
+            maxWidth = Math.round(window.innerWidth * CONFIG.maxWidthFactor * (fullscreenMode ? 1.9 : 1.0));
+            maxHeight = Math.round(window.innerHeight * CONFIG.maxHeightFactor * (fullscreenMode ? 1.6 : 0.6));
         }
         const boardSize = Math.min(maxWidth / 8, maxHeight / 8, CONFIG.defaultBoardSize);
         size = Math.floor(Math.max(boardSize, CONFIG.minBoardSize));
@@ -404,7 +404,7 @@ document.addEventListener("DOMContentLoaded", () => {
             openingDisplay.style.display = "none";
             fullscreenButton.style.display = "none";
             exitFullscreenButton.style.display = "none";
-            closeFullscreenButton.style.display = "block"; // Sicherstellen, dass der "X"-Button sichtbar ist
+            closeFullscreenButton.style.display = "block";
         } else {
             if (document.exitFullscreen) {
                 document.exitFullscreen().catch((err) => {
@@ -1260,7 +1260,6 @@ document.addEventListener("DOMContentLoaded", () => {
         canvas.addEventListener("click", handleCanvasClick);
         canvas.addEventListener("touchstart", handleCanvasClick, { passive: false });
 
-        // Sicherstellen, dass der "X"-Button korrekt initialisiert wird
         closeFullscreenButton.textContent = "X";
     }
 
