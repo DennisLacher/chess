@@ -315,13 +315,13 @@ document.addEventListener("DOMContentLoaded", () => {
         ctx.font = `${size * 0.25}px Arial`;
         if (!effectiveRotation) {
             for (let i = 0; i < 8; i++) {
-                ctx.fillText(String.fromCharCode(97 + i), offsetX + i * size + size / 2, offsetY + 8 * size + size * 0.3);
-                ctx.fillText(8 - i, offsetX - size * 0.4, offsetY + i * size + size / 2);
+                ctx.fillText(String.fromCharCode(97 + i), offsetX + i * size + size / 2, offsetY + 8 * size + size * 0.5);
+                ctx.fillText(8 - i, offsetX - size * 0.5, offsetY + i * size + size / 2);
             }
         } else {
             for (let i = 0; i < 8; i++) {
-                ctx.fillText(String.fromCharCode(97 + (7 - i)), offsetX + i * size + size / 2, offsetY + 8 * size + size * 0.3);
-                ctx.fillText(i + 1, offsetX - size * 0.4, offsetY + (7 - i) * size + size / 2);
+                ctx.fillText(String.fromCharCode(97 + (7 - i)), offsetX + i * size + size / 2, offsetY + 8 * size + size * 0.5);
+                ctx.fillText(i + 1, offsetX - size * 0.5, offsetY + (7 - i) * size + size / 2);
             }
         }
 
