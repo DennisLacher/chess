@@ -200,8 +200,8 @@ canvas {
     position: fixed;
     top: 10px;
     right: 10px;
-    background-color: #ff4444;
-    width: 30px;
+    background-color: #006d9a;
+    width: 60px;
     height: 30px;
     line-height: 30px;
     text-align: center;
@@ -215,7 +215,7 @@ canvas {
 }
 
 .fullscreen #closeFullscreenButton:hover {
-    background-color: #cc0000;
+    background-color: #005d87;
 }
 
 #version {
