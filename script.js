@@ -302,7 +302,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 const piece = board[y][x];
                 if (piece) {
                     const isWhite = piece === piece.toUpperCase();
-                    ctx.fillStyle = isWhite ? "#000000" : "#FFFFFF"; // Weiße Figuren schwarz, schwarze Figuren weiß
+                    ctx.fillStyle = isWhite ? "#FFFFFF" : "#000000"; // Weiße Figuren weiß, schwarze Figuren schwarz
                     ctx.font = `${size * 0.7}px sans-serif`;
                     ctx.textAlign = "center";
                     ctx.textBaseline = "middle";
