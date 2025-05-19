@@ -247,7 +247,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         const expectedWidth = Math.round(size * 8 + offsetX * 2);
-        const expectedHeight = Math.round(size * 8 + offsetY * 2); // Beschriftung entfernt, daher kein Extra-Platz nötig
+        const expectedHeight = Math.round(size * 8 + offsetY * 2);
         canvas.width = expectedWidth;
         canvas.height = expectedHeight;
         canvas.style.width = `${expectedWidth}px`;
@@ -312,8 +312,6 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         }
 
-        // Beschriftung (a-h und 1-8) wurde komplett entfernt
-
         if (gameOver) {
             openingDisplay.textContent = winnerText;
         } else {
@@ -365,11 +363,12 @@ document.addEventListener("DOMContentLoaded", () => {
         const totalWidth = size * 8;
         const totalHeight = size * 8;
 
-        offsetX = (window.innerWidth - totalWidth) / 2 * CONFIG.offset;
-        offsetY = (window.innerHeight - totalHeight) / 2 * CONFIG.offset;
+        // Zentrierung anpassen
+        offsetX = (window.innerWidth - totalWidth) / 2;
+        offsetY = (window.innerHeight - totalHeight) / 2;
 
         canvas.width = totalWidth + offsetX * 2;
-        canvas.height = totalHeight + offsetY * 2; // Kein Extra-Platz mehr für Beschriftung
+        canvas.height = totalHeight + offsetY * 2;
         canvas.style.width = `${canvas.width}px`;
         canvas.style.height = `${canvas.height}px`;
 
@@ -400,6 +399,34 @@ document.addEventListener("DOMContentLoaded", () => {
             exitFullscreenButton.style.display = "none";
             closeFullscreenButton.style.display = "block";
             closeFullscreenButton.textContent = "Back";
+
+            // Handy-spezifische "X"-Schaltfläche hinzufügen
+            if (window.innerWidth <= 768 && !document.getElementById("mobileExitButton")) {
+                const mobileExitButton = document.createElement("button");
+                mobileExitButton.id = "mobileExitButton";
+                mobileExitButton.textContent = "X";
+                mobileExitButton.style.position = "absolute";
+                mobileExitButton.style.top = "10px";
+                mobileExitButton.style.right = "10px";
+                mobileExitButton.style.width = "30px";
+                mobileExitButton.style.height = "30px";
+                mobileExitButton.style.fontSize = "20px";
+                mobileExitButton.style.backgroundColor = isDarkmode ? "#333" : "#fff";
+                mobileExitButton.style.color = isDarkmode ? "#fff" : "#333";
+                mobileExitButton.style.border = "none";
+                mobileExitButton.style.borderRadius = "50%";
+                mobileExitButton.style.cursor = "pointer";
+                mobileExitButton.style.zIndex = "1000";
+                mobileExitButton.addEventListener("click", () => {
+                    if (document.exitFullscreen) {
+                        document.exitFullscreen().catch((err) => {
+                            console.error("Failed to exit fullscreen mode:", err);
+                        });
+                    }
+                });
+                document.body.appendChild(mobileExitButton);
+            }
+
             console.log("closeFullscreenButton styles:", {
                 display: closeFullscreenButton.style.display,
                 visibility: closeFullscreenButton.style.visibility,
@@ -419,6 +446,12 @@ document.addEventListener("DOMContentLoaded", () => {
             fullscreenButton.style.display = "block";
             exitFullscreenButton.style.display = "none";
             closeFullscreenButton.style.display = "none";
+
+            // "X"-Schaltfläche entfernen
+            const mobileExitButton = document.getElementById("mobileExitButton");
+            if (mobileExitButton) {
+                document.body.removeChild(mobileExitButton);
+            }
         }
         resizeCanvas();
         drawBoard();
@@ -437,11 +470,33 @@ document.addEventListener("DOMContentLoaded", () => {
             exitFullscreenButton.style.display = "none";
             closeFullscreenButton.style.display = "block";
             closeFullscreenButton.textContent = "Back";
-            console.log("closeFullscreenButton styles after fullscreenchange:", {
-                display: closeFullscreenButton.style.display,
-                visibility: closeFullscreenButton.style.visibility,
-                opacity: closeFullscreenButton.style.opacity,
-            });
+
+            // Handy-spezifische "X"-Schaltfläche hinzufügen
+            if (window.innerWidth <= 768 && !document.getElementById("mobileExitButton")) {
+                const mobileExitButton = document.createElement("button");
+                mobileExitButton.id = "mobileExitButton";
+                mobileExitButton.textContent = "X";
+                mobileExitButton.style.position = "absolute";
+                mobileExitButton.style.top = "10px";
+                mobileExitButton.style.right = "10px";
+                mobileExitButton.style.width = "30px";
+                mobileExitButton.style.height = "30px";
+                mobileExitButton.style.fontSize = "20px";
+                mobileExitButton.style.backgroundColor = isDarkmode ? "#333" : "#fff";
+                mobileExitButton.style.color = isDarkmode ? "#fff" : "#333";
+                mobileExitButton.style.border = "none";
+                mobileExitButton.style.borderRadius = "50%";
+                mobileExitButton.style.cursor = "pointer";
+                mobileExitButton.style.zIndex = "1000";
+                mobileExitButton.addEventListener("click", () => {
+                    if (document.exitFullscreen) {
+                        document.exitFullscreen().catch((err) => {
+                            console.error("Failed to exit fullscreen mode:", err);
+                        });
+                    }
+                });
+                document.body.appendChild(mobileExitButton);
+            }
         } else {
             turnDisplay.style.display = "block";
             moveList.style.display = "block";
@@ -449,6 +504,12 @@ document.addEventListener("DOMContentLoaded", () => {
             fullscreenButton.style.display = "block";
             exitFullscreenButton.style.display = "none";
             closeFullscreenButton.style.display = "none";
+
+            // "X"-Schaltfläche entfernen
+            const mobileExitButton = document.getElementById("mobileExitButton");
+            if (mobileExitButton) {
+                document.body.removeChild(mobileExitButton);
+            }
         }
         resizeCanvas();
         drawBoard();
@@ -652,7 +713,7 @@ document.addEventListener("DOMContentLoaded", () => {
             });
         } else if (piece.toLowerCase() === "r") {
             const directions = [[0, 1], [0, -1], [1, 0], [-1, 0]];
-            directions.forEach(([dx, dy]) => {
+            directions.forEach([dx, dy] => {
                 let newX = x;
                 let newY = y;
                 while (true) {
@@ -668,7 +729,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 [-2, -1], [-2, 1], [-1, -2], [-1, 2],
                 [1, -2], [1, 2], [2, -1], [2, 1]
             ];
-            knightMoves.forEach(([dx, dy]) => {
+            knightMoves.forEach([dx, dy] => {
                 const newX = x + dx;
                 const newY = y + dy;
                 if (newX >= 0 && newX < 8 && newY >= 0 && newY < 8) {
@@ -677,7 +738,7 @@ document.addEventListener("DOMContentLoaded", () => {
             });
         } else if (piece.toLowerCase() === "b") {
             const directions = [[1, 1], [1, -1], [-1, 1], [-1, -1]];
-            directions.forEach(([dx, dy]) => {
+            directions.forEach([dx, dy] => {
                 let newX = x;
                 let newY = y;
                 while (true) {
@@ -690,7 +751,7 @@ document.addEventListener("DOMContentLoaded", () => {
             });
         } else if (piece.toLowerCase() === "q") {
             const directions = [[0, 1], [0, -1], [1, 0], [-1, 0], [1, 1], [1, -1], [-1, 1], [-1, -1]];
-            directions.forEach(([dx, dy]) => {
+            directions.forEach([dx, dy] => {
                 let newX = x;
                 let newY = y;
                 while (true) {
@@ -706,7 +767,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 [0, 1], [0, -1], [1, 0], [-1, 0],
                 [1, 1], [1, -1], [-1, 1], [-1, -1]
             ];
-            kingMoves.forEach(([dx, dy]) => {
+            kingMoves.forEach([dx, dy] => {
                 const newX = x + dx;
                 const newY = y + dy;
                 if (newX >= 0 && newX < 8 && newY >= 0 && newY < 8) {
@@ -753,7 +814,7 @@ document.addEventListener("DOMContentLoaded", () => {
             });
         } else if (piece.toLowerCase() === "r") {
             const directions = [[0, 1], [0, -1], [1, 0], [-1, 0]];
-            directions.forEach(([dx, dy]) => {
+            directions.forEach([dx, dy] => {
                 let newX = x;
                 let newY = y;
                 while (true) {
@@ -775,7 +836,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 [-2, -1], [-2, 1], [-1, -2], [-1, 2],
                 [1, -2], [1, 2], [2, -1], [2, 1]
             ];
-            knightMoves.forEach(([dx, dy]) => {
+            knightMoves.forEach([dx, dy] => {
                 const newX = x + dx;
                 const newY = y + dy;
                 if (newX >= 0 && newX < 8 && newY >= 0 && newY < 8) {
@@ -787,7 +848,7 @@ document.addEventListener("DOMContentLoaded", () => {
             });
         } else if (piece.toLowerCase() === "b") {
             const directions = [[1, 1], [1, -1], [-1, 1], [-1, -1]];
-            directions.forEach(([dx, dy]) => {
+            directions.forEach([dx, dy] => {
                 let newX = x;
                 let newY = y;
                 while (true) {
@@ -806,15 +867,21 @@ document.addEventListener("DOMContentLoaded", () => {
             });
         } else if (piece.toLowerCase() === "q") {
             const directions = [[0, 1], [0, -1], [1, 0], [-1, 0], [1, 1], [1, -1], [-1, 1], [-1, -1]];
-            directions.forEach(([dx, dy]) => {
+            directions.forEach([dx, dy] => {
                 let newX = x;
                 let newY = y;
                 while (true) {
                     newX += dx;
                     newY += dy;
                     if (newX < 0 || newX >= 8 || newY < 0 || newY >= 8) break;
+                    const targetPiece = tempBoard[newY][newX];
+                    if (targetPiece) {
+                        if ((targetPiece === targetPiece.toUpperCase()) !== isWhite) {
+                            moves.push({ toX: newX, toY: newY });
+                        }
+                        break;
+                    }
                     moves.push({ toX: newX, toY: newY });
-                    if (tempBoard[newY][newX]) break;
                 }
             });
         } else if (piece.toLowerCase() === "k") {
@@ -822,7 +889,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 [0, 1], [0, -1], [1, 0], [-1, 0],
                 [1, 1], [1, -1], [-1, 1], [-1, -1]
             ];
-            kingMoves.forEach(([dx, dy]) => {
+            kingMoves.forEach([dx, dy] => {
                 const newX = x + dx;
                 const newY = y + dy;
                 if (newX >= 0 && newX < 8 && newY >= 0 && newY < 8) {
