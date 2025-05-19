@@ -1,165 +1,125 @@
-/* Reset und Basisstile */
-* {
+body {
   margin: 0;
   padding: 0;
-  box-sizing: border-box;
-}
-
-body {
   font-family: Arial, sans-serif;
   background-color: #f0f0f0;
-  color: #333;
-  overflow-x: hidden;
-  transition: background-color 0.3s;
-}
-
-body.darkmode {
-  background-color: #1a1a1a;
-  color: #e0e0e0;
-}
-
-/* Start Screen */
-#startScreen {
   display: flex;
-  flex-direction: column;
   justify-content: center;
   align-items: center;
-  height: 100vh;
-  background-color: rgba(0, 0, 0, 0.8);
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  z-index: 1000;
+  min-height: 100vh;
 }
 
-.start-buttons {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 10px;
+canvas {
+  display: block;
+  margin: 0 auto;
+  touch-action: none; /* Verhindert Standard-Touch-Verhalten */
 }
 
-#startScreen button {
+#startScreen {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  background-color: rgba(255, 255, 255, 0.9);
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.start-buttons button {
+  display: block;
+  margin: 10px auto;
   padding: 10px 20px;
-  font-size: 18px;
+  font-size: 16px;
   cursor: pointer;
   background-color: #4CAF50;
   color: white;
   border: none;
   border-radius: 5px;
-  transition: background-color 0.3s;
 }
 
-#startScreen button:hover {
+.start-buttons button:hover {
   background-color: #45a049;
 }
 
-/* Game Container */
 #gameContainer {
   display: none;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  min-height: 100vh;
-  padding: 20px;
-  visibility: visible !important;
-  opacity: 1 !important;
+  visibility: hidden;
+  opacity: 0;
   transition: opacity 0.3s;
 }
 
-#gameContainer.active {
-  display: flex;
-}
-
-/* Canvas (Schachbrett) */
-#chessboard {
-  display: block !important;
-  visibility: visible !important;
-  opacity: 1 !important;
-  position: relative !important;
-  max-width: 100%;
-  max-height: 100vh;
-  background-color: #fff;
-  border: 1px solid #ccc;
-  touch-action: none;
-}
-
-/* Turn Display */
-#turnDisplay {
-  font-size: 24px;
-  margin: 10px 0;
-  text-align: center;
-}
-
-/* Move List */
-#moveList {
-  list-style-type: none;
-  padding: 10px;
-  background-color: #fff;
-  border: 1px solid #ddd;
-  max-height: 200px;
-  overflow-y: auto;
-  width: 200px;
-  margin: 10px 0;
-}
-
-#moveList li {
-  padding: 5px;
-}
-
-#moveList li.last-move {
-  background-color: #f0f0f0;
-}
-
-/* Opening Display */
-#openingDisplay {
-  font-size: 16px;
-  margin: 10px 0;
-  text-align: center;
-}
-
-/* Game Buttons */
 .game-buttons {
+  margin-top: 10px;
   display: flex;
   flex-wrap: wrap;
-  justify-content: center;
   gap: 5px;
-  margin-top: 10px;
-  max-width: 600px;
-  width: 100%;
+  justify-content: center;
 }
 
 .game-buttons button {
-  flex: 0 0 calc(50% - 10px);
-  max-width: calc(50% - 10px);
-  padding: 8px 16px;
+  padding: 5px 10px;
   font-size: 14px;
   cursor: pointer;
   background-color: #008CBA;
   color: white;
   border: none;
-  border-radius: 4px;
-  transition: background-color 0.3s;
-  box-sizing: border-box;
+  border-radius: 5px;
 }
 
 .game-buttons button:hover {
   background-color: #007B9A;
 }
 
-button.hidden {
-  display: none;
+#turnDisplay, #openingDisplay {
+  margin: 10px 0;
+  font-size: 18px;
 }
 
-/* Promotion Choices */
+#moveList {
+  list-style-type: none;
+  padding: 0;
+  margin: 10px 0;
+  max-height: 150px;
+  overflow-y: auto;
+  width: 200px;
+  background-color: rgba(255, 255, 255, 0.8);
+  border-radius: 5px;
+  padding: 10px;
+}
+
+#moveList li {
+  margin: 5px 0;
+}
+
+#moveList li.last-move {
+  font-weight: bold;
+}
+
+.penalty-message {
+  position: absolute;
+  background-color: #ff4444;
+  color: white;
+  padding: 5px 10px;
+  border-radius: 3px;
+  animation: fadeOut 2s forwards;
+}
+
+@keyframes fadeOut {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
 #promotionChoices {
   position: absolute;
-  background-color: #fff;
+  background-color: white;
   border: 1px solid #ccc;
-  border-radius: 4px;
+  border-radius: 5px;
   padding: 5px;
-  z-index: 1001;
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
 }
 
 .promotion-button {
@@ -167,91 +127,39 @@ button.hidden {
   width: 40px;
   height: 40px;
   font-size: 24px;
-  text-align: center;
   margin: 5px;
   cursor: pointer;
-  background-color: #f0f0f0;
-  border: 1px solid #ddd;
-  border-radius: 4px;
+  border: none;
+  background: none;
 }
 
 .promotion-button:hover {
-  background-color: #e0e0e0;
+  background-color: #ddd;
 }
 
-/* Penalty Message */
-.penalty-message {
-  position: absolute;
-  background-color: #ff4444;
-  color: white;
-  padding: 5px 10px;
-  border-radius: 3px;
-  z-index: 1002;
-  animation: fadeOut 2s forwards;
+.darkmode {
+  background-color: #333;
+  color: #e0e0e0;
 }
 
-@keyframes fadeOut {
-  0% { opacity: 1; }
-  90% { opacity: 1; }
-  100% { opacity: 0; }
+.darkmode #startScreen {
+  background-color: rgba(51, 51, 51, 0.9);
 }
 
-/* Fullscreen Mode */
-body.fullscreen {
+.darkmode .game-buttons button {
+  background-color: #006d9a;
+}
+
+.darkmode .game-buttons button:hover {
+  background-color: #005d87;
+}
+
+.darkmode #moveList {
+  background-color: rgba(51, 51, 51, 0.8);
+}
+
+.fullscreen {
+  width: 100vw;
+  height: 100vh;
   overflow: hidden;
-}
-
-body.fullscreen #gameContainer {
-  padding: 0;
-}
-
-body.fullscreen #chessboard {
-  max-width: none;
-  max-height: none;
-}
-
-body.fullscreen .game-buttons {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  align-items: center;
-  gap: 5px;
-  margin-top: 10px;
-  max-width: 100%;
-  width: 100%;
-}
-
-body.fullscreen .game-buttons button {
-  flex: 0 0 calc(50% - 10px);
-  max-width: calc(50% - 10px);
-  padding: 8px 16px;
-  font-size: 14px;
-}
-
-/* Responsive Design */
-@media (max-width: 768px) {
-  #gameContainer {
-    padding: 10px;
-  }
-
-  #chessboard {
-    width: 100%;
-    height: auto;
-  }
-
-  .game-buttons {
-    gap: 5px;
-  }
-
-  .game-buttons button {
-    flex: 0 0 calc(50% - 10px);
-    max-width: calc(50% - 10px);
-    padding: 6px 12px;
-    font-size: 12px;
-  }
-
-  #moveList {
-    width: 150px;
-    max-height: 150px;
-  }
 }
