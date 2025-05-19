@@ -311,17 +311,22 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         }
 
+        // Beschriftung a-h und 1-8 hinzufügen
         ctx.fillStyle = isDarkmode ? "#e0e0e0" : "#333";
         ctx.font = `${size * 0.25}px Arial`;
         if (!effectiveRotation) {
             for (let i = 0; i < 8; i++) {
-                ctx.fillText(String.fromCharCode(97 + i), offsetX + i * size + size / 2, offsetY + 8 * size + size * 0.5);
-                ctx.fillText(8 - i, offsetX - size * 0.5, offsetY + i * size + size / 2);
+                ctx.fillText(String.fromCharCode(97 + i), offsetX + i * size + size / 2, offsetY + 8 * size + size * 0.25); // a-h unten
+                ctx.fillText(String.fromCharCode(97 + i), offsetX + i * size + size / 2, offsetY - size * 0.05); // a-h oben
+                ctx.fillText(8 - i, offsetX - size * 0.25, offsetY + i * size + size / 2); // 1-8 links
+                ctx.fillText(8 - i, offsetX + 8 * size + size * 0.1, offsetY + i * size + size / 2); // 1-8 rechts
             }
         } else {
             for (let i = 0; i < 8; i++) {
-                ctx.fillText(String.fromCharCode(97 + (7 - i)), offsetX + i * size + size / 2, offsetY + 8 * size + size * 0.5);
-                ctx.fillText(i + 1, offsetX - size * 0.5, offsetY + (7 - i) * size + size / 2);
+                ctx.fillText(String.fromCharCode(97 + (7 - i)), offsetX + i * size + size / 2, offsetY + 8 * size + size * 0.25); // a-h unten
+                ctx.fillText(String.fromCharCode(97 + (7 - i)), offsetX + i * size + size / 2, offsetY - size * 0.05); // a-h oben
+                ctx.fillText(i + 1, offsetX - size * 0.25, offsetY + (7 - i) * size + size / 2); // 1-8 links
+                ctx.fillText(i + 1, offsetX + 8 * size + size * 0.1, offsetY + (7 - i) * size + size / 2); // 1-8 rechts
             }
         }
 
@@ -410,7 +415,7 @@ document.addEventListener("DOMContentLoaded", () => {
             fullscreenButton.style.display = "none";
             exitFullscreenButton.style.display = "none";
             closeFullscreenButton.style.display = "block";
-            closeFullscreenButton.textContent = "Back"; // "Back"-Button anstelle von "X"
+            closeFullscreenButton.textContent = "Back";
         } else {
             if (document.exitFullscreen) {
                 document.exitFullscreen().catch((err) => {
@@ -442,7 +447,7 @@ document.addEventListener("DOMContentLoaded", () => {
             fullscreenButton.style.display = "none";
             exitFullscreenButton.style.display = "none";
             closeFullscreenButton.style.display = "block";
-            closeFullscreenButton.textContent = "Back"; // "Back"-Button im Fullscreen
+            closeFullscreenButton.textContent = "Back";
         } else {
             turnDisplay.style.display = "block";
             moveList.style.display = "block";
@@ -480,7 +485,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
             console.log("Updating DOM elements visibility...");
             document.body.classList.remove("fullscreen");
-            document.body.classList.add("darkmode"); // Dark-Mode beim Start aktivieren
+            document.body.classList.add("darkmode");
             fullscreenButton.style.display = "block";
             exitFullscreenButton.style.display = "none";
             closeFullscreenButton.style.display = "none";
@@ -1263,7 +1268,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
         fullscreenButton.addEventListener("click", toggleFullscreenMode);
         exitFullscreenButton.addEventListener("click", toggleFullscreenMode);
-        closeFullscreenButton.addEventListener("click", toggleFullscreenMode);
+        closeFullscreenButton.addEventListener("click", () => {
+            if (fullscreenMode) {
+                toggleFullscreenMode();
+            }
+        });
 
         canvas.addEventListener("click", handleCanvasClick);
         canvas.addEventListener("touchstart", handleCanvasClick, { passive: false });
