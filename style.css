@@ -112,7 +112,7 @@ canvas {
 }
 
 #openingDisplay {
-    margin: 10px 0;
+    margin: 20px 0; /* Mehr Abstand, um Überlappung mit a-h zu vermeiden */
     font-size: 18px;
     text-align: center;
     width: 100%;
