@@ -311,22 +311,18 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         }
 
-        // Beschriftung a-h und 1-8 hinzufügen
+        // Beschriftung: Buchstaben (a-h) nur unten, Zahlen (1-8) nur links
         ctx.fillStyle = isDarkmode ? "#e0e0e0" : "#333";
         ctx.font = `${size * 0.25}px Arial`;
         if (!effectiveRotation) {
             for (let i = 0; i < 8; i++) {
-                ctx.fillText(String.fromCharCode(97 + i), offsetX + i * size + size / 2, offsetY + 8 * size + size * 0.25); // a-h unten
-                ctx.fillText(String.fromCharCode(97 + i), offsetX + i * size + size / 2, offsetY - size * 0.05); // a-h oben
-                ctx.fillText(8 - i, offsetX - size * 0.25, offsetY + i * size + size / 2); // 1-8 links
-                ctx.fillText(8 - i, offsetX + 8 * size + size * 0.1, offsetY + i * size + size / 2); // 1-8 rechts
+                ctx.fillText(String.fromCharCode(97 + i), offsetX + i * size + size / 2, offsetY + 8 * size + size * 0.4); // a-h nur unten
+                ctx.fillText(8 - i, offsetX - size * 0.25, offsetY + i * size + size / 2); // 1-8 nur links
             }
         } else {
             for (let i = 0; i < 8; i++) {
-                ctx.fillText(String.fromCharCode(97 + (7 - i)), offsetX + i * size + size / 2, offsetY + 8 * size + size * 0.25); // a-h unten
-                ctx.fillText(String.fromCharCode(97 + (7 - i)), offsetX + i * size + size / 2, offsetY - size * 0.05); // a-h oben
-                ctx.fillText(i + 1, offsetX - size * 0.25, offsetY + (7 - i) * size + size / 2); // 1-8 links
-                ctx.fillText(i + 1, offsetX + 8 * size + size * 0.1, offsetY + (7 - i) * size + size / 2); // 1-8 rechts
+                ctx.fillText(String.fromCharCode(97 + (7 - i)), offsetX + i * size + size / 2, offsetY + 8 * size + size * 0.4); // a-h nur unten
+                ctx.fillText(i + 1, offsetX - size * 0.25, offsetY + (7 - i) * size + size / 2); // 1-8 nur links
             }
         }
 
@@ -844,7 +840,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     for (let i = 4; i >= 2; i--) {
                         const tempBoardCopy = tempBoard.map(row => [...row]);
                         if (i < 4) {
-                            tempBoardCopy[7][i] = "K";
+                            tempBoardCopy[7][i] = "テキスト";
                             tempBoardCopy[7][i + 1] = "";
                         }
                         const tempKingPos = { x: i, y: 7 };
