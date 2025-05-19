@@ -68,7 +68,7 @@ canvas {
 }
 
 #turnDisplay {
-    margin-bottom: 10px; /* Über dem Canvas */
+    margin-bottom: 10px;
     font-size: 18px;
     text-align: center;
     width: 100%;
@@ -108,19 +108,20 @@ canvas {
 
 #moveList {
     list-style-type: none;
-    padding: 0;
+    padding: 5px; /* Reduziert für kleinere Box */
     margin: 10px 0;
-    max-height: 150px;
+    max-height: 100px; /* Kleinere Höhe */
     overflow-y: auto;
     width: 100%;
-    max-width: 600px;
-    background-color: rgba(51, 51, 51, 0.8);
+    max-width: 300px; /* Kleinere Breite */
+    background-color: #666; /* Grauer Hintergrund */
+    border: 1px solid #999; /* Rahmen für Box */
     border-radius: 5px;
-    padding: 10px;
 }
 
 #moveList li {
-    margin: 5px 0;
+    margin: 3px 0; /* Weniger Abstand für kompaktere Darstellung */
+    font-size: 14px; /* Kleinere Schrift */
 }
 
 #moveList li.last-move {
@@ -179,11 +180,11 @@ canvas {
 }
 
 .fullscreen .game-buttons {
-    display: none; /* Alle Buttons ausblenden */
+    display: none;
 }
 
 .fullscreen #closeFullscreenButton {
-    display: block; /* Nur "Close" bleibt sichtbar */
+    display: block;
     position: absolute;
     top: 10px;
     right: 10px;
