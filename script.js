@@ -247,7 +247,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         const expectedWidth = Math.round(size * 8 + offsetX * 2);
-        const expectedHeight = Math.round(size * 8 + offsetY * 2);
+        const expectedHeight = Math.round(size * 8 + offsetY * 2 + size); // Mehr Platz für Beschriftung
         canvas.width = expectedWidth;
         canvas.height = expectedHeight;
         canvas.style.width = `${expectedWidth}px`;
@@ -314,26 +314,26 @@ document.addEventListener("DOMContentLoaded", () => {
 
         // Beschriftung: Buchstaben (a-h) nur unten, Zahlen (1-8) nur links
         ctx.fillStyle = isDarkmode ? "#e0e0e0" : "#333";
-        ctx.font = `${size * 0.3}px Arial`; // Schriftgröße erhöht für bessere Sichtbarkeit
+        ctx.font = `${size * 0.4}px Arial`; // Schriftgröße erhöht
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
 
         if (!effectiveRotation) {
             for (let i = 0; i < 8; i++) {
                 // Buchstaben (a-h) nur unten
-                const letterY = offsetY + 8 * size + size * 0.5; // Mehr Abstand nach unten
+                const letterY = offsetY + 8 * size + size * 0.7; // Mehr Abstand und Anpassung
                 ctx.fillText(String.fromCharCode(97 + i), offsetX + i * size + size / 2, letterY);
                 // Zahlen (1-8) nur links
-                const numberX = offsetX - size * 0.5; // Mehr Abstand nach links
+                const numberX = offsetX - size * 0.7; // Mehr Abstand
                 ctx.fillText(8 - i, numberX, offsetY + i * size + size / 2);
             }
         } else {
             for (let i = 0; i < 8; i++) {
                 // Buchstaben (a-h) nur unten (umgedreht)
-                const letterY = offsetY + 8 * size + size * 0.5; // Mehr Abstand nach unten
+                const letterY = offsetY + 8 * size + size * 0.7; // Mehr Abstand
                 ctx.fillText(String.fromCharCode(97 + (7 - i)), offsetX + i * size + size / 2, letterY);
                 // Zahlen (1-8) nur links (umgedreht)
-                const numberX = offsetX - size * 0.5; // Mehr Abstand nach links
+                const numberX = offsetX - size * 0.7; // Mehr Abstand
                 ctx.fillText(i + 1, numberX, offsetY + (7 - i) * size + size / 2);
             }
         }
@@ -376,12 +376,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function resizeCanvas() {
         console.log("resizeCanvas called");
-        let maxWidth = window.innerWidth * (fullscreenMode ? 0.9 : 0.7);
-        let maxHeight = window.innerHeight * (fullscreenMode ? 0.9 : 0.6);
+        let maxWidth = window.innerWidth * (fullscreenMode ? 0.95 : 0.7);
+        let maxHeight = window.innerHeight * (fullscreenMode ? 0.95 : 0.6);
         
         if (window.innerWidth <= 768) {
-            maxWidth = window.innerWidth * (fullscreenMode ? 0.95 : 0.9);
-            maxHeight = window.innerHeight * (fullscreenMode ? 0.7 : 0.5);
+            maxWidth = window.innerWidth * (fullscreenMode ? 0.98 : 0.9);
+            maxHeight = window.innerHeight * (fullscreenMode ? 0.8 : 0.5);
         }
 
         const boardDimension = Math.min(maxWidth, maxHeight);
@@ -393,7 +393,7 @@ document.addEventListener("DOMContentLoaded", () => {
         offsetY = (window.innerHeight - totalHeight) / 2 * CONFIG.offset;
 
         canvas.width = totalWidth + offsetX * 2;
-        canvas.height = totalHeight + offsetY * 2 + size * 0.5; // Extra Platz für Beschriftung unten
+        canvas.height = totalHeight + offsetY * 2 + size * 1.2; // Extra Platz für Beschriftung
         canvas.style.width = `${canvas.width}px`;
         canvas.style.height = `${canvas.height}px`;
 
@@ -1292,6 +1292,13 @@ document.addEventListener("DOMContentLoaded", () => {
                 toggleFullscreenMode();
             }
         });
+        closeFullscreenButton.addEventListener("touchstart", (e) => {
+            e.preventDefault();
+            console.log("closeFullscreenButton touched");
+            if (fullscreenMode) {
+                toggleFullscreenMode();
+            }
+        }, { passive: false });
 
         canvas.addEventListener("click", handleCanvasClick);
         canvas.addEventListener("touchstart", handleCanvasClick, { passive: false });
