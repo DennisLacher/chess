@@ -246,12 +246,16 @@ document.addEventListener("DOMContentLoaded", () => {
             return;
         }
 
-        const expectedWidth = Math.round(size * 8 + offsetX * 2);
-        const expectedHeight = Math.round(size * 8 + offsetY * 2);
-        canvas.width = expectedWidth;
-        canvas.height = expectedHeight;
-        canvas.style.width = `${expectedWidth}px`;
-        canvas.style.height = `${expectedHeight}px`;
+        const boardWidth = size * 8;
+        const boardHeight = size * 8;
+        offsetX = Math.max(0, (window.innerWidth - boardWidth) / 2);
+        offsetY = Math.max(0, (window.innerHeight - boardHeight) / 2);
+        canvas.width = boardWidth + offsetX * 2;
+        canvas.height = boardHeight + offsetY * 2;
+        canvas.style.width = `${boardWidth}px`;
+        canvas.style.height = `${boardHeight}px`;
+        canvas.style.marginLeft = `${offsetX}px`;
+        canvas.style.marginTop = `${offsetY}px`;
         canvas.style.display = "block";
         canvas.style.visibility = "visible";
         canvas.style.opacity = "1";
@@ -312,6 +316,31 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         }
 
+        // Beschriftungen hinzufügen (1-8 und a-h)
+        ctx.fillStyle = isDarkmode ? "#FFFFFF" : "#000000";
+        ctx.font = `${size * 0.5}px sans-serif`;
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        for (let i = 0; i < 8; i++) {
+            const displayX = effectiveRotation ? 7 - i : i;
+            const displayY = effectiveRotation ? 7 - i : i;
+            // Spaltenbeschriftung (a-h) unten
+            ctx.fillText(String.fromCharCode(97 + i), offsetX + i * size + size / 2, offsetY + boardHeight + size * 0.25);
+            // Zeilenbeschriftung (1-8) links
+            ctx.fillText(8 - i, offsetX - size * 0.25, offsetY + i * size + size / 2);
+            if (!effectiveRotation) {
+                // Spaltenbeschriftung (a-h) oben
+                ctx.fillText(String.fromCharCode(97 + i), offsetX + i * size + size / 2, offsetY - size * 0.25);
+                // Zeilenbeschriftung (1-8) rechts
+                ctx.fillText(8 - i, offsetX + boardWidth + size * 0.25, offsetY + i * size + size / 2);
+            } else {
+                // Spaltenbeschriftung (a-h) oben
+                ctx.fillText(String.fromCharCode(97 + i), offsetX + i * size + size / 2, offsetY - size * 0.25);
+                // Zeilenbeschriftung (1-8) rechts
+                ctx.fillText(8 - i, offsetX + boardWidth + size * 0.25, offsetY + i * size + size / 2);
+            }
+        }
+
         if (gameOver) {
             openingDisplay.textContent = winnerText;
         } else {
@@ -363,16 +392,17 @@ document.addEventListener("DOMContentLoaded", () => {
         const totalWidth = size * 8;
         const totalHeight = size * 8;
 
-        // Zentrierung anpassen
-        offsetX = (window.innerWidth - totalWidth) / 2;
-        offsetY = (window.innerHeight - totalHeight) / 2;
+        offsetX = Math.max(0, (window.innerWidth - totalWidth) / 2);
+        offsetY = Math.max(0, (window.innerHeight - totalHeight) / 2);
 
         canvas.width = totalWidth + offsetX * 2;
         canvas.height = totalHeight + offsetY * 2;
-        canvas.style.width = `${canvas.width}px`;
-        canvas.style.height = `${canvas.height}px`;
+        canvas.style.width = `${totalWidth}px`;
+        canvas.style.height = `${totalHeight}px`;
+        canvas.style.marginLeft = `${offsetX}px`;
+        canvas.style.marginTop = `${offsetY}px`;
 
-        console.log("Canvas resized to:", canvas.width, canvas.height);
+        console.log("Canvas resized to:", canvas.width, canvas.height, "with offsets:", offsetX, offsetY);
         if (gameStarted) {
             console.log("Calling drawBoard from resizeCanvas");
             drawBoard();
@@ -1036,7 +1066,7 @@ document.addEventListener("DOMContentLoaded", () => {
         console.log("updateMoveHistory completed");
     }
 
-    function showPromotionChoice(x, y, isWhite) {
+  function showPromotionChoice(x, y, isWhite) {
         console.log("showPromotionChoice called");
         const existingMenu = document.getElementById("promotionChoices");
         if (existingMenu) {
@@ -1216,34 +1246,43 @@ document.addEventListener("DOMContentLoaded", () => {
                         board: board.map(row => [...row]),
                         currentPlayer,
                         moveCount,
-                        castlingAvailability: { ...castlingAvailability },
-                        piece: selectedPiece.piece
+                        castlingAvailability: JSON.parse(JSON.stringify(castlingAvailability)),
+                        isWhiteInCheck,
+                        isBlackInCheck,
+                        whiteTime,
+                        blackTime
                     });
-                    return;
+                } else {
+                    board = newBoard;
+                    lastMove = { fromX: selectedPiece.x, fromY: selectedPiece.y, toX: boardX, toY: boardY };
+                    updateKingPositions();
+                    currentPlayer = currentPlayer === "white" ? "black" : "white";
+                    selectedPiece = null;
+                    legalMoves = [];
+                    moveHistory.push({
+                        board: board.map(row => [...row]),
+                        currentPlayer,
+                        moveCount,
+                        castlingAvailability: JSON.parse(JSON.stringify(castlingAvailability)),
+                        isWhiteInCheck,
+                        isBlackInCheck,
+                        whiteTime,
+                        blackTime
+                    });
+                    updateMoveHistory();
+                    updateCheckStatus();
+                    checkGameOver();
+                    if (soundEnabled) {
+                        const audio = new Audio(isCapture ? SOUND.captureSound : SOUND.moveSound);
+                        audio.play().catch((e) => console.error("Move audio play failed:", e));
+                    }
                 }
-                moveHistory.push({
-                    board: board.map(row => [...row]),
-                    currentPlayer,
-                    moveCount,
-                    castlingAvailability: { ...castlingAvailability },
-                    piece: selectedPiece.piece
-                });
-                lastMove = { fromX: selectedPiece.x, fromY: selectedPiece.y, toX: boardX, toY: boardY };
-                board = newBoard;
-                updateKingPositions();
-                currentPlayer = currentPlayer === "white" ? "black" : "white";
-                updateMoveHistory();
-                updateCheckStatus();
-                checkGameOver();
-                if (soundEnabled) {
-                    const audio = new Audio(isCapture ? SOUND.captureSound : SOUND.moveSound);
-                    audio.play().catch((e) => console.error("Move audio play failed:", e));
-                }
-                selectedPiece = null;
-                legalMoves = [];
+                drawBoard();
+                updateTurnDisplay();
             } else {
-                if (piece && (isWhitePiece === (currentPlayer === "white"))) {
-                    selectedPiece = { x: boardX, y: boardY, piece };
+                const clickedPiece = board[boardY][boardX];
+                if (clickedPiece && (clickedPiece === clickedPiece.toUpperCase()) === (currentPlayer === "white")) {
+                    selectedPiece = { x: boardX, y: boardY, piece: clickedPiece };
                     legalMoves = getLegalMoves(boardX, boardY);
                     if (legalMoves.length === 0) {
                         selectedPiece = null;
@@ -1252,120 +1291,112 @@ document.addEventListener("DOMContentLoaded", () => {
                     selectedPiece = null;
                     legalMoves = [];
                 }
+                drawBoard();
             }
-            drawBoard();
         }
         console.log("handleCanvasClick completed");
     }
 
-    function showPenaltyMessage() {
-        console.log("showPenaltyMessage called");
-        const penaltyMessage = document.createElement("div");
-        penaltyMessage.classList.add("penalty-message");
-        penaltyMessage.textContent = "- 1 Minute";
-        document.body.appendChild(penaltyMessage);
-        const rect = undoButton.getBoundingClientRect();
-        penaltyMessage.style.position = "absolute";
-        penaltyMessage.style.left = `${rect.left + rect.width / 2}px`;
-        penaltyMessage.style.top = `${rect.top - 30}px`;
-        penaltyMessage.style.transform = "translateX(-50%)";
-        setTimeout(() => {
-            document.body.removeChild(penaltyMessage);
-        }, 2000);
-        console.log("showPenaltyMessage completed");
-    }
-
-    function initializeGameButtons() {
-        console.log("Initializing game buttons...");
-        console.log("startButton:", startButton);
-        console.log("startFreestyleButton:", startFreestyleButton);
-
-        if (!startButton) {
-            console.error("startButton not found. Check HTML for ID 'startButton'.");
-            alert("Error: Start Button not found. Please ensure the button with ID 'startButton' exists in the HTML.");
+    function undoMove() {
+        console.log("undoMove called");
+        if (moveHistory.length === 0) {
+            console.log("No moves to undo");
             return;
         }
-        console.log("startButton initialized:", startButton);
-        startButton.addEventListener("click", () => startGame(false));
+        const lastState = moveHistory.pop();
+        board = lastState.board;
+        currentPlayer = lastState.currentPlayer;
+        moveCount = lastState.moveCount;
+        castlingAvailability = lastState.castlingAvailability;
+        isWhiteInCheck = lastState.isWhiteInCheck;
+        isBlackInCheck = lastState.isBlackInCheck;
+        whiteTime = lastState.whiteTime;
+        blackTime = lastState.blackTime;
 
-        if (!startFreestyleButton) {
-            console.error("startFreestyleButton not found. Check HTML for ID 'startFreestyleButton'.");
-            alert("Error: Start Freestyle Button not found. Please ensure the button with ID 'startFreestyleButton' exists in the HTML.");
-            return;
+        if (currentPlayer === "white") {
+            whiteTime = Math.max(0, whiteTime - CONFIG.undoPenalty);
+        } else {
+            blackTime = Math.max(0, blackTime - CONFIG.undoPenalty);
         }
-        console.log("startFreestyleButton initialized:", startFreestyleButton);
-        startFreestyleButton.addEventListener("click", () => startGame(true));
 
-        rotateButton.addEventListener("click", () => {
-            rotateBoard = !rotateBoard;
-            drawBoard();
-        });
-
-        smartphoneModeButton.addEventListener("click", () => {
-            smartphoneMode = !smartphoneMode;
-            smartphoneModeButton.textContent = `Rotate ${smartphoneMode ? "Off" : "On"}`;
-            drawBoard();
-        });
-
-        soundToggleButton.addEventListener("click", () => {
-            soundEnabled = !soundEnabled;
-            soundToggleButton.textContent = `Sound ${soundEnabled ? "Off" : "On"}`;
-        });
-
-        undoButton.addEventListener("click", () => {
-            if (moveHistory.length === 0) return;
-            const lastState = moveHistory.pop();
-            board = lastState.board;
-            currentPlayer = lastState.currentPlayer;
-            moveCount = lastState.moveCount;
-            castlingAvailability = lastState.castlingAvailability;
-            updateKingPositions();
-            updateCheckStatus();
-            if (currentPlayer === "white") whiteTime = Math.max(whiteTime - CONFIG.undoPenalty, 0);
-            else blackTime = Math.max(blackTime - CONFIG.undoPenalty, 0);
-            showPenaltyMessage();
-            selectedPiece = null;
-            legalMoves = [];
+        if (moveNotations.length > 0) {
             moveNotations.pop();
-            lastMove = moveHistory.length > 0 ? moveHistory[moveHistory.length - 1] : null;
-            updateMoveHistory();
-            drawBoard();
-        });
-
-        restartButton.addEventListener("click", () => {
-            startGame(false);
-        });
-
-        designButton.addEventListener("click", () => {
-            console.log("Design button clicked");
-            currentDesign = currentDesign % 5 + 1;
-            window.updateBoardColors(currentDesign);
-            drawBoard();
-        });
-
-        fullscreenButton.addEventListener("click", toggleFullscreenMode);
-        exitFullscreenButton.addEventListener("click", toggleFullscreenMode);
-        closeFullscreenButton.addEventListener("click", () => {
-            console.log("closeFullscreenButton clicked");
-            if (fullscreenMode) {
-                toggleFullscreenMode();
+            if (currentPlayer === "white") {
+                moveCount--;
+                if (moveNotations.length > 0) {
+                    moveNotations.pop();
+                }
             }
-        });
-        closeFullscreenButton.addEventListener("touchstart", (e) => {
-            e.preventDefault();
-            console.log("closeFullscreenButton touched");
-            if (fullscreenMode) {
-                toggleFullscreenMode();
+        }
+
+        selectedPiece = null;
+        legalMoves = [];
+        lastMove = null;
+        updateKingPositions();
+        updateCheckStatus();
+        moveList.innerHTML = "";
+        let movePairs = [];
+        for (let i = 0; i < moveNotations.length; i++) {
+            if (i % 2 === 0) {
+                movePairs.push({ white: moveNotations[i].notation });
+            } else {
+                movePairs[movePairs.length - 1].black = moveNotations[i].notation;
             }
-        }, { passive: false });
-
-        canvas.addEventListener("click", handleCanvasClick);
-        canvas.addEventListener("touchstart", handleCanvasClick, { passive: false });
-
-        closeFullscreenButton.textContent = "Back";
+        }
+        movePairs.forEach((pair, index) => {
+            const moveItem = document.createElement("li");
+            moveItem.textContent = `${index + 1}. ${pair.white}${pair.black ? " " + pair.black : ""}`;
+            if (index === movePairs.length - 1) {
+                moveItem.classList.add("last-move");
+            }
+            moveList.appendChild(moveItem);
+        });
+        moveList.scrollTop = moveList.scrollHeight;
+        updateOpeningDisplay();
+        updateTurnDisplay();
+        drawBoard();
+        console.log("undoMove completed");
     }
+
+    startButton.addEventListener("click", () => startGame(false));
+    startFreestyleButton.addEventListener("click", () => startGame(true));
+    rotateButton.addEventListener("click", () => {
+        rotateBoard = !rotateBoard;
+        drawBoard();
+    });
+    smartphoneModeButton.addEventListener("click", () => {
+        smartphoneMode = !smartphoneMode;
+        smartphoneModeButton.textContent = smartphoneMode ? "Disable Smartphone Mode" : "Enable Smartphone Mode";
+        drawBoard();
+    });
+    soundToggleButton.addEventListener("click", () => {
+        soundEnabled = !soundEnabled;
+        soundToggleButton.textContent = soundEnabled ? "Disable Sound" : "Enable Sound";
+    });
+    undoButton.addEventListener("click", undoMove);
+    restartButton.addEventListener("click", () => {
+        startScreen.style.display = "block";
+        gameContainer.style.display = "none";
+        restartButton.classList.add("hidden");
+        gameStarted = false;
+        if (timerInterval) clearInterval(timerInterval);
+    });
+    designButton.addEventListener("click", () => {
+        currentDesign = currentDesign % Object.keys(designs).length + 1;
+        window.updateBoardColors(currentDesign);
+    });
+    fullscreenButton.addEventListener("click", toggleFullscreenMode);
+    exitFullscreenButton.addEventListener("click", toggleFullscreenMode);
+    closeFullscreenButton.addEventListener("click", toggleFullscreenMode);
+
+    canvas.addEventListener("click", handleCanvasClick);
+    canvas.addEventListener("touchstart", handleCanvasClick, { passive: false });
 
     window.addEventListener("resize", debouncedResizeCanvas);
+    window.addEventListener("orientationchange", () => {
+        setTimeout(debouncedResizeCanvas, 100);
+    });
+
     resizeCanvas();
-    initializeGameButtons();
+    console.log("Event listeners and initial setup completed");
 });
