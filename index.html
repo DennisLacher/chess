@@ -3,19 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chess Game</title>
-    <link rel="stylesheet" href="./style.css" id="cssLink" onload="console.log('style.css loaded successfully')" onerror="console.error('Failed to load style.css, using default styles'); document.getElementById('cssLink').remove();">
-    <style>
-        /* Fallback-Styling, falls style.css fehlschlägt */
-        body { margin: 0; font-family: Arial, sans-serif; }
-        canvas { display: block; margin: 0 auto; }
-        #startScreen { text-align: center; padding: 20px; }
-        .start-buttons button { padding: 10px; margin: 5px; }
-        #gameContainer { display: none; text-align: center; }
-        #turnDisplay { margin-bottom: 10px; } /* Über dem Canvas */
-    </style>
+    <title>Schachspiel</title>
+    <link rel="stylesheet" href="style.css">
 </head>
-<body class="darkmode"> <!-- Dark Mode standardmäßig aktiviert -->
+<body>
     <div id="startScreen">
         <div class="start-buttons">
             <button id="startButton">Start Game</button>
@@ -23,23 +14,23 @@
         </div>
     </div>
     <div id="gameContainer">
-        <div id="turnDisplay"></div> <!-- Über dem Canvas -->
+        <div id="turnDisplay">White is next</div>
         <canvas id="chessboard"></canvas>
         <div id="openingDisplay"></div>
+        <ul id="moveList"></ul>
         <div class="game-buttons">
-            <button id="rotateButton">Rotate</button>
+            <button id="rotateButton">Rotate Board</button>
             <button id="smartphoneModeButton">Rotate On</button>
             <button id="soundToggleButton">Sound Off</button>
-            <button id="undoButton">Undo</button>
+            <button id="undoButton">Undo Move</button>
             <button id="restartButton" class="hidden">Restart</button>
-            <button id="designButton">Design</button>
+            <button id="designButton">Change Design</button>
             <button id="darkmodeToggleButton">Light Mode</button>
             <button id="fullscreenButton">Fullscreen</button>
-            <button id="exitFullscreenButton" style="display: none;">Exit Fullscreen</button>
-            <button id="closeFullscreenButton" style="display: none;">Close</button>
+            <button id="exitFullscreenButton">Exit Fullscreen</button>
+            <button id="closeFullscreenButton">X</button>
         </div>
-        <ul id="moveList"></ul>
     </div>
-    <script src="./script.js"></script>
+    <script src="script.js"></script>
 </body>
 </html>
