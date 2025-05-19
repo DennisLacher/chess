@@ -404,7 +404,7 @@ document.addEventListener("DOMContentLoaded", () => {
             openingDisplay.style.display = "none";
             fullscreenButton.style.display = "none";
             exitFullscreenButton.style.display = "none";
-            closeFullscreenButton.style.display = "block";
+            closeFullscreenButton.style.display = "block"; // Sicherstellen, dass der "X"-Button sichtbar ist
         } else {
             if (document.exitFullscreen) {
                 document.exitFullscreen().catch((err) => {
@@ -475,6 +475,7 @@ document.addEventListener("DOMContentLoaded", () => {
             document.body.classList.remove("fullscreen");
             fullscreenButton.style.display = "block";
             exitFullscreenButton.style.display = "none";
+            closeFullscreenButton.style.display = "none";
             moveList.innerHTML = "";
             startScreen.style.display = "none";
             gameContainer.style.display = "flex";
@@ -527,7 +528,7 @@ document.addEventListener("DOMContentLoaded", () => {
             initializeDarkmodeToggle();
 
             console.log("Updating turn display...");
-            updateTurnDisplay();
+            updateTurnDisplay(); // Sofort aktualisieren, um sicherzustellen, dass "White is next" angezeigt wird
 
             console.log("startGame completed successfully");
         } catch (error) {
@@ -1258,6 +1259,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
         canvas.addEventListener("click", handleCanvasClick);
         canvas.addEventListener("touchstart", handleCanvasClick, { passive: false });
+
+        // Sicherstellen, dass der "X"-Button korrekt initialisiert wird
+        closeFullscreenButton.textContent = "X";
     }
 
     window.addEventListener("resize", debouncedResizeCanvas);
