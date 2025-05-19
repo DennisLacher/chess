@@ -185,20 +185,21 @@ canvas {
 
 .fullscreen #closeFullscreenButton {
     display: block;
-    position: absolute;
+    position: fixed;
     top: 10px;
     right: 10px;
     background-color: #ff4444;
-    width: 30px; /* Klein und quadratisch */
+    width: 30px;
     height: 30px;
-    line-height: 30px; /* Zentriert den Text vertikal */
+    line-height: 30px;
     text-align: center;
-    font-size: 16px; /* Größe des "X" */
+    font-size: 16px;
     color: white;
     border-radius: 5px;
     border: none;
     cursor: pointer;
-    padding: 0; /* Entfernt Padding für eine saubere Darstellung */
+    padding: 0;
+    z-index: 1000;
 }
 
 .fullscreen #closeFullscreenButton:hover {
