@@ -50,6 +50,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!startFreestyleButton) missingElements.push("startFreestyleButton (id='startFreestyleButton')");
     if (!gameContainer) missingElements.push("gameContainer (id='gameContainer')");
     if (!turnDisplay) missingElements.push("turnDisplay (id='turnDisplay')");
+    if (!closeFullscreenButton) missingElements.push("closeFullscreenButton (id='closeFullscreenButton')");
     if (missingElements.length > 0) {
         console.error("The following DOM elements are missing:", missingElements.join(", "));
         alert("Error: Missing DOM elements: " + missingElements.join(", ") + ". Please check the HTML and console.");
@@ -313,16 +314,27 @@ document.addEventListener("DOMContentLoaded", () => {
 
         // Beschriftung: Buchstaben (a-h) nur unten, Zahlen (1-8) nur links
         ctx.fillStyle = isDarkmode ? "#e0e0e0" : "#333";
-        ctx.font = `${size * 0.25}px Arial`;
+        ctx.font = `${size * 0.3}px Arial`; // Schriftgröße erhöht für bessere Sichtbarkeit
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+
         if (!effectiveRotation) {
             for (let i = 0; i < 8; i++) {
-                ctx.fillText(String.fromCharCode(97 + i), offsetX + i * size + size / 2, offsetY + 8 * size + size * 0.4); // a-h nur unten
-                ctx.fillText(8 - i, offsetX - size * 0.25, offsetY + i * size + size / 2); // 1-8 nur links
+                // Buchstaben (a-h) nur unten
+                const letterY = offsetY + 8 * size + size * 0.5; // Mehr Abstand nach unten
+                ctx.fillText(String.fromCharCode(97 + i), offsetX + i * size + size / 2, letterY);
+                // Zahlen (1-8) nur links
+                const numberX = offsetX - size * 0.5; // Mehr Abstand nach links
+                ctx.fillText(8 - i, numberX, offsetY + i * size + size / 2);
             }
         } else {
             for (let i = 0; i < 8; i++) {
-                ctx.fillText(String.fromCharCode(97 + (7 - i)), offsetX + i * size + size / 2, offsetY + 8 * size + size * 0.4); // a-h nur unten
-                ctx.fillText(i + 1, offsetX - size * 0.25, offsetY + (7 - i) * size + size / 2); // 1-8 nur links
+                // Buchstaben (a-h) nur unten (umgedreht)
+                const letterY = offsetY + 8 * size + size * 0.5; // Mehr Abstand nach unten
+                ctx.fillText(String.fromCharCode(97 + (7 - i)), offsetX + i * size + size / 2, letterY);
+                // Zahlen (1-8) nur links (umgedreht)
+                const numberX = offsetX - size * 0.5; // Mehr Abstand nach links
+                ctx.fillText(i + 1, numberX, offsetY + (7 - i) * size + size / 2);
             }
         }
 
@@ -381,7 +393,7 @@ document.addEventListener("DOMContentLoaded", () => {
         offsetY = (window.innerHeight - totalHeight) / 2 * CONFIG.offset;
 
         canvas.width = totalWidth + offsetX * 2;
-        canvas.height = totalHeight + offsetY * 2;
+        canvas.height = totalHeight + offsetY * 2 + size * 0.5; // Extra Platz für Beschriftung unten
         canvas.style.width = `${canvas.width}px`;
         canvas.style.height = `${canvas.height}px`;
 
@@ -412,6 +424,11 @@ document.addEventListener("DOMContentLoaded", () => {
             exitFullscreenButton.style.display = "none";
             closeFullscreenButton.style.display = "block";
             closeFullscreenButton.textContent = "Back";
+            console.log("closeFullscreenButton styles:", {
+                display: closeFullscreenButton.style.display,
+                visibility: closeFullscreenButton.style.visibility,
+                opacity: closeFullscreenButton.style.opacity,
+            });
         } else {
             if (document.exitFullscreen) {
                 document.exitFullscreen().catch((err) => {
@@ -444,6 +461,11 @@ document.addEventListener("DOMContentLoaded", () => {
             exitFullscreenButton.style.display = "none";
             closeFullscreenButton.style.display = "block";
             closeFullscreenButton.textContent = "Back";
+            console.log("closeFullscreenButton styles after fullscreenchange:", {
+                display: closeFullscreenButton.style.display,
+                visibility: closeFullscreenButton.style.visibility,
+                opacity: closeFullscreenButton.style.opacity,
+            });
         } else {
             turnDisplay.style.display = "block";
             moveList.style.display = "block";
@@ -840,7 +862,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     for (let i = 4; i >= 2; i--) {
                         const tempBoardCopy = tempBoard.map(row => [...row]);
                         if (i < 4) {
-                            tempBoardCopy[7][i] = "テキスト";
+                            tempBoardCopy[7][i] = "K";
                             tempBoardCopy[7][i + 1] = "";
                         }
                         const tempKingPos = { x: i, y: 7 };
@@ -1265,6 +1287,7 @@ document.addEventListener("DOMContentLoaded", () => {
         fullscreenButton.addEventListener("click", toggleFullscreenMode);
         exitFullscreenButton.addEventListener("click", toggleFullscreenMode);
         closeFullscreenButton.addEventListener("click", () => {
+            console.log("closeFullscreenButton clicked");
             if (fullscreenMode) {
                 toggleFullscreenMode();
             }
