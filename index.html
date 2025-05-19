@@ -3,8 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chess</title>
-    <link rel="stylesheet" href="./style.css">
+    <title>Chess Game</title>
+    <link rel="stylesheet" href="./style.css" id="cssLink" onload="console.log('style.css loaded successfully')" onerror="console.error('Failed to load style.css, using default styles'); document.getElementById('cssLink').remove();">
+    <style>
+        /* Fallback-Styling, falls style.css fehlschlägt */
+        body { margin: 0; font-family: Arial, sans-serif; }
+        canvas { display: block; margin: 0 auto; }
+        #startScreen { text-align: center; padding: 20px; }
+        .start-buttons button { padding: 10px; margin: 5px; }
+        #gameContainer { display: none; text-align: center; }
+    </style>
 </head>
 <body>
     <div id="startScreen">
