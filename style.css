@@ -108,20 +108,20 @@ canvas {
 
 #moveList {
     list-style-type: none;
-    padding: 5px; /* Reduziert für kleinere Box */
+    padding: 5px;
     margin: 10px 0;
-    max-height: 100px; /* Kleinere Höhe */
+    max-height: 100px;
     overflow-y: auto;
     width: 100%;
-    max-width: 300px; /* Kleinere Breite */
-    background-color: #666; /* Grauer Hintergrund */
-    border: 1px solid #999; /* Rahmen für Box */
+    max-width: 300px;
+    background-color: #666;
+    border: 1px solid #999;
     border-radius: 5px;
 }
 
 #moveList li {
-    margin: 3px 0; /* Weniger Abstand für kompaktere Darstellung */
-    font-size: 14px; /* Kleinere Schrift */
+    margin: 3px 0;
+    font-size: 14px;
 }
 
 #moveList li.last-move {
@@ -189,6 +189,16 @@ canvas {
     top: 10px;
     right: 10px;
     background-color: #ff4444;
+    width: 30px; /* Klein und quadratisch */
+    height: 30px;
+    line-height: 30px; /* Zentriert den Text vertikal */
+    text-align: center;
+    font-size: 16px; /* Größe des "X" */
+    color: white;
+    border-radius: 5px;
+    border: none;
+    cursor: pointer;
+    padding: 0; /* Entfernt Padding für eine saubere Darstellung */
 }
 
 .fullscreen #closeFullscreenButton:hover {
