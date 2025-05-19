@@ -314,14 +314,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
         // Beschriftung: Buchstaben (a-h) nur unten, Zahlen (1-8) nur links
         ctx.fillStyle = isDarkmode ? "#e0e0e0" : "#333";
-        ctx.font = `${size * 0.4}px Arial`; // Schriftgröße erhöht
+        ctx.font = `${size * 0.25}px Arial`; // Schriftgröße reduziert
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
+        ctx.fontWeight = "normal"; // Fett entfernen
 
         if (!effectiveRotation) {
             for (let i = 0; i < 8; i++) {
                 // Buchstaben (a-h) nur unten
-                const letterY = offsetY + 8 * size + size * 0.7; // Mehr Abstand und Anpassung
+                const letterY = offsetY + 8 * size + size * 0.7; // Mehr Abstand
                 ctx.fillText(String.fromCharCode(97 + i), offsetX + i * size + size / 2, letterY);
                 // Zahlen (1-8) nur links
                 const numberX = offsetX - size * 0.7; // Mehr Abstand
@@ -477,6 +478,28 @@ document.addEventListener("DOMContentLoaded", () => {
         resizeCanvas();
         drawBoard();
         console.log("fullscreenchange handler completed");
+    });
+
+    // Neue Escape-Taste für Vollbildmodus
+    document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape' && fullscreenMode) {
+            console.log("Escape key pressed, exiting fullscreen mode");
+            if (document.exitFullscreen) {
+                document.exitFullscreen().catch((err) => {
+                    console.error("Failed to exit fullscreen mode:", err);
+                });
+            }
+            document.body.classList.remove("fullscreen");
+            fullscreenMode = false;
+            turnDisplay.style.display = "block";
+            moveList.style.display = "block";
+            openingDisplay.style.display = "block";
+            fullscreenButton.style.display = "block";
+            exitFullscreenButton.style.display = "none";
+            closeFullscreenButton.style.display = "none";
+            resizeCanvas();
+            drawBoard();
+        }
     });
 
     function startGame(freestyle = false) {
