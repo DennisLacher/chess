@@ -93,7 +93,7 @@ document.addEventListener("DOMContentLoaded", () => {
     let isWhiteInCheck = false;
     let isBlackInCheck = false;
     let currentDesign = 3;
-    let isDarkmode = true;
+    let isDarkmode = true; // Standardmäßig im Dark-Mode starten
     let fullscreenMode = false;
     let gameOver = false;
     let winnerText = "";
@@ -302,7 +302,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 const piece = board[y][x];
                 if (piece) {
                     const isWhite = piece === piece.toUpperCase();
-                    ctx.fillStyle = isWhite ? "#FFFFFF" : "#000000"; // Weiße Figuren weiß, schwarze Figuren schwarz
+                    ctx.fillStyle = isWhite ? "#FFFFFF" : "#000000";
                     ctx.font = `${size * 0.7}px sans-serif`;
                     ctx.textAlign = "center";
                     ctx.textBaseline = "middle";
@@ -410,6 +410,7 @@ document.addEventListener("DOMContentLoaded", () => {
             fullscreenButton.style.display = "none";
             exitFullscreenButton.style.display = "none";
             closeFullscreenButton.style.display = "block";
+            closeFullscreenButton.textContent = "Back"; // "Back"-Button anstelle von "X"
         } else {
             if (document.exitFullscreen) {
                 document.exitFullscreen().catch((err) => {
@@ -441,6 +442,7 @@ document.addEventListener("DOMContentLoaded", () => {
             fullscreenButton.style.display = "none";
             exitFullscreenButton.style.display = "none";
             closeFullscreenButton.style.display = "block";
+            closeFullscreenButton.textContent = "Back"; // "Back"-Button im Fullscreen
         } else {
             turnDisplay.style.display = "block";
             moveList.style.display = "block";
@@ -478,6 +480,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
             console.log("Updating DOM elements visibility...");
             document.body.classList.remove("fullscreen");
+            document.body.classList.add("darkmode"); // Dark-Mode beim Start aktivieren
             fullscreenButton.style.display = "block";
             exitFullscreenButton.style.display = "none";
             closeFullscreenButton.style.display = "none";
@@ -1265,7 +1268,7 @@ document.addEventListener("DOMContentLoaded", () => {
         canvas.addEventListener("click", handleCanvasClick);
         canvas.addEventListener("touchstart", handleCanvasClick, { passive: false });
 
-        closeFullscreenButton.textContent = "X";
+        closeFullscreenButton.textContent = "Back";
     }
 
     window.addEventListener("resize", debouncedResizeCanvas);
