@@ -1,177 +1,190 @@
 body {
-  margin: 0;
-  padding: 0;
-  font-family: Arial, sans-serif;
-  background-color: #f0f0f0;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 100vh;
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+    background-color: #f0f0f0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
 }
 
 canvas {
-  display: block;
-  margin: 0 auto;
-  touch-action: none;
+    display: block;
+    margin: 0 auto;
+    touch-action: none;
 }
 
 #startScreen {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  text-align: center;
-  background-color: rgba(255, 255, 255, 0.9);
-  padding: 20px;
-  border-radius: 10px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-  min-width: 200px;
-  min-height: 100px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    background-color: rgba(255, 255, 255, 0.9);
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    min-width: 200px;
+    min-height: 100px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
 }
 
 .start-buttons {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
 }
 
 .start-buttons button {
-  display: block;
-  margin: 5px auto;
-  padding: 10px 20px;
-  font-size: 16px;
-  cursor: pointer;
-  background-color: #4CAF50;
-  color: white;
-  border: none;
-  border-radius: 5px;
+    display: block;
+    margin: 5px auto;
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 5px;
 }
 
 .start-buttons button:hover {
-  background-color: #45a049;
+    background-color: #45a049;
 }
 
 #gameContainer {
-  display: none;
-  flex-direction: column;
-  align-items: center;
-  visibility: hidden;
-  opacity: 0;
-  transition: opacity 0.3s;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    visibility: hidden;
+    opacity: 0;
+    transition: opacity 0.3s;
+    width: 100%;
+    max-width: 800px;
 }
 
 .game-buttons {
-  margin-top: 10px;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 5px;
-  justify-content: center;
-  max-width: 600px;
+    margin-top: 10px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    justify-content: center;
+    max-width: 600px;
+    flex-direction: row;
+    flex-basis: 50%;
 }
 
 .game-buttons button {
-  padding: 5px 10px;
-  font-size: 14px;
-  cursor: pointer;
-  background-color: #008CBA;
-  color: white;
-  border: none;
-  border-radius: 5px;
+    padding: 5px 10px;
+    font-size: 14px;
+    cursor: pointer;
+    background-color: #008CBA;
+    color: white;
+    border: none;
+    border-radius: 5px;
 }
 
 .game-buttons button:hover {
-  background-color: #007B9A;
+    background-color: #007B9A;
 }
 
 #turnDisplay, #openingDisplay {
-  margin: 10px 0;
-  font-size: 18px;
+    margin: 10px 0;
+    font-size: 18px;
+    text-align: center;
+    width: 100%;
 }
 
 #moveList {
-  list-style-type: none;
-  padding: 0;
-  margin: 10px 0;
-  max-height: 150px;
-  overflow-y: auto;
-  width: 200px;
-  background-color: rgba(255, 255, 255, 0.8);
-  border-radius: 5px;
-  padding: 10px;
+    list-style-type: none;
+    padding: 0;
+    margin: 10px 0;
+    max-height: 150px;
+    overflow-y: auto;
+    width: 100%;
+    max-width: 600px;
+    background-color: rgba(255, 255, 255, 0.8);
+    border-radius: 5px;
+    padding: 10px;
 }
 
 #moveList li {
-  margin: 5px 0;
+    margin: 5px 0;
 }
 
 #moveList li.last-move {
-  font-weight: bold;
+    font-weight: bold;
 }
 
 .penalty-message {
-  position: absolute;
-  background-color: #ff4444;
-  color: white;
-  padding: 5px 10px;
-  border-radius: 3px;
-  animation: fadeOut 2s forwards;
+    position: absolute;
+    background-color: #ff4444;
+    color: white;
+    padding: 5px 10px;
+    border-radius: 3px;
+    animation: fadeOut 2s forwards;
 }
 
 @keyframes fadeOut {
-  from { opacity: 1; }
-  to { opacity: 0; }
+    from { opacity: 1; }
+    to { opacity: 0; }
 }
 
 #promotionChoices {
-  position: absolute;
-  background-color: white;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  padding: 5px;
-  box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+    position: absolute;
+    background-color: white;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    padding: 5px;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
 }
 
 .promotion-button {
-  display: block;
-  width: 40px;
-  height: 40px;
-  font-size: 24px;
-  margin: 5px;
-  cursor: pointer;
-  border: none;
-  background: none;
+    display: block;
+    width: 40px;
+    height: 40px;
+    font-size: 24px;
+    margin: 5px;
+    cursor: pointer;
+    border: none;
+    background: none;
 }
 
 .promotion-button:hover {
-  background-color: #ddd;
+    background-color: #ddd;
 }
 
 .darkmode {
-  background-color: #333;
-  color: #e0e0e0;
+    background-color: #333;
+    color: #e0e0e0;
 }
 
 .darkmode #startScreen {
-  background-color: rgba(51, 51, 51, 0.9);
+    background-color: rgba(51, 51, 51, 0.9);
 }
 
 .darkmode .game-buttons button {
-  background-color: #006d9a;
+    background-color: #006d9a;
 }
 
 .darkmode .game-buttons button:hover {
-  background-color: #005d87;
+    background-color: #005d87;
 }
 
 .darkmode #moveList {
-  background-color: rgba(51, 51, 51, 0.8);
+    background-color: rgba(51, 51, 51, 0.8);
 }
 
 .fullscreen {
-  width: 100vw;
-  height: 100vh;
-  overflow: hidden;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+}
+
+.fullscreen #gameContainer {
+    height: 100%;
+    width: 100%;
 }
