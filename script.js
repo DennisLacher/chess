@@ -747,6 +747,65 @@ document.addEventListener("DOMContentLoaded", () => {
                     moves.push({ toX: newX, toY: newY });
                 }
             });
+                // Event-Listener für Buttons und Canvas
+    startButton.addEventListener("click", function () {
+        startGame(false);
+    });
+
+    startFreestyleButton.addEventListener("click", function () {
+        startGame(true);
+    });
+
+    rotateButton.addEventListener("click", function () {
+        rotateBoard = !rotateBoard;
+        drawBoard();
+    });
+
+    smartphoneModeButton.addEventListener("click", function () {
+        smartphoneMode = !smartphoneMode;
+        smartphoneModeButton.textContent = smartphoneMode ? "Disable Smartphone Mode" : "Enable Smartphone Mode";
+        drawBoard();
+    });
+
+    soundToggleButton.addEventListener("click", function () {
+        soundEnabled = !soundEnabled;
+        soundToggleButton.textContent = soundEnabled ? "Disable Sound" : "Enable Sound";
+    });
+
+    undoButton.addEventListener("click", undoMove);
+
+    restartButton.addEventListener("click", function () {
+        startScreen.style.display = "block";
+        gameContainer.style.display = "none";
+        restartButton.classList.add("hidden");
+        gameStarted = false;
+        if (timerInterval) clearInterval(timerInterval);
+    });
+
+    designButton.addEventListener("click", function () {
+        currentDesign = currentDesign % Object.keys(designs).length + 1;
+        window.updateBoardColors(currentDesign);
+    });
+
+    fullscreenButton.addEventListener("click", toggleFullscreenMode);
+
+    exitFullscreenButton.addEventListener("click", toggleFullscreenMode);
+
+    closeFullscreenButton.addEventListener("click", toggleFullscreenMode);
+
+    canvas.addEventListener("click", handleCanvasClick);
+
+    canvas.addEventListener("touchstart", handleCanvasClick, { passive: false });
+
+    window.addEventListener("resize", debouncedResizeCanvas);
+
+    window.addEventListener("orientationchange", function () {
+        setTimeout(debouncedResizeCanvas, 100);
+    });
+
+    resizeCanvas();
+    console.log("Event listeners and initial setup completed");
+});
         } else if (piece.toLowerCase() === "r") {
             const directions = [[0, 1], [0, -1], [1, 0], [-1, 0]];
             directions.forEach([dx, dy] => {
