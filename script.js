@@ -814,6 +814,7 @@ document.addEventListener("DOMContentLoaded", () => {
         console.log("getLegalMovesForCheck completed with moves:", moves);
         return moves;
     }
+
     function getLegalMoves(x, y, tempBoard = board) {
         console.log("getLegalMoves called for", x, y);
         const moves = [];
@@ -1040,7 +1041,7 @@ document.addEventListener("DOMContentLoaded", () => {
         return { simple: simpleNotation, full: fullNotation };
     }
 
-    function updateMoveHistory() {
+        function updateMoveHistory() {
         console.log("updateMoveHistory called");
         if (!lastMove) {
             console.log("No last move to update");
@@ -1364,33 +1365,35 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // Event-Listener für Buttons und Canvas
-    startButton.addEventListener("click", function () {
+    startButton.addEventListener("click", () => {
         startGame(false);
     });
 
-    startFreestyleButton.addEventListener("click", function () {
+    startFreestyleButton.addEventListener("click", () => {
         startGame(true);
     });
 
-    rotateButton.addEventListener("click", function () {
+    rotateButton.addEventListener("click", () => {
         rotateBoard = !rotateBoard;
         drawBoard();
     });
 
-    smartphoneModeButton.addEventListener("click", function () {
+    smartphoneModeButton.addEventListener("click", () => {
         smartphoneMode = !smartphoneMode;
         smartphoneModeButton.textContent = smartphoneMode ? "Disable Smartphone Mode" : "Enable Smartphone Mode";
         drawBoard();
     });
 
-    soundToggleButton.addEventListener("click", function () {
+    soundToggleButton.addEventListener("click", () => {
         soundEnabled = !soundEnabled;
         soundToggleButton.textContent = soundEnabled ? "Disable Sound" : "Enable Sound";
     });
 
-    undoButton.addEventListener("click", undoMove);
+    undoButton.addEventListener("click", () => {
+        undoMove();
+    });
 
-    restartButton.addEventListener("click", function () {
+    restartButton.addEventListener("click", () => {
         startScreen.style.display = "block";
         gameContainer.style.display = "none";
         restartButton.classList.add("hidden");
@@ -1398,13 +1401,39 @@ document.addEventListener("DOMContentLoaded", () => {
         if (timerInterval) clearInterval(timerInterval);
     });
 
-    designButton.addEventListener("click", function () {
+    designButton.addEventListener("click", () => {
         currentDesign = currentDesign % Object.keys(designs).length + 1;
         window.updateBoardColors(currentDesign);
     });
 
-    fullscreenButton.addEventListener("click", function () {
+    fullscreenButton.addEventListener("click", () => {
         toggleFullscreenMode();
     });
 
-    exitFullscreenButton.addEvent
+    exitFullscreenButton.addEventListener("click", () => {
+        toggleFullscreenMode();
+    });
+
+    closeFullscreenButton.addEventListener("click", () => {
+        toggleFullscreenMode();
+    });
+
+    canvas.addEventListener("click", (event) => {
+        handleCanvasClick(event);
+    });
+
+    canvas.addEventListener("touchstart", (event) => {
+        handleCanvasClick(event);
+    }, { passive: false });
+
+    window.addEventListener("resize", () => {
+        debouncedResizeCanvas();
+    });
+
+    window.addEventListener("orientationchange", () => {
+        setTimeout(() => debouncedResizeCanvas(), 100);
+    });
+
+    resizeCanvas();
+    console.log("Event listeners and initial setup completed");
+});
