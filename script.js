@@ -1,4 +1,4 @@
-    document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", () => {
     console.log("Script loaded and DOMContentLoaded event fired at", new Date().toISOString());
 
     const CONFIG = {
@@ -755,7 +755,7 @@
                 while (true) {
                     newX += dx;
                     newY += dy;
-                    if (newX < 0 || newX >= 8 || newY < 0 || newY >= 8) break;
+                    if (newX < 0 || newX >= 8 || newY < 0 || newY < 8) break;
                     moves.push({ toX: newX, toY: newY });
                     if (tempBoard[newY][newX]) break;
                 }
@@ -780,7 +780,7 @@
                 while (true) {
                     newX += dx;
                     newY += dy;
-                    if (newX < 0 || newX >= 8 || newY < 0 || newY >= 8) break;
+                    if (newX < 0 || newX >= 8 || newY < 0 || newY < 8) break;
                     moves.push({ toX: newX, toY: newY });
                     if (tempBoard[newY][newX]) break;
                 }
@@ -793,7 +793,7 @@
                 while (true) {
                     newX += dx;
                     newY += dy;
-                    if (newX < 0 || newX >= 8 || newY < 0 || newY >= 8) break;
+                    if (newX < 0 || newX >= 8 || newY < 0 || newY < 8) break;
                     moves.push({ toX: newX, toY: newY });
                     if (tempBoard[newY][newX]) break;
                 }
@@ -814,7 +814,8 @@
         console.log("getLegalMovesForCheck completed with moves:", moves);
         return moves;
     }
-            function getLegalMoves(x, y, tempBoard = board) {
+
+    function getLegalMoves(x, y, tempBoard = board) {
         console.log("getLegalMoves called for", x, y);
         const moves = [];
         const piece = tempBoard[y][x];
@@ -855,7 +856,7 @@
                 while (true) {
                     newX += dx;
                     newY += dy;
-                    if (newX < 0 || newX >= 8 || newY < 0 || newY >= 8) break;
+                    if (newX < 0 || newX >= 8 || newY < 0 || newY < 8) break;
                     const targetPiece = tempBoard[newY][newX];
                     if (targetPiece) {
                         if ((targetPiece === targetPiece.toUpperCase()) !== isWhite) {
@@ -889,7 +890,7 @@
                 while (true) {
                     newX += dx;
                     newY += dy;
-                    if (newX < 0 || newX >= 8 || newY < 0 || newY >= 8) break;
+                    if (newX < 0 || newX >= 8 || newY < 0 || newY < 8) break;
                     const targetPiece = tempBoard[newY][newX];
                     if (targetPiece) {
                         if ((targetPiece === targetPiece.toUpperCase()) !== isWhite) {
@@ -908,7 +909,7 @@
                 while (true) {
                     newX += dx;
                     newY += dy;
-                    if (newX < 0 || newX >= 8 || newY < 0 || newY >= 8) break;
+                    if (newX < 0 || newX >= 8 || newY < 0 || newY < 8) break;
                     const targetPiece = tempBoard[newY][newX];
                     if (targetPiece) {
                         if ((targetPiece === targetPiece.toUpperCase()) !== isWhite) {
@@ -1378,7 +1379,7 @@
         soundEnabled = !soundEnabled;
         soundToggleButton.textContent = soundEnabled ? "Disable Sound" : "Enable Sound";
     });
-    undoButton.addEventListener("click", undoMove);
+    undoButton.addEventListener("click", () => undoMove());
     restartButton.addEventListener("click", () => {
         startScreen.style.display = "block";
         gameContainer.style.display = "none";
@@ -1390,16 +1391,16 @@
         currentDesign = currentDesign % Object.keys(designs).length + 1;
         window.updateBoardColors(currentDesign);
     });
-    fullscreenButton.addEventListener("click", toggleFullscreenMode);
-    exitFullscreenButton.addEventListener("click", toggleFullscreenMode);
-    closeFullscreenButton.addEventListener("click", toggleFullscreenMode);
+    fullscreenButton.addEventListener("click", () => toggleFullscreenMode());
+    exitFullscreenButton.addEventListener("click", () => toggleFullscreenMode());
+    closeFullscreenButton.addEventListener("click", () => toggleFullscreenMode());
 
-    canvas.addEventListener("click", handleCanvasClick);
-    canvas.addEventListener("touchstart", handleCanvasClick, { passive: false });
+    canvas.addEventListener("click", (event) => handleCanvasClick(event));
+    canvas.addEventListener("touchstart", (event) => handleCanvasClick(event), { passive: false });
 
-    window.addEventListener("resize", debouncedResizeCanvas);
+    window.addEventListener("resize", () => debouncedResizeCanvas());
     window.addEventListener("orientationchange", () => {
-        setTimeout(debouncedResizeCanvas, 100);
+        setTimeout(() => debouncedResizeCanvas(), 100);
     });
 
     resizeCanvas();
