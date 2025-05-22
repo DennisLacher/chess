@@ -4,16 +4,8 @@ document.addEventListener("DOMContentLoaded", () => {
     const CONFIG = {
         defaultBoardSize: 60,
         minBoardSize: 40,
-        maxWidthFactor: 1.5,
-        maxHeightFactor: 1.2,
-        offset: 0.1,
         initialTime: 600,
         undoPenalty: 60,
-    };
-
-    const DEBUG = {
-        enableLogging: true,
-        logLevel: "debug",
     };
 
     const SOUND = {
@@ -50,7 +42,19 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!startFreestyleButton) missingElements.push("startFreestyleButton (id='startFreestyleButton')");
     if (!gameContainer) missingElements.push("gameContainer (id='gameContainer')");
     if (!turnDisplay) missingElements.push("turnDisplay (id='turnDisplay')");
+    if (!rotateButton) missingElements.push("rotateButton (id='rotateButton')");
+    if (!smartphoneModeButton) missingElements.push("smartphoneModeButton (id='smartphoneModeButton')");
+    if (!soundToggleButton) missingElements.push("soundToggleButton (id='soundToggleButton')");
+    if (!undoButton) missingElements.push("undoButton (id='undoButton')");
+    if (!restartButton) missingElements.push("restartButton (id='restartButton')");
+    if (!moveList) missingElements.push("moveList (id='moveList')");
+    if (!openingDisplay) missingElements.push("openingDisplay (id='openingDisplay')");
+    if (!designButton) missingElements.push("designButton (id='designButton')");
+    if (!darkmodeToggleButton) missingElements.push("darkmodeToggleButton (id='darkmodeToggleButton')");
+    if (!fullscreenButton) missingElements.push("fullscreenButton (id='fullscreenButton')");
+    if (!exitFullscreenButton) missingElements.push("exitFullscreenButton (id='exitFullscreenButton')");
     if (!closeFullscreenButton) missingElements.push("closeFullscreenButton (id='closeFullscreenButton')");
+
     if (missingElements.length > 0) {
         console.error("The following DOM elements are missing:", missingElements.join(", "));
         alert("Error: Missing DOM elements: " + missingElements.join(", ") + ". Please check the HTML and console.");
@@ -64,20 +68,9 @@ document.addEventListener("DOMContentLoaded", () => {
         throw new Error("Canvas context initialization failed");
     }
 
-    canvas.style.display = "block";
-    canvas.style.visibility = "visible";
-    canvas.style.opacity = "1";
-    canvas.style.position = "relative";
-    console.log("Canvas initial styles set:", {
-        display: canvas.style.display,
-        visibility: canvas.style.visibility,
-        opacity: canvas.style.opacity,
-        position: canvas.style.position,
-    });
-
     let size = CONFIG.defaultBoardSize;
-    let offsetX = size * CONFIG.offset;
-    let offsetY = size * CONFIG.offset;
+    let offsetX = 0;
+    let offsetY = 0;
     let selectedPiece = null;
     let currentPlayer = "white";
     let gameStarted = false;
@@ -94,7 +87,7 @@ document.addEventListener("DOMContentLoaded", () => {
     let isWhiteInCheck = false;
     let isBlackInCheck = false;
     let currentDesign = 3;
-    let isDarkmode = true; // Standardmäßig im Dark-Mode starten
+    let isDarkmode = true;
     let fullscreenMode = false;
     let gameOver = false;
     let winnerText = "";
@@ -148,19 +141,15 @@ document.addEventListener("DOMContentLoaded", () => {
     startScreen.style.display = "block";
     gameContainer.style.display = "none";
     restartButton.classList.add("hidden");
-    darkmodeToggleButton.style.display = "none";
-    fullscreenButton.style.display = "none";
+    darkmodeToggleButton.style.display = "block";
+    fullscreenButton.style.display = "block";
     exitFullscreenButton.style.display = "none";
     closeFullscreenButton.style.display = "none";
     console.log("Initial visibility set: startScreen visible, gameContainer hidden");
 
     function initializeDarkmodeToggle() {
-        if (darkmodeToggleButton && gameStarted) {
-            darkmodeToggleButton.textContent = isDarkmode ? "Light Mode" : "Dark Mode";
-            darkmodeToggleButton.addEventListener("click", toggleDarkmodeHandler);
-        } else if (darkmodeToggleButton && !gameStarted) {
-            darkmodeToggleButton.style.display = "none";
-        }
+        darkmodeToggleButton.textContent = isDarkmode ? "Light Mode" : "Dark Mode";
+        darkmodeToggleButton.addEventListener("click", toggleDarkmodeHandler);
     }
 
     function toggleDarkmodeHandler() {
@@ -174,6 +163,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function updateTurnDisplay() {
         turnDisplay.textContent = gameOver ? winnerText : `${currentPlayer === "white" ? "White" : "Black"} is next`;
+        turnDisplay.style.display = "block";
     }
 
     function updateOpeningDisplay() {
@@ -201,6 +191,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
         const timeText = `White: ${formatTime(whiteTime)} | Black: ${formatTime(blackTime)}`;
         openingDisplay.textContent = `${moveText}${openingText ? " | " + openingText : ""} | ${timeText}`;
+        openingDisplay.style.display = "block";
     }
 
     function formatTime(seconds) {
@@ -240,120 +231,120 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     function drawBoard() {
-    console.log("drawBoard called with colors:", window.boardColors);
-    if (!ctx) {
-        console.error("Canvas context not available.");
-        return;
-    }
+        console.log("drawBoard called with colors:", window.boardColors);
+        if (!ctx) {
+            console.error("Canvas context not available.");
+            return;
+        }
 
-    const boardWidth = size * 8;
-    const boardHeight = size * 8;
-    offsetX = Math.max(0, (window.innerWidth - boardWidth) / 2); // Dynamisch berechnen
-    offsetY = Math.max(0, (window.innerHeight - boardHeight) / 2);
+        const boardWidth = size * 8;
+        const boardHeight = size * 8;
+        offsetX = (window.innerWidth - boardWidth) / 2;
+        offsetY = (window.innerHeight - boardHeight) / 2;
 
-    canvas.width = boardWidth;
-    canvas.height = boardHeight;
-    canvas.style.width = `${boardWidth}px`;
-    canvas.style.height = `${boardHeight}px`;
-    canvas.style.left = `${offsetX}px`;
-    canvas.style.top = `${offsetY}px`;
+        canvas.width = boardWidth;
+        canvas.height = boardHeight;
+        canvas.style.width = `${boardWidth}px`;
+        canvas.style.height = `${boardHeight}px`;
+        canvas.style.marginLeft = `${offsetX}px`;
+        canvas.style.marginTop = `${offsetY}px`;
 
-    let effectiveRotation = rotateBoard;
-    if (smartphoneMode) {
-        effectiveRotation = currentPlayer === "black";
-    }
-    for (let y = 0; y < 8; y++) {
-        for (let x = 0; x < 8; x++) {
-            const displayY = effectiveRotation ? 7 - y : y;
-            const displayX = effectiveRotation ? 7 - x : x;
-            ctx.fillStyle = (displayX + displayY) % 2 === 0 ? window.boardColors.light : window.boardColors.dark;
+        let effectiveRotation = rotateBoard;
+        if (smartphoneMode) {
+            effectiveRotation = currentPlayer === "black";
+        }
+        for (let y = 0; y < 8; y++) {
+            for (let x = 0; x < 8; x++) {
+                const displayY = effectiveRotation ? 7 - y : y;
+                const displayX = effectiveRotation ? 7 - x : x;
+                ctx.fillStyle = (displayX + displayY) % 2 === 0 ? window.boardColors.light : window.boardColors.dark;
 
-            if (lastMove && ((lastMove.fromX === x && lastMove.fromY === y) || (lastMove.toX === x && lastMove.toY === y))) {
-                ctx.fillStyle = isDarkmode ? "#808080" : "#f0f0f0";
-            }
+                if (lastMove && ((lastMove.fromX === x && lastMove.fromY === y) || (lastMove.toX === x && lastMove.toY === y))) {
+                    ctx.fillStyle = isDarkmode ? "#808080" : "#f0f0f0";
+                }
 
-            if (selectedPiece && selectedPiece.x === x && selectedPiece.y === y) {
-                ctx.fillStyle = isDarkmode ? "#505050" : "#c0c0c0";
-            }
+                if (selectedPiece && selectedPiece.x === x && selectedPiece.y === y) {
+                    ctx.fillStyle = isDarkmode ? "#505050" : "#c0c0c0";
+                }
 
-            const legalMove = legalMoves.find((move) => move.toX === x && move.toY === y);
-            if (legalMove) {
-                const targetPiece = board[y][x];
-                const isCapture = targetPiece && (targetPiece.toLowerCase() !== selectedPiece.piece.toLowerCase()) && ((targetPiece === targetPiece.toUpperCase()) !== (selectedPiece.piece === selectedPiece.piece.toUpperCase()));
-                ctx.fillStyle = isCapture ? (isDarkmode ? "#cc6666" : "#ffcccc") : (isDarkmode ? "#505050" : "#c0c0c0");
-            }
+                const legalMove = legalMoves.find((move) => move.toX === x && move.toY === y);
+                if (legalMove) {
+                    const targetPiece = board[y][x];
+                    const isCapture = targetPiece && (targetPiece.toLowerCase() !== selectedPiece.piece.toLowerCase()) && ((targetPiece === targetPiece.toUpperCase()) !== (selectedPiece.piece === selectedPiece.piece.toUpperCase()));
+                    ctx.fillStyle = isCapture ? (isDarkmode ? "#cc6666" : "#ffcccc") : (isDarkmode ? "#505050" : "#c0c0c0");
+                }
 
-            ctx.fillRect(displayX * size, displayY * size, size, size);
-
-            if (legalMove && !((board[y][x] && (board[y][x] === board[y][x].toUpperCase()) !== (selectedPiece.piece === selectedPiece.piece.toUpperCase())))) {
-                ctx.fillStyle = isDarkmode ? "#a0a0a0" : "#808080";
-                const dotRadius = size * 0.1;
-                const centerX = displayX * size + size / 2;
-                const centerY = displayY * size + size / 2;
-                ctx.beginPath();
-                ctx.arc(centerX, centerY, dotRadius, 0, 2 * Math.PI);
-                ctx.fill();
-            }
-
-            if ((isWhiteInCheck && kingPositions.white && kingPositions.white.x === x && kingPositions.white.y === y) ||
-                (isBlackInCheck && kingPositions.black && kingPositions.black.x === x && kingPositions.black.y === y)) {
-                ctx.fillStyle = gameOver ? "#a94442" : "#d9534f";
                 ctx.fillRect(displayX * size, displayY * size, size, size);
-            }
 
-            const piece = board[y][x];
-            if (piece) {
-                const isWhite = piece === piece.toUpperCase();
-                ctx.fillStyle = isWhite ? "#FFFFFF" : "#000000";
-                ctx.font = `${size * 0.7}px sans-serif`;
-                ctx.textAlign = "center";
-                ctx.textBaseline = "middle";
-                ctx.fillText(pieces[piece], displayX * size + size / 2, displayY * size + size / 2);
+                if (legalMove && !((board[y][x] && (board[y][x] === board[y][x].toUpperCase()) !== (selectedPiece.piece === selectedPiece.piece.toUpperCase())))) {
+                    ctx.fillStyle = isDarkmode ? "#a0a0a0" : "#808080";
+                    const dotRadius = size * 0.1;
+                    const centerX = displayX * size + size / 2;
+                    const centerY = displayY * size + size / 2;
+                    ctx.beginPath();
+                    ctx.arc(centerX, centerY, dotRadius, 0, 2 * Math.PI);
+                    ctx.fill();
+                }
+
+                if ((isWhiteInCheck && kingPositions.white && kingPositions.white.x === x && kingPositions.white.y === y) ||
+                    (isBlackInCheck && kingPositions.black && kingPositions.black.x === x && kingPositions.black.y === y)) {
+                    ctx.fillStyle = gameOver ? "#a94442" : "#d9534f";
+                    ctx.fillRect(displayX * size, displayY * size, size, size);
+                }
+
+                const piece = board[y][x];
+                if (piece) {
+                    const isWhite = piece === piece.toUpperCase();
+                    ctx.fillStyle = isWhite ? "#FFFFFF" : "#000000";
+                    ctx.font = `${size * 0.7}px sans-serif`;
+                    ctx.textAlign = "center";
+                    ctx.textBaseline = "middle";
+                    ctx.fillText(pieces[piece], displayX * size + size / 2, displayY * size + size / 2);
+                }
             }
         }
+
+        ctx.fillStyle = isDarkmode ? "#FFFFFF" : "#000000";
+        ctx.font = `${size * 0.5}px sans-serif`;
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        for (let i = 0; i < 8; i++) {
+            const displayX = effectiveRotation ? 7 - i : i;
+            const displayY = effectiveRotation ? 7 - i : i;
+            // Zahlen links (1-8)
+            ctx.fillText(8 - i, -size * 0.5, displayY * size + size / 2);
+            // Buchstaben unten (a-h)
+            ctx.fillText(String.fromCharCode(97 + i), displayX * size + size / 2, boardHeight + size * 0.5);
+            // Buchstaben oben (a-h)
+            ctx.fillText(String.fromCharCode(97 + i), displayX * size + size / 2, -size * 0.5);
+            // Zahlen rechts (1-8)
+            ctx.fillText(8 - i, boardWidth + size * 0.5, displayY * size + size / 2);
+        }
+
+        if (gameOver) {
+            openingDisplay.textContent = winnerText;
+        } else {
+            updateOpeningDisplay();
+        }
+
+        console.log("Canvas styles after drawBoard:", {
+            display: canvas.style.display,
+            visibility: canvas.style.visibility,
+            opacity: canvas.style.opacity,
+            position: canvas.style.position,
+            width: canvas.style.width,
+            height: canvas.style.height,
+            computedWidth: canvas.offsetWidth,
+            computedHeight: canvas.offsetHeight,
+        });
+        console.log("GameContainer styles:", {
+            display: gameContainer.style.display,
+            visibility: gameContainer.style.visibility,
+            opacity: gameContainer.style.opacity,
+        });
+        console.log("drawBoard completed");
     }
 
-    // Beschriftungen immer anzeigen, unabhängig von Rotation
-    ctx.fillStyle = isDarkmode ? "#FFFFFF" : "#000000";
-    ctx.font = `${size * 0.5}px sans-serif`;
-    ctx.textAlign = "center";
-    ctx.textBaseline = "middle";
-    for (let i = 0; i < 8; i++) {
-        const displayX = effectiveRotation ? 7 - i : i;
-        const displayY = effectiveRotation ? 7 - i : i;
-        // Zeilenbeschriftung (1-8) links
-        ctx.fillText(8 - i, -size * 0.25, displayY * size + size / 2);
-        // Spaltenbeschriftung (a-h) unten
-        ctx.fillText(String.fromCharCode(97 + i), displayX * size + size / 2, boardHeight + size * 0.25);
-        // Spaltenbeschriftung (a-h) oben
-        ctx.fillText(String.fromCharCode(97 + i), displayX * size + size / 2, -size * 0.25);
-        // Zeilenbeschriftung (1-8) rechts
-        ctx.fillText(8 - i, boardWidth + size * 0.25, displayY * size + size / 2);
-    }
-
-    if (gameOver) {
-        openingDisplay.textContent = winnerText;
-    } else {
-        updateOpeningDisplay();
-    }
-
-    console.log("Canvas styles after drawBoard:", {
-        display: canvas.style.display,
-        visibility: canvas.style.visibility,
-        opacity: canvas.style.opacity,
-        position: canvas.style.position,
-        width: canvas.style.width,
-        height: canvas.style.height,
-        computedWidth: canvas.offsetWidth,
-        computedHeight: canvas.offsetHeight,
-    });
-    console.log("GameContainer styles:", {
-        display: gameContainer.style.display,
-        visibility: gameContainer.style.visibility,
-        opacity: gameContainer.style.opacity,
-    });
-    console.log("drawBoard completed");
-}
     function debounce(func, wait) {
         let timeout;
         return function executedFunction(...args) {
@@ -366,43 +357,41 @@ document.addEventListener("DOMContentLoaded", () => {
         };
     }
 
-function resizeCanvas() {
-    console.log("resizeCanvas called");
-    let maxWidth = window.innerWidth * (fullscreenMode ? 0.95 : 0.7);
-    let maxHeight = window.innerHeight * (fullscreenMode ? 0.95 : 0.6);
-    
-    if (window.innerWidth <= 768) {
-        maxWidth = window.innerWidth * (fullscreenMode ? 0.98 : 0.9);
-        maxHeight = window.innerHeight * (fullscreenMode ? 0.8 : 0.5);
+    function resizeCanvas() {
+        console.log("resizeCanvas called");
+        let maxWidth = window.innerWidth * (fullscreenMode ? 0.95 : 0.7);
+        let maxHeight = window.innerHeight * (fullscreenMode ? 0.95 : 0.6);
+
+        if (window.innerWidth <= 768) {
+            maxWidth = window.innerWidth * (fullscreenMode ? 0.98 : 0.9);
+            maxHeight = window.innerHeight * (fullscreenMode ? 0.8 : 0.5);
+        }
+
+        const maxBoardSize = Math.min(maxWidth, maxHeight) / 8;
+        size = Math.floor(Math.max(maxBoardSize, CONFIG.minBoardSize));
+
+        const boardWidth = size * 8;
+        const boardHeight = size * 8;
+        offsetX = (window.innerWidth - boardWidth) / 2;
+        offsetY = (window.innerHeight - boardHeight) / 2;
+
+        canvas.width = boardWidth;
+        canvas.height = boardHeight;
+        canvas.style.width = `${boardWidth}px`;
+        canvas.style.height = `${boardHeight}px`;
+        canvas.style.marginLeft = `${offsetX}px`;
+        canvas.style.marginTop = `${offsetY}px`;
+        canvas.style.display = "block";
+        canvas.style.visibility = "visible";
+        canvas.style.opacity = "1";
+
+        console.log("Canvas resized to:", canvas.width, canvas.height, "with offsets:", offsetX, offsetY);
+        if (gameStarted) {
+            console.log("Calling drawBoard from resizeCanvas");
+            drawBoard();
+        }
+        console.log("resizeCanvas completed");
     }
-
-    const maxBoardSize = Math.min(maxWidth, maxHeight) / 8;
-    size = Math.floor(Math.max(maxBoardSize, CONFIG.minBoardSize));
-
-    // Zentrierung des Canvas ohne Margin, sondern durch absolute Positionierung
-    const boardWidth = size * 8;
-    const boardHeight = size * 8;
-    offsetX = Math.max(0, (window.innerWidth - boardWidth) / 2);
-    offsetY = Math.max(0, (window.innerHeight - boardHeight) / 2);
-
-    canvas.width = boardWidth;
-    canvas.height = boardHeight;
-    canvas.style.width = `${boardWidth}px`;
-    canvas.style.height = `${boardHeight}px`;
-    canvas.style.position = "absolute"; // Absolute Positionierung für bessere Kontrolle
-    canvas.style.left = `${offsetX}px`;  // Links-Offset
-    canvas.style.top = `${offsetY}px`;   // Oben-Offset
-    canvas.style.display = "block";
-    canvas.style.visibility = "visible";
-    canvas.style.opacity = "1";
-
-    console.log("Canvas resized to:", canvas.width, canvas.height, "with offsets:", offsetX, offsetY);
-    if (gameStarted) {
-        console.log("Calling drawBoard from resizeCanvas");
-        drawBoard();
-    }
-    console.log("resizeCanvas completed");
-}
 
     const debouncedResizeCanvas = debounce(resizeCanvas, 200);
 
@@ -420,42 +409,8 @@ function resizeCanvas() {
             moveList.style.display = "none";
             openingDisplay.style.display = "none";
             fullscreenButton.style.display = "none";
-            exitFullscreenButton.style.display = "none";
+            exitFullscreenButton.style.display = "block";
             closeFullscreenButton.style.display = "block";
-            closeFullscreenButton.textContent = "Back";
-
-            // Handy-spezifische "X"-Schaltfläche hinzufügen
-            if (window.innerWidth <= 768 && !document.getElementById("mobileExitButton")) {
-                const mobileExitButton = document.createElement("button");
-                mobileExitButton.id = "mobileExitButton";
-                mobileExitButton.textContent = "X";
-                mobileExitButton.style.position = "absolute";
-                mobileExitButton.style.top = "10px";
-                mobileExitButton.style.right = "10px";
-                mobileExitButton.style.width = "30px";
-                mobileExitButton.style.height = "30px";
-                mobileExitButton.style.fontSize = "20px";
-                mobileExitButton.style.backgroundColor = isDarkmode ? "#333" : "#fff";
-                mobileExitButton.style.color = isDarkmode ? "#fff" : "#333";
-                mobileExitButton.style.border = "none";
-                mobileExitButton.style.borderRadius = "50%";
-                mobileExitButton.style.cursor = "pointer";
-                mobileExitButton.style.zIndex = "1000";
-                mobileExitButton.addEventListener("click", () => {
-                    if (document.exitFullscreen) {
-                        document.exitFullscreen().catch((err) => {
-                            console.error("Failed to exit fullscreen mode:", err);
-                        });
-                    }
-                });
-                document.body.appendChild(mobileExitButton);
-            }
-
-            console.log("closeFullscreenButton styles:", {
-                display: closeFullscreenButton.style.display,
-                visibility: closeFullscreenButton.style.visibility,
-                opacity: closeFullscreenButton.style.opacity,
-            });
         } else {
             if (document.exitFullscreen) {
                 document.exitFullscreen().catch((err) => {
@@ -470,12 +425,6 @@ function resizeCanvas() {
             fullscreenButton.style.display = "block";
             exitFullscreenButton.style.display = "none";
             closeFullscreenButton.style.display = "none";
-
-            // "X"-Schaltfläche entfernen
-            const mobileExitButton = document.getElementById("mobileExitButton");
-            if (mobileExitButton) {
-                document.body.removeChild(mobileExitButton);
-            }
         }
         resizeCanvas();
         drawBoard();
@@ -483,7 +432,6 @@ function resizeCanvas() {
     }
 
     document.addEventListener('fullscreenchange', () => {
-        console.log("fullscreenchange event fired");
         fullscreenMode = !!document.fullscreenElement;
         document.body.classList.toggle("fullscreen", fullscreenMode);
         if (fullscreenMode) {
@@ -491,36 +439,8 @@ function resizeCanvas() {
             moveList.style.display = "none";
             openingDisplay.style.display = "none";
             fullscreenButton.style.display = "none";
-            exitFullscreenButton.style.display = "none";
+            exitFullscreenButton.style.display = "block";
             closeFullscreenButton.style.display = "block";
-            closeFullscreenButton.textContent = "Back";
-
-            // Handy-spezifische "X"-Schaltfläche hinzufügen
-            if (window.innerWidth <= 768 && !document.getElementById("mobileExitButton")) {
-                const mobileExitButton = document.createElement("button");
-                mobileExitButton.id = "mobileExitButton";
-                mobileExitButton.textContent = "X";
-                mobileExitButton.style.position = "absolute";
-                mobileExitButton.style.top = "10px";
-                mobileExitButton.style.right = "10px";
-                mobileExitButton.style.width = "30px";
-                mobileExitButton.style.height = "30px";
-                mobileExitButton.style.fontSize = "20px";
-                mobileExitButton.style.backgroundColor = isDarkmode ? "#333" : "#fff";
-                mobileExitButton.style.color = isDarkmode ? "#fff" : "#333";
-                mobileExitButton.style.border = "none";
-                mobileExitButton.style.borderRadius = "50%";
-                mobileExitButton.style.cursor = "pointer";
-                mobileExitButton.style.zIndex = "1000";
-                mobileExitButton.addEventListener("click", () => {
-                    if (document.exitFullscreen) {
-                        document.exitFullscreen().catch((err) => {
-                            console.error("Failed to exit fullscreen mode:", err);
-                        });
-                    }
-                });
-                document.body.appendChild(mobileExitButton);
-            }
         } else {
             turnDisplay.style.display = "block";
             moveList.style.display = "block";
@@ -528,44 +448,14 @@ function resizeCanvas() {
             fullscreenButton.style.display = "block";
             exitFullscreenButton.style.display = "none";
             closeFullscreenButton.style.display = "none";
-
-            // "X"-Schaltfläche entfernen
-            const mobileExitButton = document.getElementById("mobileExitButton");
-            if (mobileExitButton) {
-                document.body.removeChild(mobileExitButton);
-            }
         }
         resizeCanvas();
         drawBoard();
-        console.log("fullscreenchange handler completed");
-    });
-
-    // Escape-Taste für Vollbildmodus
-    document.addEventListener('keydown', (event) => {
-        if (event.key === 'Escape' && fullscreenMode) {
-            console.log("Escape key pressed, exiting fullscreen mode");
-            if (document.exitFullscreen) {
-                document.exitFullscreen().catch((err) => {
-                    console.error("Failed to exit fullscreen mode:", err);
-                });
-            }
-            document.body.classList.remove("fullscreen");
-            fullscreenMode = false;
-            turnDisplay.style.display = "block";
-            moveList.style.display = "block";
-            openingDisplay.style.display = "block";
-            fullscreenButton.style.display = "block";
-            exitFullscreenButton.style.display = "none";
-            closeFullscreenButton.style.display = "none";
-            resizeCanvas();
-            drawBoard();
-        }
     });
 
     function startGame(freestyle = false) {
         console.log("startGame called with freestyle:", freestyle);
         try {
-            console.log("Setting initial game state...");
             currentPlayer = "white";
             gameStarted = true;
             gameOver = false;
@@ -584,7 +474,6 @@ function resizeCanvas() {
             whiteTime = CONFIG.initialTime;
             blackTime = CONFIG.initialTime;
 
-            console.log("Updating DOM elements visibility...");
             document.body.classList.remove("fullscreen");
             document.body.classList.add("darkmode");
             fullscreenButton.style.display = "block";
@@ -597,10 +486,14 @@ function resizeCanvas() {
             gameContainer.style.opacity = "1";
             restartButton.classList.remove("hidden");
             darkmodeToggleButton.style.display = "block";
+            rotateButton.style.display = "block";
+            smartphoneModeButton.style.display = "block";
+            soundToggleButton.style.display = "block";
+            undoButton.style.display = "block";
+            designButton.style.display = "block";
             console.log("startScreen display:", startScreen.style.display);
             console.log("gameContainer display:", gameContainer.style.display);
 
-            console.log("Setting up the board...");
             if (freestyle) {
                 const shuffledRow = shuffleArray(["r", "n", "b", "q", "k", "b", "n", "r"]);
                 board = [
@@ -626,24 +519,12 @@ function resizeCanvas() {
                 ];
             }
 
-            console.log("Updating king positions...");
             updateKingPositions();
-
-            console.log("Resizing canvas...");
             resizeCanvas();
-
-            console.log("Drawing board with initial design...");
             drawBoard();
-
-            console.log("Starting timer...");
             startTimer();
-
-            console.log("Initializing dark mode toggle...");
             initializeDarkmodeToggle();
-
-            console.log("Updating turn display...");
             updateTurnDisplay();
-
             console.log("startGame completed successfully");
         } catch (error) {
             console.error("Error in startGame:", error);
@@ -653,13 +534,11 @@ function resizeCanvas() {
     }
 
     function shuffleArray(array) {
-        console.log("shuffleArray called");
         let shuffled = [...array];
         for (let i = shuffled.length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * (i + 1));
             [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
         }
-        console.log("shuffleArray completed");
         return shuffled;
     }
 
@@ -677,12 +556,8 @@ function resizeCanvas() {
     }
 
     function isInCheck(color, tempBoard = board, tempKingPos = null) {
-        console.log("isInCheck called for color:", color);
         const kingPos = tempKingPos || (color === "white" ? kingPositions.white : kingPositions.black);
-        if (!kingPos) {
-            console.log("No king position found for", color);
-            return false;
-        }
+        if (!kingPos) return false;
         const opponentColor = color === "white" ? "black" : "white";
         for (let y = 0; y < 8; y++) {
             for (let x = 0; x < 8; x++) {
@@ -691,18 +566,15 @@ function resizeCanvas() {
                 if (isOpponent) {
                     const moves = getLegalMovesForCheck(x, y, tempBoard);
                     if (moves.some((m) => m.toX === kingPos.x && m.toY === kingPos.y)) {
-                        console.log("King in check at", kingPos, "by", piece, "at", x, y);
                         return true;
                     }
                 }
             }
         }
-        console.log("isInCheck completed, no check found");
         return false;
     }
 
     function updateCheckStatus() {
-        console.log("updateCheckStatus called");
         const whiteWasInCheck = isWhiteInCheck;
         const blackWasInCheck = isBlackInCheck;
         isWhiteInCheck = isInCheck("white");
@@ -713,17 +585,12 @@ function resizeCanvas() {
                 audio.play().catch((e) => console.error("Check audio play failed:", e));
             }
         }
-        console.log("updateCheckStatus completed");
     }
 
     function getLegalMovesForCheck(x, y, tempBoard = board) {
-        console.log("getLegalMovesForCheck called for", x, y);
         const moves = [];
         const piece = tempBoard[y][x];
-        if (!piece) {
-            console.log("No piece at", x, y);
-            return moves;
-        }
+        if (!piece) return moves;
         const isWhite = piece === piece.toUpperCase();
         if (piece.toLowerCase() === "p") {
             const direction = isWhite ? -1 : 1;
@@ -799,22 +666,15 @@ function resizeCanvas() {
                 }
             });
         }
-        console.log("getLegalMovesForCheck completed with moves:", moves);
         return moves;
     }
-        function getLegalMoves(x, y, tempBoard = board) {
-        console.log("getLegalMoves called for", x, y);
+
+    function getLegalMoves(x, y, tempBoard = board) {
         const moves = [];
         const piece = tempBoard[y][x];
-        if (!piece) {
-            console.log("No piece at", x, y);
-            return moves;
-        }
+        if (!piece) return moves;
         const isWhite = piece === piece.toUpperCase();
-        if ((isWhite && currentPlayer !== "white") || (!isWhite && currentPlayer !== "black")) {
-            console.log("Not player's turn:", currentPlayer);
-            return moves;
-        }
+        if ((isWhite && currentPlayer !== "white") || (!isWhite && currentPlayer !== "black")) return moves;
         if (piece.toLowerCase() === "p") {
             const direction = isWhite ? -1 : 1;
             const startRow = isWhite ? 6 : 1;
@@ -923,7 +783,7 @@ function resizeCanvas() {
                 }
             });
             if (isWhite && y === 7 && x === 4) {
-                if (castlingAvailability.white.kingside && !tempBoard[7][5] && !tempBoard[7][6] && tempBoard[7][7] === "R" && !isInCheck("white") && !moveHistory.some(m => m.piece === "K" || (m.piece === "R" && m.fromX === 7 && m.fromY === 7))) {
+                if (castlingAvailability.white.kingside && !tempBoard[7][5] && !tempBoard[7][6] && tempBoard[7][7] === "R" && !isInCheck("white")) {
                     let canCastle = true;
                     for (let i = 4; i <= 6; i++) {
                         const tempBoardCopy = tempBoard.map(row => [...row]);
@@ -939,7 +799,7 @@ function resizeCanvas() {
                     }
                     if (canCastle) moves.push({ toX: 6, toY: 7, castling: "kingside" });
                 }
-                if (castlingAvailability.white.queenside && !tempBoard[7][1] && !tempBoard[7][2] && !tempBoard[7][3] && tempBoard[7][0] === "R" && !isInCheck("white") && !moveHistory.some(m => m.piece === "K" || (m.piece === "R" && m.fromX === 0 && m.fromY === 7))) {
+                if (castlingAvailability.white.queenside && !tempBoard[7][1] && !tempBoard[7][2] && !tempBoard[7][3] && tempBoard[7][0] === "R" && !isInCheck("white")) {
                     let canCastle = true;
                     for (let i = 4; i >= 2; i--) {
                         const tempBoardCopy = tempBoard.map(row => [...row]);
@@ -956,7 +816,7 @@ function resizeCanvas() {
                     if (canCastle) moves.push({ toX: 2, toY: 7, castling: "queenside" });
                 }
             } else if (!isWhite && y === 0 && x === 4) {
-                if (castlingAvailability.black.kingside && !tempBoard[0][5] && !tempBoard[0][6] && tempBoard[0][7] === "r" && !isInCheck("black") && !moveHistory.some(m => m.piece === "k" || (m.piece === "r" && m.fromX === 7 && m.fromY === 0))) {
+                if (castlingAvailability.black.kingside && !tempBoard[0][5] && !tempBoard[0][6] && tempBoard[0][7] === "r" && !isInCheck("black")) {
                     let canCastle = true;
                     for (let i = 4; i <= 6; i++) {
                         const tempBoardCopy = tempBoard.map(row => [...row]);
@@ -972,7 +832,7 @@ function resizeCanvas() {
                     }
                     if (canCastle) moves.push({ toX: 6, toY: 0, castling: "kingside" });
                 }
-                if (castlingAvailability.black.queenside && !tempBoard[0][1] && !tempBoard[0][2] && !tempBoard[0][3] && tempBoard[0][0] === "r" && !isInCheck("black") && !moveHistory.some(m => m.piece === "k" || (m.piece === "r" && m.fromX === 0 && m.fromY === 0))) {
+                if (castlingAvailability.black.queenside && !tempBoard[0][1] && !tempBoard[0][2] && !tempBoard[0][3] && tempBoard[0][0] === "r" && !isInCheck("black")) {
                     let canCastle = true;
                     for (let i = 4; i >= 2; i--) {
                         const tempBoardCopy = tempBoard.map(row => [...row]);
@@ -1010,12 +870,10 @@ function resizeCanvas() {
             }
             updateKingPositions(tempBoard);
         }
-        console.log("Legal moves for", piece, "at", x, y, ":", validMoves);
         return validMoves;
     }
 
     function getMoveNotation(fromX, fromY, toX, toY) {
-        console.log("getMoveNotation called");
         const fileFrom = String.fromCharCode(97 + fromX);
         const rankFrom = 8 - fromY;
         const fileTo = String.fromCharCode(97 + toX);
@@ -1024,16 +882,11 @@ function resizeCanvas() {
         const pieceSymbol = piece === "p" ? "" : piece.toUpperCase();
         const simpleNotation = pieceSymbol === "" ? `${fileTo}${rankTo}` : `${pieceSymbol}${fileTo}${rankTo}`;
         const fullNotation = `${pieceSymbol}${fileFrom}${rankFrom}-${fileTo}${rankTo}`;
-        console.log("getMoveNotation completed");
         return { simple: simpleNotation, full: fullNotation };
     }
 
     function updateMoveHistory() {
-        console.log("updateMoveHistory called");
-        if (!lastMove) {
-            console.log("No last move to update");
-            return;
-        }
+        if (!lastMove) return;
         const notation = getMoveNotation(lastMove.fromX, lastMove.fromY, lastMove.toX, lastMove.toY);
         moveNotations.push({ moveCount, notation: notation.simple });
         moveList.innerHTML = "";
@@ -1056,246 +909,228 @@ function resizeCanvas() {
         if (currentPlayer === "black") moveCount++;
         moveList.scrollTop = moveList.scrollHeight;
         updateOpeningDisplay();
-        console.log("updateMoveHistory completed");
     }
 
-    function showPromotionChoice(x, y, isWhite) {
-        console.log("showPromotionChoice called");
-        const existingMenu = document.getElementById("promotionChoices");
-        if (existingMenu) {
-            document.body.removeChild(existingMenu);
-        }
-        const promotionChoices = document.createElement("div");
-        promotionChoices.id = "promotionChoices";
-        const rect = canvas.getBoundingClientRect();
-        let effectiveRotation = rotateBoard;
-        if (smartphoneMode) {
-            effectiveRotation = currentPlayer === "black";
-        }
-        const displayX = effectiveRotation ? 7 - x : x;
-        const displayY = effectiveRotation ? 7 - y : y;
-        const top = rect.top + offsetY + displayY * size;
-        const left = rect.left + offsetX + displayX * size;
-        promotionChoices.style.position = "absolute";
-        promotionChoices.style.top = `${top}px`;
-        promotionChoices.style.left = `${left}px`;
-        const choices = isWhite ? ["Q", "R", "B", "N"] : ["q", "r", "b", "n"];
-        choices.forEach((p) => {
+    function showPromotionChoice(toX, toY, isWhite) {
+        const options = isWhite ? ["Q", "R", "B", "N"] : ["q", "r", "b", "n"];
+        const choiceDiv = document.createElement("div");
+        choiceDiv.style.position = "absolute";
+        choiceDiv.style.left = `${toX * size + offsetX}px`;
+        choiceDiv.style.top = `${toY * size + offsetY}px`;
+        choiceDiv.style.backgroundColor = "#fff";
+        choiceDiv.style.border = "1px solid #000";
+        choiceDiv.style.zIndex = "1000";
+        options.forEach((piece) => {
             const button = document.createElement("button");
-            button.textContent = pieces[p];
-            button.className = "promotion-button";
+            button.textContent = pieces[piece];
+            button.style.fontSize = `${size * 0.7}px`;
             button.addEventListener("click", () => {
-                board[y][x] = p;
-                document.body.removeChild(promotionChoices);
-                updateKingPositions();
+                board[toY][toX] = piece;
+                document.body.removeChild(choiceDiv);
                 currentPlayer = currentPlayer === "white" ? "black" : "white";
                 selectedPiece = null;
                 legalMoves = [];
-                updateMoveHistory();
+                updateKingPositions();
                 updateCheckStatus();
                 checkGameOver();
-                if (soundEnabled) {
-                    const audio = new Audio(SOUND.moveSound);
-                    audio.play().catch((e) => console.error("Promotion audio play failed:", e));
-                }
                 drawBoard();
+                updateMoveHistory();
+                updateTurnDisplay();
             });
-            promotionChoices.appendChild(button);
+            choiceDiv.appendChild(button);
         });
-        document.body.appendChild(promotionChoices);
-        console.log("showPromotionChoice completed");
+        document.body.appendChild(choiceDiv);
     }
 
     function checkGameOver() {
-        console.log("checkGameOver called");
-        let hasMoves = false;
-        for (let y = 0; y < 8; y++) {
-            for (let x = 0; x < 8; x++) {
-                const piece = board[y][x];
-                if (piece && ((piece === piece.toUpperCase() && currentPlayer === "white") || (piece !== piece.toUpperCase() && currentPlayer === "black"))) {
-                    const moves = getLegalMoves(x, y);
-                    if (moves.length > 0) {
-                        hasMoves = true;
-                        break;
+        if (isWhiteInCheck || isBlackInCheck) {
+            const checkedPlayer = isWhiteInCheck ? "white" : "black";
+            let hasLegalMoves = false;
+            for (let y = 0; y < 8; y++) {
+                for (let x = 0; x < 8; x++) {
+                    const piece = board[y][x];
+                    if (piece && ((piece === piece.toUpperCase() && checkedPlayer === "white") || (piece !== piece.toUpperCase() && checkedPlayer === "black"))) {
+                        const moves = getLegalMoves(x, y);
+                        if (moves.length > 0) {
+                            hasLegalMoves = true;
+                            break;
+                        }
                     }
                 }
+                if (hasLegalMoves) break;
             }
-            if (hasMoves) break;
-        }
-        if (!hasMoves) {
-            const isCheckmate = isWhiteInCheck || isBlackInCheck;
-            if (isCheckmate) {
+            if (!hasLegalMoves) {
                 gameOver = true;
-                winnerText = isWhiteInCheck ? "Black wins!" : "White wins!";
+                winnerText = isWhiteInCheck ? "Black wins (Checkmate)!" : "White wins (Checkmate)!";
                 if (soundEnabled) {
                     const audio = new Audio(SOUND.checkmateSound);
                     audio.play().catch((e) => console.error("Checkmate audio play failed:", e));
                 }
-            } else {
-                gameOver = true;
-                winnerText = "Draw (Stalemate)!";
+                updateTurnDisplay();
+                drawBoard();
             }
         }
-        console.log("checkGameOver completed");
     }
 
-   function handleCanvasClick(event) {
-    console.log("handleCanvasClick called");
-    if (!gameStarted || gameOver) {
-        console.log("Game not started or game over");
-        return;
-    }
-    event.preventDefault();
-    const rect = canvas.getBoundingClientRect();
-    const scaleX = canvas.width / rect.width;
-    const scaleY = canvas.height / rect.height;
-    let clientX, clientY;
-    if (event.type === "touchstart" || event.type === "touchmove") {
-        clientX = event.touches[0]?.clientX;
-        clientY = event.touches[0]?.clientY;
-    } else {
-        clientX = event.clientX;
-        clientY = event.clientY;
-    }
-    if (!clientX || !clientY) {
-        console.error("Client coordinates not found.");
-        return;
-    }
-    const adjustedX = (clientX - rect.left) * scaleX - offsetX; // Offset korrigieren
-    const adjustedY = (clientY - rect.top) * scaleY - offsetY;  // Offset korrigieren
-    const x = Math.floor(adjustedX / size);
-    const y = Math.floor(adjustedY / size);
-    let boardX = x;
-    let boardY = y;
-    let effectiveRotation = rotateBoard;
-    if (smartphoneMode) {
-        effectiveRotation = currentPlayer === "black";
-    }
-    if (effectiveRotation) {
-        boardX = 7 - x;
-        boardY = 7 - y;
-    }
-    console.log("Click at:", { clientX, clientY, adjustedX, adjustedY, x, y, boardX, boardY });
-    if (boardX < 0 || boardX >= 8 || boardY < 0 || boardY >= 8) {
-        selectedPiece = null;
-        legalMoves = [];
-        drawBoard();
-        console.log("Click outside board");
-        return;
-    }
-    const piece = board[boardY][boardX];
-    const isWhitePiece = piece && piece === piece.toUpperCase();
-    if (!selectedPiece) {
-        if (piece && (isWhitePiece === (currentPlayer === "white"))) {
-            selectedPiece = { x: boardX, y: boardY, piece };
-            legalMoves = getLegalMoves(boardX, boardY);
-            if (legalMoves.length === 0) {
-                selectedPiece = null;
-            }
-            drawBoard();
+    function handleCanvasClick(event) {
+        console.log("handleCanvasClick called");
+        if (!gameStarted || gameOver) {
+            console.log("Game not started or game over");
+            return;
         }
-    } else {
-        const move = legalMoves.find((m) => m.toX === boardX && m.toY === boardY);
-        if (move) {
-            const newBoard = board.map(row => [...row]);
-            const targetPiece = newBoard[boardY][boardX];
-            const isCapture = targetPiece && (targetPiece.toLowerCase() !== selectedPiece.piece.toLowerCase()) && ((targetPiece === targetPiece.toUpperCase()) !== (selectedPiece.piece === selectedPiece.piece.toUpperCase()));
-            newBoard[boardY][boardX] = selectedPiece.piece;
-            newBoard[selectedPiece.y][selectedPiece.x] = "";
-            const isWhite = selectedPiece.piece === selectedPiece.piece.toUpperCase();
-            if (move.castling) {
-                if (move.castling === "kingside") {
-                    newBoard[boardY][boardX - 1] = isWhite ? "R" : "r";
-                    newBoard[boardY][7] = "";
-                    if (isWhite) castlingAvailability.white.kingside = false;
-                    else castlingAvailability.black.kingside = false;
-                } else if (move.castling === "queenside") {
-                    newBoard[boardY][boardX + 1] = isWhite ? "R" : "r";
-                    newBoard[boardY][0] = "";
-                    if (isWhite) castlingAvailability.white.queenside = false;
-                    else castlingAvailability.black.queenside = false;
-                }
-            } else {
-                if (selectedPiece.piece.toLowerCase() === "k") {
-                    if (isWhite) {
-                        castlingAvailability.white.kingside = false;
-                        castlingAvailability.white.queenside = false;
-                    } else {
-                        castlingAvailability.black.kingside = false;
-                        castlingAvailability.black.queenside = false;
-                    }
-                } else if (selectedPiece.piece.toLowerCase() === "r") {
-                    if (isWhite && selectedPiece.y === 7 && selectedPiece.x === 0) castlingAvailability.white.queenside = false;
-                    else if (isWhite && selectedPiece.y === 7 && selectedPiece.x === 7) castlingAvailability.white.kingside = false;
-                    else if (!isWhite && selectedPiece.y === 0 && selectedPiece.x === 0) castlingAvailability.black.queenside = false;
-                    else if (!isWhite && selectedPiece.y === 0 && selectedPiece.x === 7) castlingAvailability.black.kingside = false;
-                }
-            }
-            if (move.promotion) {
-                showPromotionChoice(boardX, boardY, isWhite);
-                board = newBoard;
-                lastMove = { fromX: selectedPiece.x, fromY: selectedPiece.y, toX: boardX, toY: boardY };
-                updateKingPositions();
-                moveHistory.push({
-                    board: board.map(row => [...row]),
-                    currentPlayer,
-                    moveCount,
-                    castlingAvailability: JSON.parse(JSON.stringify(castlingAvailability)),
-                    isWhiteInCheck,
-                    isBlackInCheck,
-                    whiteTime,
-                    blackTime
-                });
-            } else {
-                board = newBoard;
-                lastMove = { fromX: selectedPiece.x, fromY: selectedPiece.y, toX: boardX, toY: boardY };
-                updateKingPositions();
-                currentPlayer = currentPlayer === "white" ? "black" : "white";
-                selectedPiece = null;
-                legalMoves = [];
-                moveHistory.push({
-                    board: board.map(row => [...row]),
-                    currentPlayer,
-                    moveCount,
-                    castlingAvailability: JSON.parse(JSON.stringify(castlingAvailability)),
-                    isWhiteInCheck,
-                    isBlackInCheck,
-                    whiteTime,
-                    blackTime
-                });
-                updateMoveHistory();
-                updateCheckStatus();
-                checkGameOver();
-                if (soundEnabled) {
-                    const audio = new Audio(isCapture ? SOUND.captureSound : SOUND.moveSound);
-                    audio.play().catch((e) => console.error("Move audio play failed:", e));
-                }
-            }
-            drawBoard();
-            updateTurnDisplay();
+        event.preventDefault();
+        const rect = canvas.getBoundingClientRect();
+        const scaleX = canvas.width / rect.width;
+        const scaleY = canvas.height / rect.height;
+        let clientX, clientY;
+        if (event.type === "touchstart" || event.type === "touchmove") {
+            clientX = event.touches[0]?.clientX;
+            clientY = event.touches[0]?.clientY;
         } else {
-            const clickedPiece = board[boardY][boardX];
-            if (clickedPiece && (clickedPiece === clickedPiece.toUpperCase()) === (currentPlayer === "white")) {
-                selectedPiece = { x: boardX, y: boardY, piece: clickedPiece };
+            clientX = event.clientX;
+            clientY = event.clientY;
+        }
+        if (!clientX || !clientY) {
+            console.error("Client coordinates not found.");
+            return;
+        }
+        const adjustedX = (clientX - rect.left) * scaleX;
+        const adjustedY = (clientY - rect.top) * scaleY;
+        const x = Math.floor(adjustedX / size);
+        const y = Math.floor(adjustedY / size);
+        let boardX = x;
+        let boardY = y;
+        let effectiveRotation = rotateBoard;
+        if (smartphoneMode) {
+            effectiveRotation = currentPlayer === "black";
+        }
+        if (effectiveRotation) {
+            boardX = 7 - x;
+            boardY = 7 - y;
+        }
+        if (boardX < 0 || boardX >= 8 || boardY < 0 || boardY >= 8) {
+            selectedPiece = null;
+            legalMoves = [];
+            drawBoard();
+            console.log("Click outside board");
+            return;
+        }
+        const piece = board[boardY][boardX];
+        const isWhitePiece = piece && piece === piece.toUpperCase();
+        if (!selectedPiece) {
+            if (piece && (isWhitePiece === (currentPlayer === "white"))) {
+                selectedPiece = { x: boardX, y: boardY, piece };
                 legalMoves = getLegalMoves(boardX, boardY);
                 if (legalMoves.length === 0) {
                     selectedPiece = null;
                 }
-            } else {
-                selectedPiece = null;
-                legalMoves = [];
+                drawBoard();
             }
-            drawBoard();
+        } else {
+            const move = legalMoves.find((m) => m.toX === boardX && m.toY === boardY);
+            if (move) {
+                const newBoard = board.map(row => [...row]);
+                const targetPiece = newBoard[boardY][boardX];
+                const isCapture = targetPiece && (targetPiece.toLowerCase() !== selectedPiece.piece.toLowerCase()) && ((targetPiece === targetPiece.toUpperCase()) !== (selectedPiece.piece === selectedPiece.piece.toUpperCase()));
+                newBoard[boardY][boardX] = selectedPiece.piece;
+                newBoard[selectedPiece.y][selectedPiece.x] = "";
+                const isWhite = selectedPiece.piece === selectedPiece.piece.toUpperCase();
+                if (move.castling) {
+                    if (move.castling === "kingside") {
+                        newBoard[boardY][boardX - 1] = isWhite ? "R" : "r";
+                        newBoard[boardY][7] = "";
+                        if (isWhite) castlingAvailability.white.kingside = false;
+                        else castlingAvailability.black.kingside = false;
+                    } else if (move.castling === "queenside") {
+                        newBoard[boardY][boardX + 1] = isWhite ? "R" : "r";
+                        newBoard[boardY][0] = "";
+                        if (isWhite) castlingAvailability.white.queenside = false;
+                        else castlingAvailability.black.queenside = false;
+                    }
+                } else {
+                    if (selectedPiece.piece.toLowerCase() === "k") {
+                        if (isWhite) {
+                            castlingAvailability.white.kingside = false;
+                            castlingAvailability.white.queenside = false;
+                        } else {
+                            castlingAvailability.black.kingside = false;
+                            castlingAvailability.black.queenside = false;
+                        }
+                    } else if (selectedPiece.piece.toLowerCase() === "r") {
+                        if (isWhite && selectedPiece.y === 7 && selectedPiece.x === 0) castlingAvailability.white.queenside = false;
+                        else if (isWhite && selectedPiece.y === 7 && selectedPiece.x === 7) castlingAvailability.white.kingside = false;
+                        else if (!isWhite && selectedPiece.y === 0 && selectedPiece.x === 0) castlingAvailability.black.queenside = false;
+                        else if (!isWhite && selectedPiece.y === 0 && selectedPiece.x === 7) castlingAvailability.black.kingside = false;
+                    }
+                }
+                if (move.promotion) {
+                    showPromotionChoice(boardX, boardY, isWhite);
+                    board = newBoard;
+                    lastMove = { fromX: selectedPiece.x, fromY: selectedPiece.y, toX: boardX, toY: boardY };
+                    updateKingPositions();
+                    moveHistory.push({
+                        board: board.map(row => [...row]),
+                        currentPlayer,
+                        moveCount,
+                        castlingAvailability: JSON.parse(JSON.stringify(castlingAvailability)),
+                        isWhiteInCheck,
+                        isBlackInCheck,
+                        whiteTime,
+                        blackTime
+                    });
+                } else {
+                    board = newBoard;
+                    lastMove = { fromX: selectedPiece.x, fromY: selectedPiece.y, toX: boardX, toY: boardY };
+                    updateKingPositions();
+                    currentPlayer = currentPlayer === "white" ? "black" : "white";
+                    selectedPiece = null;
+                    legalMoves = [];
+                    moveHistory.push({
+                        board: board.map(row => [...row]),
+                        currentPlayer,
+                        moveCount,
+                        castlingAvailability: JSON.parse(JSON.stringify(castlingAvailability)),
+                        isWhiteInCheck,
+                        isBlackInCheck,
+                        whiteTime,
+                        blackTime
+                    });
+                    updateMoveHistory();
+                    updateCheckStatus();
+                    checkGameOver();
+                    if (soundEnabled) {
+                        const audio = new Audio(isCapture ? SOUND.captureSound : SOUND.moveSound);
+                        audio.play().catch((e) => console.error("Move audio play failed:", e));
+                    }
+                }
+                drawBoard();
+                updateTurnDisplay();
+            } else {
+                const clickedPiece = board[boardY][boardX];
+                if (clickedPiece && (clickedPiece === clickedPiece.toUpperCase()) === (currentPlayer === "white")) {
+                    selectedPiece = { x: boardX, y: boardY, piece: clickedPiece };
+                    legalMoves = getLegalMoves(boardX, boardY);
+                    if (legalMoves.length === 0) {
+                        selectedPiece = null;
+                    }
+                } else {
+                    selectedPiece = null;
+                    legalMoves = [];
+                }
+                drawBoard();
+            }
         }
+        console.log("handleCanvasClick completed");
     }
-    console.log("handleCanvasClick completed");
-}
+
+    function toggleSound() {
+        soundEnabled = !soundEnabled;
+        soundToggleButton.textContent = soundEnabled ? "Disable Sound" : "Enable Sound";
+        localStorage.setItem("soundEnabled", soundEnabled);
+    }
+
     function undoMove() {
-        console.log("undoMove called");
-        if (moveHistory.length === 0) {
-            console.log("No moves to undo");
-            return;
-        }
+        if (moveHistory.length === 0) return;
         const lastState = moveHistory.pop();
         board = lastState.board;
         currentPlayer = lastState.currentPlayer;
@@ -1305,53 +1140,23 @@ function resizeCanvas() {
         isBlackInCheck = lastState.isBlackInCheck;
         whiteTime = lastState.whiteTime;
         blackTime = lastState.blackTime;
-
         if (currentPlayer === "white") {
             whiteTime = Math.max(0, whiteTime - CONFIG.undoPenalty);
         } else {
             blackTime = Math.max(0, blackTime - CONFIG.undoPenalty);
         }
-
-        if (moveNotations.length > 0) {
-            moveNotations.pop();
-            if (currentPlayer === "white") {
-                moveCount--;
-                if (moveNotations.length > 0) {
-                    moveNotations.pop();
-                }
-            }
-        }
-
         selectedPiece = null;
         legalMoves = [];
         lastMove = null;
+        if (moveNotations.length > 0) moveNotations.pop();
+        if (currentPlayer === "white" && moveCount > 1) moveCount--;
         updateKingPositions();
+        updateMoveHistory();
         updateCheckStatus();
-        moveList.innerHTML = "";
-        let movePairs = [];
-        for (let i = 0; i < moveNotations.length; i++) {
-            if (i % 2 === 0) {
-                movePairs.push({ white: moveNotations[i].notation });
-            } else {
-                movePairs[movePairs.length - 1].black = moveNotations[i].notation;
-            }
-        }
-        movePairs.forEach((pair, index) => {
-            const moveItem = document.createElement("li");
-            moveItem.textContent = `${index + 1}. ${pair.white}${pair.black ? " " + pair.black : ""}`;
-            if (index === movePairs.length - 1) {
-                moveItem.classList.add("last-move");
-            }
-            moveList.appendChild(moveItem);
-        });
-        moveList.scrollTop = moveList.scrollHeight;
-        updateOpeningDisplay();
-        updateTurnDisplay();
         drawBoard();
-        console.log("undoMove completed");
+        updateTurnDisplay();
     }
 
-    // Event-Listener für Buttons und Canvas
     startButton.addEventListener("click", () => {
         startGame(false);
     });
@@ -1368,42 +1173,30 @@ function resizeCanvas() {
     smartphoneModeButton.addEventListener("click", () => {
         smartphoneMode = !smartphoneMode;
         smartphoneModeButton.textContent = smartphoneMode ? "Disable Smartphone Mode" : "Enable Smartphone Mode";
+        localStorage.setItem("smartphoneMode", smartphoneMode);
         drawBoard();
     });
 
-    soundToggleButton.addEventListener("click", () => {
-        soundEnabled = !soundEnabled;
-        soundToggleButton.textContent = soundEnabled ? "Disable Sound" : "Enable Sound";
-    });
+    soundToggleButton.addEventListener("click", toggleSound);
 
-    undoButton.addEventListener("click", () => {
-        undoMove();
-    });
+    undoButton.addEventListener("click", undoMove);
 
     restartButton.addEventListener("click", () => {
-        startScreen.style.display = "block";
-        gameContainer.style.display = "none";
-        restartButton.classList.add("hidden");
-        gameStarted = false;
-        if (timerInterval) clearInterval(timerInterval);
+        startGame(false);
     });
 
     designButton.addEventListener("click", () => {
-        currentDesign = (currentDesign % Object.keys(designs).length) + 1;
+        currentDesign = currentDesign % 5 + 1;
         window.updateBoardColors(currentDesign);
     });
 
-    fullscreenButton.addEventListener("click", () => {
-        toggleFullscreenMode();
-    });
+    fullscreenButton.addEventListener("click", toggleFullscreenMode);
 
-    exitFullscreenButton.addEventListener("click", () => {
-        toggleFullscreenMode();
-    });
+    exitFullscreenButton.addEventListener("click", toggleFullscreenMode);
 
-    closeFullscreenButton.addEventListener("click", () => {
-        toggleFullscreenMode();
-    });
+    closeFullscreenButton.addEventListener("click", toggleFullscreenMode);
+
+    window.addEventListener("resize", debouncedResizeCanvas);
 
     canvas.addEventListener("click", (event) => {
         handleCanvasClick(event);
@@ -1411,16 +1204,9 @@ function resizeCanvas() {
 
     canvas.addEventListener("touchstart", (event) => {
         handleCanvasClick(event);
-    }, { passive: false });
-
-    window.addEventListener("resize", () => {
-        debouncedResizeCanvas();
-    });
-
-    window.addEventListener("orientationchange", () => {
-        setTimeout(() => debouncedResizeCanvas(), 100);
     });
 
     resizeCanvas();
+
     console.log("Event listeners and initial setup completed");
 });
