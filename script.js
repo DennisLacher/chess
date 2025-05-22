@@ -93,7 +93,7 @@ document.addEventListener("DOMContentLoaded", () => {
     let isWhiteInCheck = false;
     let isBlackInCheck = false;
     let currentDesign = 3;
-    let isDarkmode = true; // Standardmäßig im Dark-Mode starten
+    let isDarkmode = true;
     let fullscreenMode = false;
     let gameOver = false;
     let winnerText = "";
@@ -244,8 +244,7 @@ document.addEventListener("DOMContentLoaded", () => {
             return;
         }
 
-        // Im Vollbildmodus brauchen wir keinen zusätzlichen Platz für Beschriftungen, da keine UI-Elemente sichtbar sind
-        const extraSpace = fullscreenMode ? 0 : size * 0.7; // Extra Platz für Beschriftungen nur im normalen Modus
+        const extraSpace = fullscreenMode ? 0 : size * 0.7;
         const expectedWidth = size * 8 + (fullscreenMode ? 0 : offsetX * 2);
         const expectedHeight = size * 8 + (fullscreenMode ? 0 : offsetY * 2) + extraSpace;
         canvas.width = expectedWidth;
@@ -261,6 +260,10 @@ document.addEventListener("DOMContentLoaded", () => {
         if (smartphoneMode) {
             effectiveRotation = currentPlayer === "black";
         }
+
+        const xPosBase = fullscreenMode ? 0 : offsetX;
+        const yPosBase = fullscreenMode ? 0 : offsetY;
+
         for (let y = 0; y < 8; y++) {
             for (let x = 0; x < 8; x++) {
                 const displayY = effectiveRotation ? 7 - y : y;
@@ -282,15 +285,15 @@ document.addEventListener("DOMContentLoaded", () => {
                     ctx.fillStyle = isCapture ? (isDarkmode ? "#cc6666" : "#ffcccc") : (isDarkmode ? "#505050" : "#c0c0c0");
                 }
 
-                const xPos = fullscreenMode ? 0 : offsetX;
-                const yPos = fullscreenMode ? 0 : offsetY;
-                ctx.fillRect(xPos + displayX * size, yPos + displayY * size, size, size);
+                const xPos = xPosBase + displayX * size;
+                const yPos = yPosBase + displayY * size;
+                ctx.fillRect(xPos, yPos, size, size);
 
                 if (legalMove && !((board[y][x] && (board[y][x] === board[y][x].toUpperCase()) !== (selectedPiece.piece === selectedPiece.piece.toUpperCase())))) {
                     ctx.fillStyle = isDarkmode ? "#a0a0a0" : "#808080";
                     const dotRadius = size * 0.1;
-                    const centerX = xPos + displayX * size + size / 2;
-                    const centerY = yPos + displayY * size + size / 2;
+                    const centerX = xPos + size / 2;
+                    const centerY = yPos + size / 2;
                     ctx.beginPath();
                     ctx.arc(centerX, centerY, dotRadius, 0, 2 * Math.PI);
                     ctx.fill();
@@ -299,7 +302,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 if ((isWhiteInCheck && kingPositions.white && kingPositions.white.x === x && kingPositions.white.y === y) ||
                     (isBlackInCheck && kingPositions.black && kingPositions.black.x === x && kingPositions.black.y === y)) {
                     ctx.fillStyle = gameOver ? "#a94442" : "#d9534f";
-                    ctx.fillRect(xPos + displayX * size, yPos + displayY * size, size, size);
+                    ctx.fillRect(xPos, yPos, size, size);
                 }
 
                 const piece = board[y][x];
@@ -309,7 +312,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     ctx.font = `${size * 0.7}px sans-serif`;
                     ctx.textAlign = "center";
                     ctx.textBaseline = "middle";
-                    ctx.fillText(pieces[piece], xPos + displayX * size + size / 2, yPos + displayY * size + size / 2);
+                    ctx.fillText(pieces[piece], xPos + size / 2, yPos + size / 2);
                 }
             }
         }
@@ -320,16 +323,19 @@ document.addEventListener("DOMContentLoaded", () => {
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
 
-        const labelOffsetX = fullscreenMode ? size * 0.3 : offsetX * 0.5;
-        const labelOffsetY = fullscreenMode ? size * 0.3 : offsetY;
-
         for (let i = 0; i < 8; i++) {
             const displayY = effectiveRotation ? i : 7 - i;
             const displayX = effectiveRotation ? 7 - i : i;
-            // Zahlen links
-            ctx.fillText(8 - i, labelOffsetX, labelOffsetY + displayY * size + size / 2);
-            // Buchstaben unten
-            ctx.fillText(String.fromCharCode(97 + i), labelOffsetX + displayX * size + size / 2, labelOffsetY + 8 * size + (fullscreenMode ? size * 0.3 : size * 0.7));
+
+            // Zahlen links: Position links vom Brett, mittig zu den Feldern
+            const numberX = fullscreenMode ? size * 0.25 : offsetX * 0.5;
+            const numberY = yPosBase + displayY * size + size / 2;
+            ctx.fillText(8 - i, numberX, numberY);
+
+            // Buchstaben unten: Position unter dem Brett, mittig zu den Feldern
+            const letterX = xPosBase + displayX * size + size / 2;
+            const letterY = fullscreenMode ? (size * 8 + size * 0.3) : (yPosBase + 8 * size + size * 0.5);
+            ctx.fillText(String.fromCharCode(97 + i), letterX, letterY);
         }
 
         if (gameOver) {
@@ -373,7 +379,6 @@ document.addEventListener("DOMContentLoaded", () => {
         let maxWidth, maxHeight;
 
         if (fullscreenMode) {
-            // Im Vollbildmodus: Zentrieren und Skalieren
             maxWidth = window.innerWidth;
             maxHeight = window.innerHeight;
             const boardDimension = Math.min(maxWidth, maxHeight) * 0.95;
@@ -381,6 +386,7 @@ document.addEventListener("DOMContentLoaded", () => {
             const totalWidth = size * 8;
             const totalHeight = size * 8;
 
+            // Zentrieren des Bretts im Vollbildmodus
             offsetX = (window.innerWidth - totalWidth) / 2;
             offsetY = (window.innerHeight - totalHeight) / 2;
 
@@ -409,7 +415,7 @@ document.addEventListener("DOMContentLoaded", () => {
             offsetY = (window.innerHeight - totalHeight) / 2 * CONFIG.offset;
 
             canvas.width = totalWidth + offsetX * 2;
-            canvas.height = totalHeight + offsetY * 2 + size * 0.7; // Extra Platz für Beschriftungen
+            canvas.height = totalHeight + offsetY * 2 + size * 0.7;
             canvas.style.width = `${canvas.width}px`;
             canvas.style.height = `${canvas.height}px`;
             canvas.style.position = "relative";
@@ -417,7 +423,7 @@ document.addEventListener("DOMContentLoaded", () => {
             canvas.style.top = "0px";
         }
 
-        console.log("Canvas resized to:", canvas.width, canvas.height);
+        console.log("Canvas resized to:", canvas.width, canvas.height, "with offsetX:", offsetX, "offsetY:", offsetY);
         if (gameStarted) {
             console.log("Calling drawBoard from resizeCanvas");
             drawBoard();
@@ -449,6 +455,18 @@ document.addEventListener("DOMContentLoaded", () => {
             closeFullscreenButton.style.visibility = "visible";
             closeFullscreenButton.style.opacity = "1";
             closeFullscreenButton.textContent = "Close Fullscreen";
+
+            closeFullscreenButton.style.position = "fixed";
+            closeFullscreenButton.style.left = "50%";
+            closeFullscreenButton.style.top = "50%";
+            closeFullscreenButton.style.transform = "translate(-50%, -50%)";
+            closeFullscreenButton.style.zIndex = "1000";
+            closeFullscreenButton.style.padding = "10px 20px";
+            closeFullscreenButton.style.backgroundColor = isDarkmode ? "#333" : "#fff";
+            closeFullscreenButton.style.color = isDarkmode ? "#fff" : "#000";
+            closeFullscreenButton.style.border = "1px solid #666";
+            closeFullscreenButton.style.borderRadius = "5px";
+            closeFullscreenButton.style.cursor = "pointer";
         } else {
             if (document.exitFullscreen) {
                 document.exitFullscreen().catch((err) => {
@@ -468,6 +486,18 @@ document.addEventListener("DOMContentLoaded", () => {
             moveList.style.display = "block";
             openingDisplay.style.display = "block";
             closeFullscreenButton.style.display = "none";
+
+            closeFullscreenButton.style.position = "";
+            closeFullscreenButton.style.left = "";
+            closeFullscreenButton.style.top = "";
+            closeFullscreenButton.style.transform = "";
+            closeFullscreenButton.style.zIndex = "";
+            closeFullscreenButton.style.padding = "";
+            closeFullscreenButton.style.backgroundColor = "";
+            closeFullscreenButton.style.color = "";
+            closeFullscreenButton.style.border = "";
+            closeFullscreenButton.style.borderRadius = "";
+            closeFullscreenButton.style.cursor = "";
         }
         resizeCanvas();
         drawBoard();
