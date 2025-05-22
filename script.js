@@ -312,17 +312,17 @@ document.addEventListener("DOMContentLoaded", () => {
 
         // Beschriftung hinzufügen: Zahlen links (1-8) und Buchstaben unten (a-h) mit angepasster Position und Schriftart
         ctx.fillStyle = isDarkmode ? "#e0e0e0" : "#333";
-        ctx.font = `${size * 0.3}px Arial`; // Arial für klarere Darstellung
+        ctx.font = `${size * 0.25}px Arial`; // Kleinere Schriftgröße für bessere Lesbarkeit
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
 
         for (let i = 0; i < 8; i++) {
             const displayY = effectiveRotation ? i : 7 - i;
             const displayX = effectiveRotation ? 7 - i : i;
-            // Zahlen links: Mehr Platz durch offsetX * 0.7 statt offsetX / 2
-            ctx.fillText(8 - i, offsetX * 0.7, offsetY + displayY * size + size / 2);
-            // Buchstaben unten: Mehr Platz durch size * 0.5 statt size * 0.3
-            ctx.fillText(String.fromCharCode(97 + i), offsetX + displayX * size + size / 2, offsetY + 8 * size + size * 0.5);
+            // Zahlen links: Weiter nach außen verschieben
+            ctx.fillText(8 - i, offsetX * 0.5, offsetY + displayY * size + size / 2);
+            // Buchstaben unten: Weiter nach unten verschieben
+            ctx.fillText(String.fromCharCode(97 + i), offsetX + displayX * size + size / 2, offsetY + 8 * size + size * 0.7);
         }
 
         if (gameOver) {
@@ -369,13 +369,13 @@ document.addEventListener("DOMContentLoaded", () => {
             // Im Vollbildmodus: Zentrieren und Skalieren
             maxWidth = window.innerWidth;
             maxHeight = window.innerHeight;
-            // Das Brett soll maximal 90% der kleineren Dimension (Breite oder Höhe) einnehmen
-            const boardDimension = Math.min(maxWidth, maxHeight) * 0.9;
+            // Das Brett soll maximal 95% der kleineren Dimension einnehmen (größer als vorher)
+            const boardDimension = Math.min(maxWidth, maxHeight) * 0.95;
             size = Math.floor(Math.max(boardDimension / 8, CONFIG.minBoardSize));
             const totalWidth = size * 8;
             const totalHeight = size * 8;
 
-            // Zentrierung: Offset basierend auf der Bildschirmgröße berechnen
+            // Zentrierung
             offsetX = (window.innerWidth - totalWidth) / 2;
             offsetY = (window.innerHeight - totalHeight) / 2;
 
@@ -431,7 +431,19 @@ document.addEventListener("DOMContentLoaded", () => {
                 });
             }
             fullscreenMode = true;
+            // Alle UI-Elemente ausblenden außer closeFullscreenButton
             fullscreenButton.style.display = "none";
+            rotateButton.style.display = "none";
+            smartphoneModeButton.style.display = "none";
+            soundToggleButton.style.display = "none";
+            undoButton.style.display = "none";
+            restartButton.style.display = "none";
+            designButton.style.display = "none";
+            darkmodeToggleButton.style.display = "none";
+            turnDisplay.style.display = "none";
+            moveList.style.display = "none";
+            openingDisplay.style.display = "none";
+            // closeFullscreenButton sichtbar machen
             closeFullscreenButton.style.display = "block";
             closeFullscreenButton.style.visibility = "visible";
             closeFullscreenButton.style.opacity = "1";
@@ -444,7 +456,19 @@ document.addEventListener("DOMContentLoaded", () => {
                 });
             }
             fullscreenMode = false;
+            // UI-Elemente wieder einblenden
             fullscreenButton.style.display = "block";
+            rotateButton.style.display = "block";
+            smartphoneModeButton.style.display = "block";
+            soundToggleButton.style.display = "block";
+            undoButton.style.display = "block";
+            restartButton.style.display = "block";
+            designButton.style.display = "block";
+            darkmodeToggleButton.style.display = "block";
+            turnDisplay.style.display = "block";
+            moveList.style.display = "block";
+            openingDisplay.style.display = "block";
+            // closeFullscreenButton ausblenden
             closeFullscreenButton.style.display = "none";
         }
         resizeCanvas();
@@ -478,6 +502,16 @@ document.addEventListener("DOMContentLoaded", () => {
             document.body.classList.remove("fullscreen");
             document.body.classList.add("darkmode");
             fullscreenButton.style.display = "block";
+            rotateButton.style.display = "block";
+            smartphoneModeButton.style.display = "block";
+            soundToggleButton.style.display = "block";
+            undoButton.style.display = "block";
+            restartButton.style.display = "block";
+            designButton.style.display = "block";
+            darkmodeToggleButton.style.display = "block";
+            turnDisplay.style.display = "block";
+            moveList.style.display = "block";
+            openingDisplay.style.display = "block";
             closeFullscreenButton.style.display = "none";
             moveList.innerHTML = "";
             startScreen.style.display = "none";
@@ -1253,16 +1287,3 @@ document.addEventListener("DOMContentLoaded", () => {
         fullscreenButton.addEventListener("click", toggleFullscreenMode);
         closeFullscreenButton.addEventListener("click", toggleFullscreenMode);
         closeFullscreenButton.addEventListener("touchstart", (e) => {
-            e.preventDefault();
-            toggleFullscreenMode();
-        }, { passive: false });
-
-        canvas.addEventListener("click", handleCanvasClick);
-        canvas.addEventListener("touchstart", handleCanvasClick, { passive: false });
-    }
-
-    const debouncedResizeCanvas = debounce(resizeCanvas, 200);
-    window.addEventListener("resize", debouncedResizeCanvas);
-    resizeCanvas();
-    initializeGameButtons();
-});
