@@ -39,9 +39,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const openingDisplay = document.getElementById("openingDisplay");
     const designButton = document.getElementById("designButton");
     const darkmodeToggleButton = document.getElementById("darkmodeToggleButton");
-    const fullscreenButton = document.getElementById("fullscreenButton");
-    const exitFullscreenButton = document.getElementById("exitFullscreenButton");
-    const closeFullscreenButton = document.getElementById("closeFullscreenButton");
 
     const missingElements = [];
     if (!canvas) missingElements.push("canvas (id='chessboard')");
@@ -50,7 +47,6 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!startFreestyleButton) missingElements.push("startFreestyleButton (id='startFreestyleButton')");
     if (!gameContainer) missingElements.push("gameContainer (id='gameContainer')");
     if (!turnDisplay) missingElements.push("turnDisplay (id='turnDisplay')");
-    if (!closeFullscreenButton) missingElements.push("closeFullscreenButton (id='closeFullscreenButton')");
     if (missingElements.length > 0) {
         console.error("The following DOM elements are missing:", missingElements.join(", "));
         alert("Error: Missing DOM elements: " + missingElements.join(", ") + ". Please check the HTML and console.");
@@ -95,7 +91,6 @@ document.addEventListener("DOMContentLoaded", () => {
     let isBlackInCheck = false;
     let currentDesign = 3;
     let isDarkmode = true; // Standardmäßig im Dark-Mode starten
-    let fullscreenMode = false;
     let gameOver = false;
     let winnerText = "";
     let whiteTime = CONFIG.initialTime;
@@ -149,9 +144,6 @@ document.addEventListener("DOMContentLoaded", () => {
     gameContainer.style.display = "none";
     restartButton.classList.add("hidden");
     darkmodeToggleButton.style.display = "none";
-    fullscreenButton.style.display = "none";
-    exitFullscreenButton.style.display = "none";
-    closeFullscreenButton.style.display = "none";
     console.log("Initial visibility set: startScreen visible, gameContainer hidden");
 
     function initializeDarkmodeToggle() {
@@ -247,7 +239,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         const expectedWidth = Math.round(size * 8 + offsetX * 2);
-        const expectedHeight = Math.round(size * 8 + offsetY * 2); // Beschriftung entfernt, daher kein Extra-Platz nötig
+        const expectedHeight = Math.round(size * 8 + offsetY * 2); // Extra Platz für Beschriftung
         canvas.width = expectedWidth;
         canvas.height = expectedHeight;
         canvas.style.width = `${expectedWidth}px`;
@@ -312,7 +304,20 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         }
 
-        // Beschriftung (a-h und 1-8) wurde komplett entfernt
+        // Beschriftung hinzufügen: Zahlen links (1-8) und Buchstaben unten (a-h)
+        ctx.fillStyle = isDarkmode ? "#e0e0e0" : "#333";
+        ctx.font = `${size * 0.4}px sans-serif`;
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+
+        for (let i = 0; i < 8; i++) {
+            const displayY = effectiveRotation ? i : 7 - i;
+            const displayX = effectiveRotation ? 7 - i : i;
+            // Zahlen links
+            ctx.fillText(8 - i, offsetX / 2, offsetY + displayY * size + size / 2);
+            // Buchstaben unten
+            ctx.fillText(String.fromCharCode(97 + i), offsetX + displayX * size + size / 2, offsetY + 8 * size + size * 0.3);
+        }
 
         if (gameOver) {
             openingDisplay.textContent = winnerText;
@@ -352,12 +357,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function resizeCanvas() {
         console.log("resizeCanvas called");
-        let maxWidth = window.innerWidth * (fullscreenMode ? 0.95 : 0.7);
-        let maxHeight = window.innerHeight * (fullscreenMode ? 0.95 : 0.6);
+        let maxWidth = window.innerWidth * 0.7;
+        let maxHeight = window.innerHeight * 0.6;
         
         if (window.innerWidth <= 768) {
-            maxWidth = window.innerWidth * (fullscreenMode ? 0.98 : 0.9);
-            maxHeight = window.innerHeight * (fullscreenMode ? 0.8 : 0.5);
+            maxWidth = window.innerWidth * 0.9;
+            maxHeight = window.innerHeight * 0.5;
         }
 
         const boardDimension = Math.min(maxWidth, maxHeight);
@@ -365,16 +370,13 @@ document.addEventListener("DOMContentLoaded", () => {
         const totalWidth = size * 8;
         const totalHeight = size * 8;
 
-        // Zentrieren im Vollbildmodus
-        offsetX = (window.innerWidth - totalWidth) / 2;
-        offsetY = (window.innerHeight - totalHeight) / 2;
+        offsetX = (window.innerWidth - totalWidth) / 2 * CONFIG.offset;
+        offsetY = (window.innerHeight - totalHeight) / 2 * CONFIG.offset;
 
-        canvas.width = totalWidth;
-        canvas.height = totalHeight;
-        canvas.style.width = `${totalWidth}px`;
-        canvas.style.height = `${totalHeight}px`;
-        canvas.style.marginLeft = `${offsetX}px`;
-        canvas.style.marginTop = `${offsetY}px`;
+        canvas.width = totalWidth + offsetX * 2;
+        canvas.height = totalHeight + offsetY * 2;
+        canvas.style.width = `${canvas.width}px`;
+        canvas.style.height = `${canvas.height}px`;
 
         console.log("Canvas resized to:", canvas.width, canvas.height);
         if (gameStarted) {
@@ -385,100 +387,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     const debouncedResizeCanvas = debounce(resizeCanvas, 200);
-
-    function toggleFullscreenMode() {
-        console.log("toggleFullscreenMode called");
-        if (!fullscreenMode) {
-            if (document.documentElement.requestFullscreen) {
-                document.documentElement.requestFullscreen().catch((err) => {
-                    console.error("Failed to enter fullscreen mode:", err);
-                });
-            }
-            document.body.classList.add("fullscreen");
-            fullscreenMode = true;
-            turnDisplay.style.display = "none";
-            moveList.style.display = "none";
-            openingDisplay.style.display = "none";
-            fullscreenButton.style.display = "none";
-            exitFullscreenButton.style.display = "none";
-            closeFullscreenButton.style.display = "block";
-            closeFullscreenButton.textContent = "Close Fullscreen";
-            console.log("closeFullscreenButton styles:", {
-                display: closeFullscreenButton.style.display,
-                visibility: closeFullscreenButton.style.visibility,
-                opacity: closeFullscreenButton.style.opacity,
-            });
-        } else {
-            if (document.exitFullscreen) {
-                document.exitFullscreen().catch((err) => {
-                    console.error("Failed to exit fullscreen mode:", err);
-                });
-            }
-            document.body.classList.remove("fullscreen");
-            fullscreenMode = false;
-            turnDisplay.style.display = "block";
-            moveList.style.display = "block";
-            openingDisplay.style.display = "block";
-            fullscreenButton.style.display = "block";
-            exitFullscreenButton.style.display = "none";
-            closeFullscreenButton.style.display = "none";
-        }
-        resizeCanvas();
-        drawBoard();
-        console.log("toggleFullscreenMode completed");
-    }
-
-    document.addEventListener('fullscreenchange', () => {
-        console.log("fullscreenchange event fired");
-        fullscreenMode = !!document.fullscreenElement;
-        document.body.classList.toggle("fullscreen", fullscreenMode);
-        if (fullscreenMode) {
-            turnDisplay.style.display = "none";
-            moveList.style.display = "none";
-            openingDisplay.style.display = "none";
-            fullscreenButton.style.display = "none";
-            exitFullscreenButton.style.display = "none";
-            closeFullscreenButton.style.display = "block";
-            closeFullscreenButton.textContent = "Close Fullscreen";
-            console.log("closeFullscreenButton styles after fullscreenchange:", {
-                display: closeFullscreenButton.style.display,
-                visibility: closeFullscreenButton.style.visibility,
-                opacity: closeFullscreenButton.style.opacity,
-            });
-        } else {
-            turnDisplay.style.display = "block";
-            moveList.style.display = "block";
-            openingDisplay.style.display = "block";
-            fullscreenButton.style.display = "block";
-            exitFullscreenButton.style.display = "none";
-            closeFullscreenButton.style.display = "none";
-        }
-        resizeCanvas();
-        drawBoard();
-        console.log("fullscreenchange handler completed");
-    });
-
-    // Escape-Taste für Vollbildmodus
-    document.addEventListener('keydown', (event) => {
-        if (event.key === 'Escape' && fullscreenMode) {
-            console.log("Escape key pressed, exiting fullscreen mode");
-            if (document.exitFullscreen) {
-                document.exitFullscreen().catch((err) => {
-                    console.error("Failed to exit fullscreen mode:", err);
-                });
-            }
-            document.body.classList.remove("fullscreen");
-            fullscreenMode = false;
-            turnDisplay.style.display = "block";
-            moveList.style.display = "block";
-            openingDisplay.style.display = "block";
-            fullscreenButton.style.display = "block";
-            exitFullscreenButton.style.display = "none";
-            closeFullscreenButton.style.display = "none";
-            resizeCanvas();
-            drawBoard();
-        }
-    });
 
     function startGame(freestyle = false) {
         console.log("startGame called with freestyle:", freestyle);
@@ -498,16 +406,11 @@ document.addEventListener("DOMContentLoaded", () => {
             isWhiteInCheck = false;
             isBlackInCheck = false;
             winnerText = "";
-            fullscreenMode = false;
             whiteTime = CONFIG.initialTime;
             blackTime = CONFIG.initialTime;
 
             console.log("Updating DOM elements visibility...");
-            document.body.classList.remove("fullscreen");
             document.body.classList.add("darkmode");
-            fullscreenButton.style.display = "block";
-            exitFullscreenButton.style.display = "none";
-            closeFullscreenButton.style.display = "none";
             moveList.innerHTML = "";
             startScreen.style.display = "none";
             gameContainer.style.display = "flex";
@@ -1279,26 +1182,8 @@ document.addEventListener("DOMContentLoaded", () => {
             drawBoard();
         });
 
-        fullscreenButton.addEventListener("click", toggleFullscreenMode);
-        exitFullscreenButton.addEventListener("click", toggleFullscreenMode);
-        closeFullscreenButton.addEventListener("click", () => {
-            console.log("closeFullscreenButton clicked");
-            if (fullscreenMode) {
-                toggleFullscreenMode();
-            }
-        });
-        closeFullscreenButton.addEventListener("touchstart", (e) => {
-            e.preventDefault();
-            console.log("closeFullscreenButton touched");
-            if (fullscreenMode) {
-                toggleFullscreenMode();
-            }
-        }, { passive: false });
-
         canvas.addEventListener("click", handleCanvasClick);
         canvas.addEventListener("touchstart", handleCanvasClick, { passive: false });
-
-        closeFullscreenButton.textContent = "Close Fullscreen";
     }
 
     window.addEventListener("resize", debouncedResizeCanvas);
