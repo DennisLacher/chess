@@ -393,14 +393,14 @@ document.addEventListener("DOMContentLoaded", () => {
             const totalWidth = size * 8;
             const totalHeight = size * 8 + size * 0.7; // Extra space für Labels
 
-            // Präzise Zentrierung
+            // Präzise Zentrierung im Vollbildmodus
             canvas.width = totalWidth;
             canvas.height = totalHeight;
             canvas.style.width = `${totalWidth}px`;
             canvas.style.height = `${totalHeight}px`;
             canvas.style.position = "absolute";
-            canvas.style.left = `${(window.innerWidth - totalWidth) / 2}px`; // Exakte Zentrierung
-            canvas.style.top = `${(window.innerHeight - totalHeight) / 2}px`;
+            canvas.style.left = `${(window.innerWidth - totalWidth) / 2}px`; // Exakte horizontale Zentrierung
+            canvas.style.top = `${(window.innerHeight - totalHeight) / 2}px`; // Exakte vertikale Zentrierung
             canvas.style.margin = "0";
             canvas.style.padding = "0";
             canvas.style.border = "0";
@@ -448,7 +448,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 });
             }
             fullscreenMode = true;
-            fullscreenButton.style.display = "none";
+            fullscreenButton.style.display = "none"; // Ausblenden des fullscreenButton im Vollbildmodus
             rotateButton.style.display = "none";
             smartphoneModeButton.style.display = "none";
             soundToggleButton.style.display = "none";
@@ -488,7 +488,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 });
             }
             fullscreenMode = false;
-            fullscreenButton.style.display = "block";
+            fullscreenButton.style.display = "block"; // Wieder anzeigen des fullscreenButton
             rotateButton.style.display = "block";
             smartphoneModeButton.style.display = "block";
             soundToggleButton.style.display = "block";
