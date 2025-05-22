@@ -244,8 +244,10 @@ document.addEventListener("DOMContentLoaded", () => {
             return;
         }
 
-        const expectedWidth = Math.round(size * 8 + offsetX * 2);
-        const expectedHeight = Math.round(size * 8 + offsetY * 2); // Extra Platz für Beschriftung
+        // Im Vollbildmodus brauchen wir keinen zusätzlichen Platz für Beschriftungen, da keine UI-Elemente sichtbar sind
+        const extraSpace = fullscreenMode ? 0 : size * 0.7; // Extra Platz für Beschriftungen nur im normalen Modus
+        const expectedWidth = size * 8 + (fullscreenMode ? 0 : offsetX * 2);
+        const expectedHeight = size * 8 + (fullscreenMode ? 0 : offsetY * 2) + extraSpace;
         canvas.width = expectedWidth;
         canvas.height = expectedHeight;
         canvas.style.width = `${expectedWidth}px`;
@@ -280,13 +282,15 @@ document.addEventListener("DOMContentLoaded", () => {
                     ctx.fillStyle = isCapture ? (isDarkmode ? "#cc6666" : "#ffcccc") : (isDarkmode ? "#505050" : "#c0c0c0");
                 }
 
-                ctx.fillRect(offsetX + displayX * size, offsetY + displayY * size, size, size);
+                const xPos = fullscreenMode ? 0 : offsetX;
+                const yPos = fullscreenMode ? 0 : offsetY;
+                ctx.fillRect(xPos + displayX * size, yPos + displayY * size, size, size);
 
                 if (legalMove && !((board[y][x] && (board[y][x] === board[y][x].toUpperCase()) !== (selectedPiece.piece === selectedPiece.piece.toUpperCase())))) {
                     ctx.fillStyle = isDarkmode ? "#a0a0a0" : "#808080";
                     const dotRadius = size * 0.1;
-                    const centerX = offsetX + displayX * size + size / 2;
-                    const centerY = offsetY + displayY * size + size / 2;
+                    const centerX = xPos + displayX * size + size / 2;
+                    const centerY = yPos + displayY * size + size / 2;
                     ctx.beginPath();
                     ctx.arc(centerX, centerY, dotRadius, 0, 2 * Math.PI);
                     ctx.fill();
@@ -295,7 +299,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 if ((isWhiteInCheck && kingPositions.white && kingPositions.white.x === x && kingPositions.white.y === y) ||
                     (isBlackInCheck && kingPositions.black && kingPositions.black.x === x && kingPositions.black.y === y)) {
                     ctx.fillStyle = gameOver ? "#a94442" : "#d9534f";
-                    ctx.fillRect(offsetX + displayX * size, offsetY + displayY * size, size, size);
+                    ctx.fillRect(xPos + displayX * size, yPos + displayY * size, size, size);
                 }
 
                 const piece = board[y][x];
@@ -305,24 +309,27 @@ document.addEventListener("DOMContentLoaded", () => {
                     ctx.font = `${size * 0.7}px sans-serif`;
                     ctx.textAlign = "center";
                     ctx.textBaseline = "middle";
-                    ctx.fillText(pieces[piece], offsetX + displayX * size + size / 2, offsetY + displayY * size + size / 2);
+                    ctx.fillText(pieces[piece], xPos + displayX * size + size / 2, yPos + displayY * size + size / 2);
                 }
             }
         }
 
-        // Beschriftung hinzufügen: Zahlen links (1-8) und Buchstaben unten (a-h) mit angepasster Position und Schriftart
+        // Beschriftung hinzufügen: Zahlen links (1-8) und Buchstaben unten (a-h)
         ctx.fillStyle = isDarkmode ? "#e0e0e0" : "#333";
-        ctx.font = `${size * 0.25}px Arial`; // Kleinere Schriftgröße für bessere Lesbarkeit
+        ctx.font = `${size * 0.25}px Arial`;
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
+
+        const labelOffsetX = fullscreenMode ? size * 0.3 : offsetX * 0.5;
+        const labelOffsetY = fullscreenMode ? size * 0.3 : offsetY;
 
         for (let i = 0; i < 8; i++) {
             const displayY = effectiveRotation ? i : 7 - i;
             const displayX = effectiveRotation ? 7 - i : i;
-            // Zahlen links: Weiter nach außen verschieben
-            ctx.fillText(8 - i, offsetX * 0.5, offsetY + displayY * size + size / 2);
-            // Buchstaben unten: Weiter nach unten verschieben
-            ctx.fillText(String.fromCharCode(97 + i), offsetX + displayX * size + size / 2, offsetY + 8 * size + size * 0.7);
+            // Zahlen links
+            ctx.fillText(8 - i, labelOffsetX, labelOffsetY + displayY * size + size / 2);
+            // Buchstaben unten
+            ctx.fillText(String.fromCharCode(97 + i), labelOffsetX + displayX * size + size / 2, labelOffsetY + 8 * size + (fullscreenMode ? size * 0.3 : size * 0.7));
         }
 
         if (gameOver) {
@@ -369,13 +376,11 @@ document.addEventListener("DOMContentLoaded", () => {
             // Im Vollbildmodus: Zentrieren und Skalieren
             maxWidth = window.innerWidth;
             maxHeight = window.innerHeight;
-            // Das Brett soll maximal 95% der kleineren Dimension einnehmen (größer als vorher)
             const boardDimension = Math.min(maxWidth, maxHeight) * 0.95;
             size = Math.floor(Math.max(boardDimension / 8, CONFIG.minBoardSize));
             const totalWidth = size * 8;
             const totalHeight = size * 8;
 
-            // Zentrierung
             offsetX = (window.innerWidth - totalWidth) / 2;
             offsetY = (window.innerHeight - totalHeight) / 2;
 
@@ -387,7 +392,6 @@ document.addEventListener("DOMContentLoaded", () => {
             canvas.style.left = `${offsetX}px`;
             canvas.style.top = `${offsetY}px`;
         } else {
-            // Normaler Modus
             maxWidth = window.innerWidth * 0.7;
             maxHeight = window.innerHeight * 0.6;
 
@@ -405,7 +409,7 @@ document.addEventListener("DOMContentLoaded", () => {
             offsetY = (window.innerHeight - totalHeight) / 2 * CONFIG.offset;
 
             canvas.width = totalWidth + offsetX * 2;
-            canvas.height = totalHeight + offsetY * 2;
+            canvas.height = totalHeight + offsetY * 2 + size * 0.7; // Extra Platz für Beschriftungen
             canvas.style.width = `${canvas.width}px`;
             canvas.style.height = `${canvas.height}px`;
             canvas.style.position = "relative";
@@ -424,14 +428,12 @@ document.addEventListener("DOMContentLoaded", () => {
     function toggleFullscreenMode() {
         console.log("toggleFullscreenMode called");
         if (!fullscreenMode) {
-            // Vollbildmodus aktivieren
             if (document.documentElement.requestFullscreen) {
                 document.documentElement.requestFullscreen().catch((err) => {
                     console.error("Failed to enter fullscreen mode:", err);
                 });
             }
             fullscreenMode = true;
-            // Alle UI-Elemente ausblenden außer closeFullscreenButton
             fullscreenButton.style.display = "none";
             rotateButton.style.display = "none";
             smartphoneModeButton.style.display = "none";
@@ -443,20 +445,17 @@ document.addEventListener("DOMContentLoaded", () => {
             turnDisplay.style.display = "none";
             moveList.style.display = "none";
             openingDisplay.style.display = "none";
-            // closeFullscreenButton sichtbar machen
             closeFullscreenButton.style.display = "block";
             closeFullscreenButton.style.visibility = "visible";
             closeFullscreenButton.style.opacity = "1";
             closeFullscreenButton.textContent = "Close Fullscreen";
         } else {
-            // Vollbildmodus beenden
             if (document.exitFullscreen) {
                 document.exitFullscreen().catch((err) => {
                     console.error("Failed to exit fullscreen mode:", err);
                 });
             }
             fullscreenMode = false;
-            // UI-Elemente wieder einblenden
             fullscreenButton.style.display = "block";
             rotateButton.style.display = "block";
             smartphoneModeButton.style.display = "block";
@@ -468,7 +467,6 @@ document.addEventListener("DOMContentLoaded", () => {
             turnDisplay.style.display = "block";
             moveList.style.display = "block";
             openingDisplay.style.display = "block";
-            // closeFullscreenButton ausblenden
             closeFullscreenButton.style.display = "none";
         }
         resizeCanvas();
@@ -992,8 +990,8 @@ document.addEventListener("DOMContentLoaded", () => {
         }
         const displayX = effectiveRotation ? 7 - x : x;
         const displayY = effectiveRotation ? 7 - y : y;
-        const top = rect.top + offsetY + displayY * size;
-        const left = rect.left + offsetX + displayX * size;
+        const top = rect.top + (fullscreenMode ? 0 : offsetY) + displayY * size;
+        const left = rect.left + (fullscreenMode ? 0 : offsetX) + displayX * size;
         promotionChoices.style.position = "absolute";
         promotionChoices.style.top = `${top}px`;
         promotionChoices.style.left = `${left}px`;
@@ -1081,8 +1079,8 @@ document.addEventListener("DOMContentLoaded", () => {
         }
         const adjustedX = (clientX - rect.left) * scaleX;
         const adjustedY = (clientY - rect.top) * scaleY;
-        const x = Math.floor((adjustedX - offsetX) / size);
-        const y = Math.floor((adjustedY - offsetY) / size);
+        const x = Math.floor((adjustedX - (fullscreenMode ? 0 : offsetX)) / size);
+        const y = Math.floor((adjustedY - (fullscreenMode ? 0 : offsetY)) / size);
         let boardX = x;
         let boardY = y;
         let effectiveRotation = rotateBoard;
@@ -1287,3 +1285,16 @@ document.addEventListener("DOMContentLoaded", () => {
         fullscreenButton.addEventListener("click", toggleFullscreenMode);
         closeFullscreenButton.addEventListener("click", toggleFullscreenMode);
         closeFullscreenButton.addEventListener("touchstart", (e) => {
+            e.preventDefault();
+            toggleFullscreenMode();
+        }, { passive: false });
+
+        canvas.addEventListener("click", handleCanvasClick);
+        canvas.addEventListener("touchstart", handleCanvasClick, { passive: false });
+    }
+
+    const debouncedResizeCanvas = debounce(resizeCanvas, 200);
+    window.addEventListener("resize", debouncedResizeCanvas);
+    resizeCanvas();
+    initializeGameButtons();
+});
