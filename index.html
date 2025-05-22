@@ -1,85 +1,37 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="de">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chess Game</title>
-    <style>
-        body {
-            margin: 0;
-            padding: 0;
-            font-family: Arial, sans-serif;
-            background-color: #f0f0f0;
-        }
-        .darkmode {
-            background-color: #333;
-            color: #fff;
-        }
-        #startScreen {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            text-align: center;
-        }
-        #gameContainer {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-            display: none;
-        }
-        #chessboard {
-            border: 2px solid #000;
-        }
-        #moveList {
-            max-height: 200px;
-            overflow-y: auto;
-            margin-top: 10px;
-            padding: 10px;
-            background-color: #fff;
-            color: #000;
-        }
-        .darkmode #moveList {
-            background-color: #444;
-            color: #fff;
-        }
-        button {
-            margin: 5px;
-            padding: 10px;
-            font-size: 16px;
-            cursor: pointer;
-        }
-        .hidden {
-            display: none;
-        }
-        .last-move {
-            font-weight: bold;
-        }
-    </style>
+    <title>Schachspiel</title>
+    <link rel="stylesheet" href="style.css">
 </head>
-<body class="darkmode">
+<body>
     <div id="startScreen">
-        <button id="startButton">Start Game</button>
-        <button id="startFreestyleButton">Start Freestyle Game</button>
+        <div class="start-buttons">
+            <button id="startButton">Start Game</button>
+            <button id="startFreestyleButton">Start Freestyle</button>
+        </div>
     </div>
     <div id="gameContainer">
-        <div id="turnDisplay"></div>
+        <div id="turnDisplay">White is next</div>
         <canvas id="chessboard"></canvas>
         <div id="openingDisplay"></div>
+        <div class="game-buttons">
+            <button id="rotateButton">Rotate Board</button>
+            <button id="smartphoneModeButton">Rotate On</button>
+            <button id="soundToggleButton">Sound Off</button>
+            <button id="undoButton">Undo Move</button>
+            <button id="restartButton" class="hidden">Restart</button>
+            <button id="designButton">Change Design</button>
+            <button id="darkmodeToggleButton">Light Mode</button>
+            <button id="fullscreenButton">Fullscreen</button>
+            <button id="exitFullscreenButton">Exit Fullscreen</button>
+            <button id="closeFullscreenButton">X</button>
+        </div>
         <ul id="moveList"></ul>
-        <button id="rotateButton">Rotate Board</button>
-        <button id="smartphoneModeButton">Enable Smartphone Mode</button>
-        <button id="soundToggleButton">Disable Sound</button>
-        <button id="undoButton">Undo Move</button>
-        <button id="restartButton" class="hidden">Restart</button>
-        <button id="designButton">Change Design</button>
-        <button id="darkmodeToggleButton">Light Mode</button>
-        <button id="fullscreenButton">Fullscreen</button>
-        <button id="exitFullscreenButton" class="hidden">Exit Fullscreen</button>
-        <button id="closeFullscreenButton" class="hidden">Back</button>
     </div>
+    <div id="version">Version 1.2</div>
     <script src="script.js"></script>
 </body>
 </html>
