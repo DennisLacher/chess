@@ -240,133 +240,120 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     function drawBoard() {
-        console.log("drawBoard called with colors:", window.boardColors);
-        if (!ctx) {
-            console.error("Canvas context not available.");
-            return;
-        }
-
-        const boardWidth = size * 8;
-        const boardHeight = size * 8;
-        offsetX = Math.max(0, (window.innerWidth - boardWidth) / 2);
-        offsetY = Math.max(0, (window.innerHeight - boardHeight) / 2);
-
-        // Canvas-Größe anpassen (nur die tatsächliche Brettgröße, Offsets werden via CSS gehandhabt)
-        canvas.width = boardWidth;
-        canvas.height = boardHeight;
-        canvas.style.width = `${boardWidth}px`;
-        canvas.style.height = `${boardHeight}px`;
-        canvas.style.marginLeft = `${offsetX}px`;
-        canvas.style.marginTop = `${offsetY}px`;
-        canvas.style.display = "block";
-        canvas.style.visibility = "visible";
-        canvas.style.opacity = "1";
-        canvas.style.position = "relative";
-
-        let effectiveRotation = rotateBoard;
-        if (smartphoneMode) {
-            effectiveRotation = currentPlayer === "black";
-        }
-        for (let y = 0; y < 8; y++) {
-            for (let x = 0; x < 8; x++) {
-                const displayY = effectiveRotation ? 7 - y : y;
-                const displayX = effectiveRotation ? 7 - x : x;
-                ctx.fillStyle = (displayX + displayY) % 2 === 0 ? window.boardColors.light : window.boardColors.dark;
-
-                if (lastMove && ((lastMove.fromX === x && lastMove.fromY === y) || (lastMove.toX === x && lastMove.toY === y))) {
-                    ctx.fillStyle = isDarkmode ? "#808080" : "#f0f0f0";
-                }
-
-                if (selectedPiece && selectedPiece.x === x && selectedPiece.y === y) {
-                    ctx.fillStyle = isDarkmode ? "#505050" : "#c0c0c0";
-                }
-
-                const legalMove = legalMoves.find((move) => move.toX === x && move.toY === y);
-                if (legalMove) {
-                    const targetPiece = board[y][x];
-                    const isCapture = targetPiece && (targetPiece === targetPiece.toUpperCase()) !== (selectedPiece.piece === selectedPiece.piece.toUpperCase());
-                    ctx.fillStyle = isCapture ? (isDarkmode ? "#cc6666" : "#ffcccc") : (isDarkmode ? "#505050" : "#c0c0c0");
-                }
-
-                ctx.fillRect(displayX * size, displayY * size, size, size);
-
-                if (legalMove && !((board[y][x] && (board[y][x] === board[y][x].toUpperCase()) !== (selectedPiece.piece === selectedPiece.piece.toUpperCase())))) {
-                    ctx.fillStyle = isDarkmode ? "#a0a0a0" : "#808080";
-                    const dotRadius = size * 0.1;
-                    const centerX = displayX * size + size / 2;
-                    const centerY = displayY * size + size / 2;
-                    ctx.beginPath();
-                    ctx.arc(centerX, centerY, dotRadius, 0, 2 * Math.PI);
-                    ctx.fill();
-                }
-
-                if ((isWhiteInCheck && kingPositions.white && kingPositions.white.x === x && kingPositions.white.y === y) ||
-                    (isBlackInCheck && kingPositions.black && kingPositions.black.x === x && kingPositions.black.y === y)) {
-                    ctx.fillStyle = gameOver ? "#a94442" : "#d9534f";
-                    ctx.fillRect(displayX * size, displayY * size, size, size);
-                }
-
-                const piece = board[y][x];
-                if (piece) {
-                    const isWhite = piece === piece.toUpperCase();
-                    ctx.fillStyle = isWhite ? "#FFFFFF" : "#000000";
-                    ctx.font = `${size * 0.7}px sans-serif`;
-                    ctx.textAlign = "center";
-                    ctx.textBaseline = "middle";
-                    ctx.fillText(pieces[piece], displayX * size + size / 2, displayY * size + size / 2);
-                }
-            }
-        }
-
-        // Beschriftungen hinzufügen (1-8 links, a-h unten)
-        ctx.fillStyle = isDarkmode ? "#FFFFFF" : "#000000";
-        ctx.font = `${size * 0.5}px sans-serif`;
-        ctx.textAlign = "center";
-        ctx.textBaseline = "middle";
-        for (let i = 0; i < 8; i++) {
-            const displayX = effectiveRotation ? 7 - i : i;
-            const displayY = effectiveRotation ? 7 - i : i;
-            // Zeilenbeschriftung (1-8) links
-            ctx.fillText(8 - i, -size * 0.25, displayY * size + size / 2);
-            // Spaltenbeschriftung (a-h) unten
-            ctx.fillText(String.fromCharCode(97 + i), displayX * size + size / 2, boardHeight + size * 0.25);
-            if (!effectiveRotation) {
-                // Spaltenbeschriftung (a-h) oben (optional)
-                ctx.fillText(String.fromCharCode(97 + i), displayX * size + size / 2, -size * 0.25);
-                // Zeilenbeschriftung (1-8) rechts (optional)
-                ctx.fillText(8 - i, boardWidth + size * 0.25, displayY * size + size / 2);
-            } else {
-                // Spaltenbeschriftung (a-h) oben (bei Rotation)
-                ctx.fillText(String.fromCharCode(97 + i), displayX * size + size / 2, -size * 0.25);
-                // Zeilenbeschriftung (1-8) rechts (bei Rotation)
-                ctx.fillText(8 - i, boardWidth + size * 0.25, displayY * size + size / 2);
-            }
-        }
-
-        if (gameOver) {
-            openingDisplay.textContent = winnerText;
-        } else {
-            updateOpeningDisplay();
-        }
-
-        console.log("Canvas styles after drawBoard:", {
-            display: canvas.style.display,
-            visibility: canvas.style.visibility,
-            opacity: canvas.style.opacity,
-            position: canvas.style.position,
-            width: canvas.style.width,
-            height: canvas.style.height,
-            computedWidth: canvas.offsetWidth,
-            computedHeight: canvas.offsetHeight,
-        });
-        console.log("GameContainer styles:", {
-            display: gameContainer.style.display,
-            visibility: gameContainer.style.visibility,
-            opacity: gameContainer.style.opacity,
-        });
-        console.log("drawBoard completed");
+    console.log("drawBoard called with colors:", window.boardColors);
+    if (!ctx) {
+        console.error("Canvas context not available.");
+        return;
     }
 
+    const boardWidth = size * 8;
+    const boardHeight = size * 8;
+    offsetX = Math.max(0, (window.innerWidth - boardWidth) / 2); // Dynamisch berechnen
+    offsetY = Math.max(0, (window.innerHeight - boardHeight) / 2);
+
+    canvas.width = boardWidth;
+    canvas.height = boardHeight;
+    canvas.style.width = `${boardWidth}px`;
+    canvas.style.height = `${boardHeight}px`;
+    canvas.style.left = `${offsetX}px`;
+    canvas.style.top = `${offsetY}px`;
+
+    let effectiveRotation = rotateBoard;
+    if (smartphoneMode) {
+        effectiveRotation = currentPlayer === "black";
+    }
+    for (let y = 0; y < 8; y++) {
+        for (let x = 0; x < 8; x++) {
+            const displayY = effectiveRotation ? 7 - y : y;
+            const displayX = effectiveRotation ? 7 - x : x;
+            ctx.fillStyle = (displayX + displayY) % 2 === 0 ? window.boardColors.light : window.boardColors.dark;
+
+            if (lastMove && ((lastMove.fromX === x && lastMove.fromY === y) || (lastMove.toX === x && lastMove.toY === y))) {
+                ctx.fillStyle = isDarkmode ? "#808080" : "#f0f0f0";
+            }
+
+            if (selectedPiece && selectedPiece.x === x && selectedPiece.y === y) {
+                ctx.fillStyle = isDarkmode ? "#505050" : "#c0c0c0";
+            }
+
+            const legalMove = legalMoves.find((move) => move.toX === x && move.toY === y);
+            if (legalMove) {
+                const targetPiece = board[y][x];
+                const isCapture = targetPiece && (targetPiece.toLowerCase() !== selectedPiece.piece.toLowerCase()) && ((targetPiece === targetPiece.toUpperCase()) !== (selectedPiece.piece === selectedPiece.piece.toUpperCase()));
+                ctx.fillStyle = isCapture ? (isDarkmode ? "#cc6666" : "#ffcccc") : (isDarkmode ? "#505050" : "#c0c0c0");
+            }
+
+            ctx.fillRect(displayX * size, displayY * size, size, size);
+
+            if (legalMove && !((board[y][x] && (board[y][x] === board[y][x].toUpperCase()) !== (selectedPiece.piece === selectedPiece.piece.toUpperCase())))) {
+                ctx.fillStyle = isDarkmode ? "#a0a0a0" : "#808080";
+                const dotRadius = size * 0.1;
+                const centerX = displayX * size + size / 2;
+                const centerY = displayY * size + size / 2;
+                ctx.beginPath();
+                ctx.arc(centerX, centerY, dotRadius, 0, 2 * Math.PI);
+                ctx.fill();
+            }
+
+            if ((isWhiteInCheck && kingPositions.white && kingPositions.white.x === x && kingPositions.white.y === y) ||
+                (isBlackInCheck && kingPositions.black && kingPositions.black.x === x && kingPositions.black.y === y)) {
+                ctx.fillStyle = gameOver ? "#a94442" : "#d9534f";
+                ctx.fillRect(displayX * size, displayY * size, size, size);
+            }
+
+            const piece = board[y][x];
+            if (piece) {
+                const isWhite = piece === piece.toUpperCase();
+                ctx.fillStyle = isWhite ? "#FFFFFF" : "#000000";
+                ctx.font = `${size * 0.7}px sans-serif`;
+                ctx.textAlign = "center";
+                ctx.textBaseline = "middle";
+                ctx.fillText(pieces[piece], displayX * size + size / 2, displayY * size + size / 2);
+            }
+        }
+    }
+
+    // Beschriftungen immer anzeigen, unabhängig von Rotation
+    ctx.fillStyle = isDarkmode ? "#FFFFFF" : "#000000";
+    ctx.font = `${size * 0.5}px sans-serif`;
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    for (let i = 0; i < 8; i++) {
+        const displayX = effectiveRotation ? 7 - i : i;
+        const displayY = effectiveRotation ? 7 - i : i;
+        // Zeilenbeschriftung (1-8) links
+        ctx.fillText(8 - i, -size * 0.25, displayY * size + size / 2);
+        // Spaltenbeschriftung (a-h) unten
+        ctx.fillText(String.fromCharCode(97 + i), displayX * size + size / 2, boardHeight + size * 0.25);
+        // Spaltenbeschriftung (a-h) oben
+        ctx.fillText(String.fromCharCode(97 + i), displayX * size + size / 2, -size * 0.25);
+        // Zeilenbeschriftung (1-8) rechts
+        ctx.fillText(8 - i, boardWidth + size * 0.25, displayY * size + size / 2);
+    }
+
+    if (gameOver) {
+        openingDisplay.textContent = winnerText;
+    } else {
+        updateOpeningDisplay();
+    }
+
+    console.log("Canvas styles after drawBoard:", {
+        display: canvas.style.display,
+        visibility: canvas.style.visibility,
+        opacity: canvas.style.opacity,
+        position: canvas.style.position,
+        width: canvas.style.width,
+        height: canvas.style.height,
+        computedWidth: canvas.offsetWidth,
+        computedHeight: canvas.offsetHeight,
+    });
+    console.log("GameContainer styles:", {
+        display: gameContainer.style.display,
+        visibility: gameContainer.style.visibility,
+        opacity: gameContainer.style.opacity,
+    });
+    console.log("drawBoard completed");
+}
     function debounce(func, wait) {
         let timeout;
         return function executedFunction(...args) {
