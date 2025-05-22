@@ -1139,157 +1139,157 @@ function resizeCanvas() {
         console.log("checkGameOver completed");
     }
 
-    function handleCanvasClick(event) {
-        console.log("handleCanvasClick called");
-        if (!gameStarted || gameOver) {
-            console.log("Game not started or game over");
-            return;
-        }
-        event.preventDefault();
-        const rect = canvas.getBoundingClientRect();
-        const scaleX = canvas.width / rect.width;
-        const scaleY = canvas.height / rect.height;
-        let clientX, clientY;
-        if (event.type === "touchstart" || event.type === "touchmove") {
-            clientX = event.touches[0]?.clientX;
-            clientY = event.touches[0]?.clientY;
-        } else {
-            clientX = event.clientX;
-            clientY = event.clientY;
-        }
-        if (!clientX || !clientY) {
-            console.error("Client coordinates not found.");
-            return;
-        }
-        const adjustedX = (clientX - rect.left) * scaleX;
-        const adjustedY = (clientY - rect.top) * scaleY;
-        const x = Math.floor((adjustedX - offsetX) / size);
-        const y = Math.floor((adjustedY - offsetY) / size);
-        let boardX = x;
-        let boardY = y;
-        let effectiveRotation = rotateBoard;
-        if (smartphoneMode) {
-            effectiveRotation = currentPlayer === "black";
-        }
-        if (effectiveRotation) {
-            boardX = 7 - x;
-            boardY = 7 - y;
-        }
-        if (boardX < 0 || boardX >= 8 || boardY < 0 || boardY >= 8) {
-            selectedPiece = null;
-            legalMoves = [];
+   function handleCanvasClick(event) {
+    console.log("handleCanvasClick called");
+    if (!gameStarted || gameOver) {
+        console.log("Game not started or game over");
+        return;
+    }
+    event.preventDefault();
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = canvas.width / rect.width;
+    const scaleY = canvas.height / rect.height;
+    let clientX, clientY;
+    if (event.type === "touchstart" || event.type === "touchmove") {
+        clientX = event.touches[0]?.clientX;
+        clientY = event.touches[0]?.clientY;
+    } else {
+        clientX = event.clientX;
+        clientY = event.clientY;
+    }
+    if (!clientX || !clientY) {
+        console.error("Client coordinates not found.");
+        return;
+    }
+    const adjustedX = (clientX - rect.left) * scaleX - offsetX; // Offset korrigieren
+    const adjustedY = (clientY - rect.top) * scaleY - offsetY;  // Offset korrigieren
+    const x = Math.floor(adjustedX / size);
+    const y = Math.floor(adjustedY / size);
+    let boardX = x;
+    let boardY = y;
+    let effectiveRotation = rotateBoard;
+    if (smartphoneMode) {
+        effectiveRotation = currentPlayer === "black";
+    }
+    if (effectiveRotation) {
+        boardX = 7 - x;
+        boardY = 7 - y;
+    }
+    console.log("Click at:", { clientX, clientY, adjustedX, adjustedY, x, y, boardX, boardY });
+    if (boardX < 0 || boardX >= 8 || boardY < 0 || boardY >= 8) {
+        selectedPiece = null;
+        legalMoves = [];
+        drawBoard();
+        console.log("Click outside board");
+        return;
+    }
+    const piece = board[boardY][boardX];
+    const isWhitePiece = piece && piece === piece.toUpperCase();
+    if (!selectedPiece) {
+        if (piece && (isWhitePiece === (currentPlayer === "white"))) {
+            selectedPiece = { x: boardX, y: boardY, piece };
+            legalMoves = getLegalMoves(boardX, boardY);
+            if (legalMoves.length === 0) {
+                selectedPiece = null;
+            }
             drawBoard();
-            console.log("Click outside board");
-            return;
         }
-        const piece = board[boardY][boardX];
-        const isWhitePiece = piece && piece === piece.toUpperCase();
-        if (!selectedPiece) {
-            if (piece && (isWhitePiece === (currentPlayer === "white"))) {
-                selectedPiece = { x: boardX, y: boardY, piece };
+    } else {
+        const move = legalMoves.find((m) => m.toX === boardX && m.toY === boardY);
+        if (move) {
+            const newBoard = board.map(row => [...row]);
+            const targetPiece = newBoard[boardY][boardX];
+            const isCapture = targetPiece && (targetPiece.toLowerCase() !== selectedPiece.piece.toLowerCase()) && ((targetPiece === targetPiece.toUpperCase()) !== (selectedPiece.piece === selectedPiece.piece.toUpperCase()));
+            newBoard[boardY][boardX] = selectedPiece.piece;
+            newBoard[selectedPiece.y][selectedPiece.x] = "";
+            const isWhite = selectedPiece.piece === selectedPiece.piece.toUpperCase();
+            if (move.castling) {
+                if (move.castling === "kingside") {
+                    newBoard[boardY][boardX - 1] = isWhite ? "R" : "r";
+                    newBoard[boardY][7] = "";
+                    if (isWhite) castlingAvailability.white.kingside = false;
+                    else castlingAvailability.black.kingside = false;
+                } else if (move.castling === "queenside") {
+                    newBoard[boardY][boardX + 1] = isWhite ? "R" : "r";
+                    newBoard[boardY][0] = "";
+                    if (isWhite) castlingAvailability.white.queenside = false;
+                    else castlingAvailability.black.queenside = false;
+                }
+            } else {
+                if (selectedPiece.piece.toLowerCase() === "k") {
+                    if (isWhite) {
+                        castlingAvailability.white.kingside = false;
+                        castlingAvailability.white.queenside = false;
+                    } else {
+                        castlingAvailability.black.kingside = false;
+                        castlingAvailability.black.queenside = false;
+                    }
+                } else if (selectedPiece.piece.toLowerCase() === "r") {
+                    if (isWhite && selectedPiece.y === 7 && selectedPiece.x === 0) castlingAvailability.white.queenside = false;
+                    else if (isWhite && selectedPiece.y === 7 && selectedPiece.x === 7) castlingAvailability.white.kingside = false;
+                    else if (!isWhite && selectedPiece.y === 0 && selectedPiece.x === 0) castlingAvailability.black.queenside = false;
+                    else if (!isWhite && selectedPiece.y === 0 && selectedPiece.x === 7) castlingAvailability.black.kingside = false;
+                }
+            }
+            if (move.promotion) {
+                showPromotionChoice(boardX, boardY, isWhite);
+                board = newBoard;
+                lastMove = { fromX: selectedPiece.x, fromY: selectedPiece.y, toX: boardX, toY: boardY };
+                updateKingPositions();
+                moveHistory.push({
+                    board: board.map(row => [...row]),
+                    currentPlayer,
+                    moveCount,
+                    castlingAvailability: JSON.parse(JSON.stringify(castlingAvailability)),
+                    isWhiteInCheck,
+                    isBlackInCheck,
+                    whiteTime,
+                    blackTime
+                });
+            } else {
+                board = newBoard;
+                lastMove = { fromX: selectedPiece.x, fromY: selectedPiece.y, toX: boardX, toY: boardY };
+                updateKingPositions();
+                currentPlayer = currentPlayer === "white" ? "black" : "white";
+                selectedPiece = null;
+                legalMoves = [];
+                moveHistory.push({
+                    board: board.map(row => [...row]),
+                    currentPlayer,
+                    moveCount,
+                    castlingAvailability: JSON.parse(JSON.stringify(castlingAvailability)),
+                    isWhiteInCheck,
+                    isBlackInCheck,
+                    whiteTime,
+                    blackTime
+                });
+                updateMoveHistory();
+                updateCheckStatus();
+                checkGameOver();
+                if (soundEnabled) {
+                    const audio = new Audio(isCapture ? SOUND.captureSound : SOUND.moveSound);
+                    audio.play().catch((e) => console.error("Move audio play failed:", e));
+                }
+            }
+            drawBoard();
+            updateTurnDisplay();
+        } else {
+            const clickedPiece = board[boardY][boardX];
+            if (clickedPiece && (clickedPiece === clickedPiece.toUpperCase()) === (currentPlayer === "white")) {
+                selectedPiece = { x: boardX, y: boardY, piece: clickedPiece };
                 legalMoves = getLegalMoves(boardX, boardY);
                 if (legalMoves.length === 0) {
                     selectedPiece = null;
                 }
-                drawBoard();
-            }
-        } else {
-            const move = legalMoves.find((m) => m.toX === boardX && m.toY === boardY);
-            if (move) {
-                const newBoard = board.map(row => [...row]);
-                const targetPiece = newBoard[boardY][boardX];
-                const isCapture = targetPiece && (targetPiece.toLowerCase() !== selectedPiece.piece.toLowerCase()) && ((targetPiece === targetPiece.toUpperCase()) !== (selectedPiece.piece === selectedPiece.piece.toUpperCase()));
-                newBoard[boardY][boardX] = selectedPiece.piece;
-                newBoard[selectedPiece.y][selectedPiece.x] = "";
-                const isWhite = selectedPiece.piece === selectedPiece.piece.toUpperCase();
-                if (move.castling) {
-                    if (move.castling === "kingside") {
-                        newBoard[boardY][boardX - 1] = isWhite ? "R" : "r";
-                        newBoard[boardY][7] = "";
-                        if (isWhite) castlingAvailability.white.kingside = false;
-                        else castlingAvailability.black.kingside = false;
-                    } else if (move.castling === "queenside") {
-                        newBoard[boardY][boardX + 1] = isWhite ? "R" : "r";
-                        newBoard[boardY][0] = "";
-                        if (isWhite) castlingAvailability.white.queenside = false;
-                        else castlingAvailability.black.queenside = false;
-                    }
-                } else {
-                    if (selectedPiece.piece.toLowerCase() === "k") {
-                        if (isWhite) {
-                            castlingAvailability.white.kingside = false;
-                            castlingAvailability.white.queenside = false;
-                        } else {
-                            castlingAvailability.black.kingside = false;
-                            castlingAvailability.black.queenside = false;
-                        }
-                    } else if (selectedPiece.piece.toLowerCase() === "r") {
-                        if (isWhite && selectedPiece.y === 7 && selectedPiece.x === 0) castlingAvailability.white.queenside = false;
-                        else if (isWhite && selectedPiece.y === 7 && selectedPiece.x === 7) castlingAvailability.white.kingside = false;
-                        else if (!isWhite && selectedPiece.y === 0 && selectedPiece.x === 0) castlingAvailability.black.queenside = false;
-                        else if (!isWhite && selectedPiece.y === 0 && selectedPiece.x === 7) castlingAvailability.black.kingside = false;
-                    }
-                }
-                if (move.promotion) {
-                    showPromotionChoice(boardX, boardY, isWhite);
-                    board = newBoard;
-                    lastMove = { fromX: selectedPiece.x, fromY: selectedPiece.y, toX: boardX, toY: boardY };
-                    updateKingPositions();
-                    moveHistory.push({
-                        board: board.map(row => [...row]),
-                        currentPlayer,
-                        moveCount,
-                        castlingAvailability: JSON.parse(JSON.stringify(castlingAvailability)),
-                        isWhiteInCheck,
-                        isBlackInCheck,
-                        whiteTime,
-                        blackTime
-                    });
-                } else {
-                    board = newBoard;
-                    lastMove = { fromX: selectedPiece.x, fromY: selectedPiece.y, toX: boardX, toY: boardY };
-                    updateKingPositions();
-                    currentPlayer = currentPlayer === "white" ? "black" : "white";
-                    selectedPiece = null;
-                    legalMoves = [];
-                    moveHistory.push({
-                        board: board.map(row => [...row]),
-                        currentPlayer,
-                        moveCount,
-                        castlingAvailability: JSON.parse(JSON.stringify(castlingAvailability)),
-                        isWhiteInCheck,
-                        isBlackInCheck,
-                        whiteTime,
-                        blackTime
-                    });
-                    updateMoveHistory();
-                    updateCheckStatus();
-                    checkGameOver();
-                    if (soundEnabled) {
-                        const audio = new Audio(isCapture ? SOUND.captureSound : SOUND.moveSound);
-                        audio.play().catch((e) => console.error("Move audio play failed:", e));
-                    }
-                }
-                drawBoard();
-                updateTurnDisplay();
             } else {
-                const clickedPiece = board[boardY][boardX];
-                if (clickedPiece && (clickedPiece === clickedPiece.toUpperCase()) === (currentPlayer === "white")) {
-                    selectedPiece = { x: boardX, y: boardY, piece: clickedPiece };
-                    legalMoves = getLegalMoves(boardX, boardY);
-                    if (legalMoves.length === 0) {
-                        selectedPiece = null;
-                    }
-                } else {
-                    selectedPiece = null;
-                    legalMoves = [];
-                }
-                drawBoard();
+                selectedPiece = null;
+                legalMoves = [];
             }
+            drawBoard();
         }
-        console.log("handleCanvasClick completed");
     }
-
+    console.log("handleCanvasClick completed");
+}
     function undoMove() {
         console.log("undoMove called");
         if (moveHistory.length === 0) {
