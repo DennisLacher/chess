@@ -389,22 +389,12 @@ document.addEventListener("DOMContentLoaded", () => {
             canvas.style.width = `${totalWidth}px`;
             canvas.style.height = `${totalHeight}px`;
             canvas.style.position = "absolute";
+            // Sicherstellen, dass das Brett exakt mittig ist
             canvas.style.left = `${(window.innerWidth - totalWidth) / 2}px`;
             canvas.style.top = `${(window.innerHeight - totalHeight) / 2}px`;
+            canvas.style.margin = "0"; // Entferne jegliche Margins, die die Position beeinflussen könnten
 
-            // Positioniere den Exit-Button unter dem Brett
-            const buttonTop = (window.innerHeight - totalHeight) / 2 + totalHeight + 20;
-            closeFullscreenButton.style.position = "fixed";
-            closeFullscreenButton.style.left = "50%";
-            closeFullscreenButton.style.top = `${buttonTop}px`;
-            closeFullscreenButton.style.transform = "translateX(-50%)";
-            closeFullscreenButton.style.zIndex = "1000";
-            closeFullscreenButton.style.padding = "10px 20px";
-            closeFullscreenButton.style.backgroundColor = isDarkmode ? "#333" : "#fff";
-            closeFullscreenButton.style.color = isDarkmode ? "#fff" : "#000";
-            closeFullscreenButton.style.border = "1px solid #666";
-            closeFullscreenButton.style.borderRadius = "5px";
-            closeFullscreenButton.style.cursor = "pointer";
+            // Positioniere den Exit-Button unter dem Brett (wird in toggleFullscreenMode gesetzt)
         } else {
             maxWidth = window.innerWidth * 0.7;
             maxHeight = window.innerHeight * 0.6;
@@ -459,10 +449,28 @@ document.addEventListener("DOMContentLoaded", () => {
             turnDisplay.style.display = "none";
             moveList.style.display = "none";
             openingDisplay.style.display = "none";
+
+            // Funktionierende Logik für den closeFullscreenButton wiederherstellen
             closeFullscreenButton.style.display = "block";
+            closeFullscreenButton.style.position = "fixed";
+            closeFullscreenButton.style.zIndex = "1000";
+            closeFullscreenButton.style.padding = "10px 20px";
+            closeFullscreenButton.style.backgroundColor = isDarkmode ? "#333" : "#fff";
+            closeFullscreenButton.style.color = isDarkmode ? "#fff" : "#000";
+            closeFullscreenButton.style.border = "1px solid #666";
+            closeFullscreenButton.style.borderRadius = "5px";
+            closeFullscreenButton.style.cursor = "pointer";
             closeFullscreenButton.style.visibility = "visible";
             closeFullscreenButton.style.opacity = "1";
             closeFullscreenButton.textContent = "Close Fullscreen";
+
+            // Positioniere den Button unter dem Brett
+            const totalWidth = size * 8;
+            const totalHeight = size * 8 + size * 0.7;
+            const buttonTop = (window.innerHeight - totalHeight) / 2 + totalHeight + 20;
+            closeFullscreenButton.style.left = "50%";
+            closeFullscreenButton.style.top = `${buttonTop}px`;
+            closeFullscreenButton.style.transform = "translateX(-50%)";
         } else {
             if (document.exitFullscreen) {
                 document.exitFullscreen().catch((err) => {
@@ -872,7 +880,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 if (castlingAvailability.white.queenside && !tempBoard[7][1] && !tempBoard[7][2] && !tempBoard[7][3] && tempBoard[7][0] === "R" && !isInCheck("white") && !moveHistory.some(m => m.piece === "K" || (m.piece === "R" && m.fromX === 0 && m.fromY === 7))) {
                     let canCastle = true;
                     for (let i = 4; i >= 2; i--) {
-                        const tempBoardCopy = tempBoard.map(row => [...row]);
+ W                        const tempBoardCopy = tempBoard.map(row => [...row]);
                         if (i < 4) {
                             tempBoardCopy[7][i] = "K";
                             tempBoardCopy[7][i + 1] = "";
@@ -1297,7 +1305,11 @@ document.addEventListener("DOMContentLoaded", () => {
         });
 
         fullscreenButton.addEventListener("click", toggleFullscreenMode);
-        closeFullscreenButton.addEventListener("click", toggleFullscreenMode);
+
+        // Funktionierende Event-Listener für closeFullscreenButton wiederherstellen
+        closeFullscreenButton.addEventListener("click", () => {
+            toggleFullscreenMode();
+        });
         closeFullscreenButton.addEventListener("touchstart", (e) => {
             e.preventDefault();
             toggleFullscreenMode();
