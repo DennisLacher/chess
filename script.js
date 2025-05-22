@@ -497,6 +497,8 @@ document.addEventListener("DOMContentLoaded", () => {
             moveList.style.display = "block";
             openingDisplay.style.display = "block";
             closeFullscreenButton.style.display = "none";
+            closeFullscreenButton.style.visibility = "hidden";
+            closeFullscreenButton.style.opacity = "0";
         }
         resizeCanvas();
         drawBoard();
@@ -542,6 +544,8 @@ document.addEventListener("DOMContentLoaded", () => {
             moveList.style.display = "block";
             openingDisplay.style.display = "block";
             closeFullscreenButton.style.display = "none";
+            closeFullscreenButton.style.visibility = "hidden";
+            closeFullscreenButton.style.opacity = "0";
             moveList.innerHTML = "";
             startScreen.style.display = "none";
             gameContainer.style.display = "flex";
