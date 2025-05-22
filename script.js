@@ -379,42 +379,43 @@ document.addEventListener("DOMContentLoaded", () => {
         };
     }
 
-    function resizeCanvas() {
-        console.log("resizeCanvas called");
-        let maxWidth = window.innerWidth * (fullscreenMode ? 0.95 : 0.7);
-        let maxHeight = window.innerHeight * (fullscreenMode ? 0.95 : 0.6);
-        
-        if (window.innerWidth <= 768) {
-            maxWidth = window.innerWidth * (fullscreenMode ? 0.98 : 0.9);
-            maxHeight = window.innerHeight * (fullscreenMode ? 0.8 : 0.5);
-        }
-
-        // Basierend auf der kleineren Dimension die maximale Brettgröße berechnen
-        const maxBoardSize = Math.min(maxWidth, maxHeight) / 8;
-        size = Math.floor(Math.max(maxBoardSize, CONFIG.minBoardSize));
-
-        const boardWidth = size * 8;
-        const boardHeight = size * 8;
-
-        // Offsets für Zentrierung berechnen
-        offsetX = Math.max(0, (window.innerWidth - boardWidth) / 2);
-        offsetY = Math.max(0, (window.innerHeight - boardHeight) / 2);
-
-        // Canvas-Größe setzen, inklusive Offsets
-        canvas.width = boardWidth;
-        canvas.height = boardHeight;
-        canvas.style.width = `${boardWidth}px`;
-        canvas.style.height = `${boardHeight}px`;
-        canvas.style.marginLeft = `${offsetX}px`;
-        canvas.style.marginTop = `${offsetY}px`;
-
-        console.log("Canvas resized to:", canvas.width, canvas.height, "with offsets:", offsetX, offsetY);
-        if (gameStarted) {
-            console.log("Calling drawBoard from resizeCanvas");
-            drawBoard();
-        }
-        console.log("resizeCanvas completed");
+function resizeCanvas() {
+    console.log("resizeCanvas called");
+    let maxWidth = window.innerWidth * (fullscreenMode ? 0.95 : 0.7);
+    let maxHeight = window.innerHeight * (fullscreenMode ? 0.95 : 0.6);
+    
+    if (window.innerWidth <= 768) {
+        maxWidth = window.innerWidth * (fullscreenMode ? 0.98 : 0.9);
+        maxHeight = window.innerHeight * (fullscreenMode ? 0.8 : 0.5);
     }
+
+    const maxBoardSize = Math.min(maxWidth, maxHeight) / 8;
+    size = Math.floor(Math.max(maxBoardSize, CONFIG.minBoardSize));
+
+    // Zentrierung des Canvas ohne Margin, sondern durch absolute Positionierung
+    const boardWidth = size * 8;
+    const boardHeight = size * 8;
+    offsetX = Math.max(0, (window.innerWidth - boardWidth) / 2);
+    offsetY = Math.max(0, (window.innerHeight - boardHeight) / 2);
+
+    canvas.width = boardWidth;
+    canvas.height = boardHeight;
+    canvas.style.width = `${boardWidth}px`;
+    canvas.style.height = `${boardHeight}px`;
+    canvas.style.position = "absolute"; // Absolute Positionierung für bessere Kontrolle
+    canvas.style.left = `${offsetX}px`;  // Links-Offset
+    canvas.style.top = `${offsetY}px`;   // Oben-Offset
+    canvas.style.display = "block";
+    canvas.style.visibility = "visible";
+    canvas.style.opacity = "1";
+
+    console.log("Canvas resized to:", canvas.width, canvas.height, "with offsets:", offsetX, offsetY);
+    if (gameStarted) {
+        console.log("Calling drawBoard from resizeCanvas");
+        drawBoard();
+    }
+    console.log("resizeCanvas completed");
+}
 
     const debouncedResizeCanvas = debounce(resizeCanvas, 200);
 
