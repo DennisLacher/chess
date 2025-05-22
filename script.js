@@ -884,7 +884,6 @@ document.addEventListener("DOMContentLoaded", () => {
                     let canCastle = true;
                     for (let i = 4; i >= 2; i--) {
                         const tempBoardCopy = tempBoard.map(row => [...row]);
-                       .
                         tempBoardCopy[7][i] = "K";
                         tempBoardCopy[7][i + 1] = "";
                         const tempKingPos = { x: i, y: 7 };
