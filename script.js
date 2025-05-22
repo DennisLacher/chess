@@ -311,14 +311,10 @@ document.addEventListener("DOMContentLoaded", () => {
         for (let i = 0; i < 8; i++) {
             const displayX = effectiveRotation ? 7 - i : i;
             const displayY = effectiveRotation ? 7 - i : i;
-            // Zahlen links (1-8)
-            ctx.fillText(8 - i, -size * 0.5, displayY * size + size / 2);
-            // Buchstaben unten (a-h)
-            ctx.fillText(String.fromCharCode(97 + i), displayX * size + size / 2, boardHeight + size * 0.5);
-            // Buchstaben oben (a-h)
-            ctx.fillText(String.fromCharCode(97 + i), displayX * size + size / 2, -size * 0.5);
-            // Zahlen rechts (1-8)
-            ctx.fillText(8 - i, boardWidth + size * 0.5, displayY * size + size / 2);
+            ctx.fillText(8 - i, -size * 0.25, displayY * size + size / 2);
+            ctx.fillText(String.fromCharCode(97 + i), displayX * size + size / 2, boardHeight + size * 0.25);
+            ctx.fillText(String.fromCharCode(97 + i), displayX * size + size / 2, -size * 0.25);
+            ctx.fillText(8 - i, boardWidth + size * 0.25, displayY * size + size / 2);
         }
 
         if (gameOver) {
@@ -757,14 +753,8 @@ document.addEventListener("DOMContentLoaded", () => {
                     newX += dx;
                     newY += dy;
                     if (newX < 0 || newX >= 8 || newY < 0 || newY < 8) break;
-                    const targetPiece = tempBoard[newY][newX];
-                    if (targetPiece) {
-                        if ((targetPiece === targetPiece.toUpperCase()) !== isWhite) {
-                            moves.push({ toX: newX, toY: newY });
-                        }
-                        break;
-                    }
                     moves.push({ toX: newX, toY: newY });
+                    if (tempBoard[newY][newX]) break;
                 }
             });
         } else if (piece.toLowerCase() === "k") {
