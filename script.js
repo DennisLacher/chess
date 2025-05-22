@@ -49,6 +49,16 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!startFreestyleButton) missingElements.push("startFreestyleButton (id='startFreestyleButton')");
     if (!gameContainer) missingElements.push("gameContainer (id='gameContainer')");
     if (!turnDisplay) missingElements.push("turnDisplay (id='turnDisplay')");
+    if (!rotateButton) missingElements.push("rotateButton (id='rotateButton')");
+    if (!smartphoneModeButton) missingElements.push("smartphoneModeButton (id='smartphoneModeButton')");
+    if (!soundToggleButton) missingElements.push("soundToggleButton (id='soundToggleButton')");
+    if (!undoButton) missingElements.push("undoButton (id='undoButton')");
+    if (!restartButton) missingElements.push("restartButton (id='restartButton')");
+    if (!moveList) missingElements.push("moveList (id='moveList')");
+    if (!openingDisplay) missingElements.push("openingDisplay (id='openingDisplay')");
+    if (!designButton) missingElements.push("designButton (id='designButton')");
+    if (!darkmodeToggleButton) missingElements.push("darkmodeToggleButton (id='darkmodeToggleButton')");
+    if (!fullscreenButton) missingElements.push("fullscreenButton (id='fullscreenButton')");
     if (!closeFullscreenButton) missingElements.push("closeFullscreenButton (id='closeFullscreenButton')");
     if (missingElements.length > 0) {
         console.error("The following DOM elements are missing:", missingElements.join(", "));
@@ -389,12 +399,14 @@ document.addEventListener("DOMContentLoaded", () => {
             canvas.style.width = `${totalWidth}px`;
             canvas.style.height = `${totalHeight}px`;
             canvas.style.position = "absolute";
-            // Sicherstellen, dass das Brett exakt mittig ist
-            canvas.style.left = `${(window.innerWidth - totalWidth) / 2}px`;
-            canvas.style.top = `${(window.innerHeight - totalHeight) / 2}px`;
-            canvas.style.margin = "0"; // Entferne jegliche Margins, die die Position beeinflussen könnten
-
-            // Positioniere den Exit-Button unter dem Brett (wird in toggleFullscreenMode gesetzt)
+            // Präzise Zentrierung
+            canvas.style.left = `${Math.max(0, (window.innerWidth - totalWidth) / 2)}px`;
+            canvas.style.top = `${Math.max(0, (window.innerHeight - totalHeight) / 2)}px`;
+            canvas.style.margin = "0";
+            canvas.style.padding = "0";
+            canvas.style.border = "0";
+            // Sicherstellen, dass keine zusätzlichen Stile die Positionierung beeinflussen
+            canvas.style.boxSizing = "border-box";
         } else {
             maxWidth = window.innerWidth * 0.7;
             maxHeight = window.innerHeight * 0.6;
@@ -450,21 +462,21 @@ document.addEventListener("DOMContentLoaded", () => {
             moveList.style.display = "none";
             openingDisplay.style.display = "none";
 
-            // Funktionierende Logik für den closeFullscreenButton wiederherstellen
+            // Styling und Positionierung des closeFullscreenButton
             closeFullscreenButton.style.display = "block";
             closeFullscreenButton.style.position = "fixed";
             closeFullscreenButton.style.zIndex = "1000";
             closeFullscreenButton.style.padding = "10px 20px";
-            closeFullscreenButton.style.backgroundColor = isDarkmode ? "#333" : "#fff";
-            closeFullscreenButton.style.color = isDarkmode ? "#fff" : "#000";
-            closeFullscreenButton.style.border = "1px solid #666";
+            closeFullscreenButton.style.backgroundColor = "#666"; // Grau, wie gewünscht
+            closeFullscreenButton.style.color = "#fff";
+            closeFullscreenButton.style.border = "none";
             closeFullscreenButton.style.borderRadius = "5px";
             closeFullscreenButton.style.cursor = "pointer";
             closeFullscreenButton.style.visibility = "visible";
             closeFullscreenButton.style.opacity = "1";
             closeFullscreenButton.textContent = "Close Fullscreen";
 
-            // Positioniere den Button unter dem Brett
+            // Positioniere den Button mittig unter dem Brett
             const totalWidth = size * 8;
             const totalHeight = size * 8 + size * 0.7;
             const buttonTop = (window.innerHeight - totalHeight) / 2 + totalHeight + 20;
@@ -880,7 +892,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 if (castlingAvailability.white.queenside && !tempBoard[7][1] && !tempBoard[7][2] && !tempBoard[7][3] && tempBoard[7][0] === "R" && !isInCheck("white") && !moveHistory.some(m => m.piece === "K" || (m.piece === "R" && m.fromX === 0 && m.fromY === 7))) {
                     let canCastle = true;
                     for (let i = 4; i >= 2; i--) {
- W                        const tempBoardCopy = tempBoard.map(row => [...row]);
+                        const tempBoardCopy = tempBoard.map(row => [...row]);
                         if (i < 4) {
                             tempBoardCopy[7][i] = "K";
                             tempBoardCopy[7][i + 1] = "";
@@ -1306,7 +1318,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
         fullscreenButton.addEventListener("click", toggleFullscreenMode);
 
-        // Funktionierende Event-Listener für closeFullscreenButton wiederherstellen
         closeFullscreenButton.addEventListener("click", () => {
             toggleFullscreenMode();
         });
