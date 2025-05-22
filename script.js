@@ -365,13 +365,16 @@ document.addEventListener("DOMContentLoaded", () => {
         const totalWidth = size * 8;
         const totalHeight = size * 8;
 
-        offsetX = (window.innerWidth - totalWidth) / 2 * CONFIG.offset;
-        offsetY = (window.innerHeight - totalHeight) / 2 * CONFIG.offset;
+        // Zentrieren im Vollbildmodus
+        offsetX = (window.innerWidth - totalWidth) / 2;
+        offsetY = (window.innerHeight - totalHeight) / 2;
 
-        canvas.width = totalWidth + offsetX * 2;
-        canvas.height = totalHeight + offsetY * 2; // Kein Extra-Platz mehr für Beschriftung
-        canvas.style.width = `${canvas.width}px`;
-        canvas.style.height = `${canvas.height}px`;
+        canvas.width = totalWidth;
+        canvas.height = totalHeight;
+        canvas.style.width = `${totalWidth}px`;
+        canvas.style.height = `${totalHeight}px`;
+        canvas.style.marginLeft = `${offsetX}px`;
+        canvas.style.marginTop = `${offsetY}px`;
 
         console.log("Canvas resized to:", canvas.width, canvas.height);
         if (gameStarted) {
@@ -399,7 +402,7 @@ document.addEventListener("DOMContentLoaded", () => {
             fullscreenButton.style.display = "none";
             exitFullscreenButton.style.display = "none";
             closeFullscreenButton.style.display = "block";
-            closeFullscreenButton.textContent = "Back";
+            closeFullscreenButton.textContent = "Close Fullscreen";
             console.log("closeFullscreenButton styles:", {
                 display: closeFullscreenButton.style.display,
                 visibility: closeFullscreenButton.style.visibility,
@@ -436,7 +439,7 @@ document.addEventListener("DOMContentLoaded", () => {
             fullscreenButton.style.display = "none";
             exitFullscreenButton.style.display = "none";
             closeFullscreenButton.style.display = "block";
-            closeFullscreenButton.textContent = "Back";
+            closeFullscreenButton.textContent = "Close Fullscreen";
             console.log("closeFullscreenButton styles after fullscreenchange:", {
                 display: closeFullscreenButton.style.display,
                 visibility: closeFullscreenButton.style.visibility,
@@ -1295,7 +1298,7 @@ document.addEventListener("DOMContentLoaded", () => {
         canvas.addEventListener("click", handleCanvasClick);
         canvas.addEventListener("touchstart", handleCanvasClick, { passive: false });
 
-        closeFullscreenButton.textContent = "Back";
+        closeFullscreenButton.textContent = "Close Fullscreen";
     }
 
     window.addEventListener("resize", debouncedResizeCanvas);
