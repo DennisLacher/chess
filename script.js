@@ -384,9 +384,6 @@ document.addEventListener("DOMContentLoaded", () => {
             const totalHeight = size * 8 + size * 0.7; // Extra space for labels
 
             // Zentrieren des Bretts im Vollbildmodus
-            offsetX = 0;
-            offsetY = 0;
-
             canvas.width = totalWidth;
             canvas.height = totalHeight;
             canvas.style.width = `${totalWidth}px`;
@@ -401,6 +398,13 @@ document.addEventListener("DOMContentLoaded", () => {
             closeFullscreenButton.style.left = "50%";
             closeFullscreenButton.style.top = `${buttonTop}px`;
             closeFullscreenButton.style.transform = "translateX(-50%)";
+            closeFullscreenButton.style.zIndex = "1000";
+            closeFullscreenButton.style.padding = "10px 20px";
+            closeFullscreenButton.style.backgroundColor = isDarkmode ? "#333" : "#fff";
+            closeFullscreenButton.style.color = isDarkmode ? "#fff" : "#000";
+            closeFullscreenButton.style.border = "1px solid #666";
+            closeFullscreenButton.style.borderRadius = "5px";
+            closeFullscreenButton.style.cursor = "pointer";
         } else {
             maxWidth = window.innerWidth * 0.7;
             maxHeight = window.innerHeight * 0.6;
@@ -459,14 +463,6 @@ document.addEventListener("DOMContentLoaded", () => {
             closeFullscreenButton.style.visibility = "visible";
             closeFullscreenButton.style.opacity = "1";
             closeFullscreenButton.textContent = "Close Fullscreen";
-
-            closeFullscreenButton.style.zIndex = "1000";
-            closeFullscreenButton.style.padding = "10px 20px";
-            closeFullscreenButton.style.backgroundColor = isDarkmode ? "#333" : "#fff";
-            closeFullscreenButton.style.color = isDarkmode ? "#fff" : "#000";
-            closeFullscreenButton.style.border = "1px solid #666";
-            closeFullscreenButton.style.borderRadius = "5px";
-            closeFullscreenButton.style.cursor = "pointer";
         } else {
             if (document.exitFullscreen) {
                 document.exitFullscreen().catch((err) => {
@@ -486,18 +482,6 @@ document.addEventListener("DOMContentLoaded", () => {
             moveList.style.display = "block";
             openingDisplay.style.display = "block";
             closeFullscreenButton.style.display = "none";
-
-            closeFullscreenButton.style.position = "";
-            closeFullscreenButton.style.left = "";
-            closeFullscreenButton.style.top = "";
-            closeFullscreenButton.style.transform = "";
-            closeFullscreenButton.style.zIndex = "";
-            closeFullscreenButton.style.padding = "";
-            closeFullscreenButton.style.backgroundColor = "";
-            closeFullscreenButton.style.color = "";
-            closeFullscreenButton.style.border = "";
-            closeFullscreenButton.style.borderRadius = "";
-            closeFullscreenButton.style.cursor = "";
         }
         resizeCanvas();
         drawBoard();
