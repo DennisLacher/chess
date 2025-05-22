@@ -264,7 +264,7 @@ document.addEventListener("DOMContentLoaded", () => {
         canvas.style.display = "block";
         canvas.style.visibility = "visible";
         canvas.style.opacity = "1";
-        canvas.style.position = "relative";
+        canvas.style.position = fullscreenMode ? "absolute" : "relative";
 
         let effectiveRotation = rotateBoard;
         if (smartphoneMode) {
@@ -388,19 +388,18 @@ document.addEventListener("DOMContentLoaded", () => {
         if (fullscreenMode) {
             maxWidth = window.innerWidth;
             maxHeight = window.innerHeight;
-            const boardDimension = Math.min(maxWidth, maxHeight) * 0.95; // Skalierung an kleinere Dimension anpassen
+            const boardDimension = Math.min(maxWidth, maxHeight) * 0.95;
             size = Math.floor(Math.max(boardDimension / 8, CONFIG.minBoardSize));
             const totalWidth = size * 8;
-            const totalHeight = size * 8 + size * 0.7; // Extra space für Labels
+            const totalHeight = size * 8 + size * 0.7;
 
-            // Präzise Zentrierung im Vollbildmodus
             canvas.width = totalWidth;
             canvas.height = totalHeight;
             canvas.style.width = `${totalWidth}px`;
             canvas.style.height = `${totalHeight}px`;
             canvas.style.position = "absolute";
-            canvas.style.left = `${(window.innerWidth - totalWidth) / 2}px`; // Exakte horizontale Zentrierung
-            canvas.style.top = `${(window.innerHeight - totalHeight) / 2}px`; // Exakte vertikale Zentrierung
+            canvas.style.left = `${(window.innerWidth - totalWidth) / 2}px`;
+            canvas.style.top = `${(window.innerHeight - totalHeight) / 2}px`;
             canvas.style.margin = "0";
             canvas.style.padding = "0";
             canvas.style.border = "0";
@@ -448,7 +447,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 });
             }
             fullscreenMode = true;
-            fullscreenButton.style.display = "none"; // Ausblenden des fullscreenButton im Vollbildmodus
+            fullscreenButton.style.display = "none";
             rotateButton.style.display = "none";
             smartphoneModeButton.style.display = "none";
             soundToggleButton.style.display = "none";
@@ -460,12 +459,11 @@ document.addEventListener("DOMContentLoaded", () => {
             moveList.style.display = "none";
             openingDisplay.style.display = "none";
 
-            // Styling und Positionierung des closeFullscreenButton
             closeFullscreenButton.style.display = "block";
             closeFullscreenButton.style.position = "absolute";
             closeFullscreenButton.style.zIndex = "1000";
             closeFullscreenButton.style.padding = "10px 20px";
-            closeFullscreenButton.style.backgroundColor = "#666"; // Grau
+            closeFullscreenButton.style.backgroundColor = "#666";
             closeFullscreenButton.style.color = "#fff";
             closeFullscreenButton.style.border = "none";
             closeFullscreenButton.style.borderRadius = "5px";
@@ -474,7 +472,6 @@ document.addEventListener("DOMContentLoaded", () => {
             closeFullscreenButton.style.opacity = "1";
             closeFullscreenButton.textContent = "Close Fullscreen";
 
-            // Mittige Positionierung unter dem Brett
             const totalWidth = size * 8;
             const totalHeight = size * 8 + size * 0.7;
             const buttonTop = (window.innerHeight - totalHeight) / 2 + totalHeight + 20;
@@ -488,7 +485,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 });
             }
             fullscreenMode = false;
-            fullscreenButton.style.display = "block"; // Wieder anzeigen des fullscreenButton
+            fullscreenButton.style.display = "block";
             rotateButton.style.display = "block";
             smartphoneModeButton.style.display = "block";
             soundToggleButton.style.display = "block";
@@ -532,6 +529,8 @@ document.addEventListener("DOMContentLoaded", () => {
             document.body.classList.remove("fullscreen");
             document.body.classList.add("darkmode");
             fullscreenButton.style.display = "block";
+            fullscreenButton.style.visibility = "visible";
+            fullscreenButton.style.opacity = "1";
             rotateButton.style.display = "block";
             smartphoneModeButton.style.display = "block";
             soundToggleButton.style.display = "block";
