@@ -244,7 +244,7 @@ document.addEventListener("DOMContentLoaded", () => {
             return;
         }
 
-        const extraSpace = fullscreenMode ? 0 : size * 0.7;
+        const extraSpace = fullscreenMode ? size * 0.7 : size * 0.7;
         const expectedWidth = size * 8 + (fullscreenMode ? 0 : offsetX * 2);
         const expectedHeight = size * 8 + (fullscreenMode ? 0 : offsetY * 2) + extraSpace;
         canvas.width = expectedWidth;
@@ -317,7 +317,6 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         }
 
-        // Beschriftung hinzufügen: Zahlen links (1-8) und Buchstaben unten (a-h)
         ctx.fillStyle = isDarkmode ? "#e0e0e0" : "#333";
         ctx.font = `${size * 0.25}px Arial`;
         ctx.textAlign = "center";
@@ -327,12 +326,10 @@ document.addEventListener("DOMContentLoaded", () => {
             const displayY = effectiveRotation ? i : 7 - i;
             const displayX = effectiveRotation ? 7 - i : i;
 
-            // Zahlen links: Position links vom Brett, mittig zu den Feldern
             const numberX = fullscreenMode ? size * 0.25 : offsetX * 0.5;
             const numberY = yPosBase + displayY * size + size / 2;
             ctx.fillText(8 - i, numberX, numberY);
 
-            // Buchstaben unten: Position unter dem Brett, mittig zu den Feldern
             const letterX = xPosBase + displayX * size + size / 2;
             const letterY = fullscreenMode ? (size * 8 + size * 0.3) : (yPosBase + 8 * size + size * 0.5);
             ctx.fillText(String.fromCharCode(97 + i), letterX, letterY);
@@ -384,19 +381,26 @@ document.addEventListener("DOMContentLoaded", () => {
             const boardDimension = Math.min(maxWidth, maxHeight) * 0.95;
             size = Math.floor(Math.max(boardDimension / 8, CONFIG.minBoardSize));
             const totalWidth = size * 8;
-            const totalHeight = size * 8;
+            const totalHeight = size * 8 + size * 0.7; // Extra space for labels
 
             // Zentrieren des Bretts im Vollbildmodus
-            offsetX = (window.innerWidth - totalWidth) / 2;
-            offsetY = (window.innerHeight - totalHeight) / 2;
+            offsetX = 0;
+            offsetY = 0;
 
             canvas.width = totalWidth;
             canvas.height = totalHeight;
             canvas.style.width = `${totalWidth}px`;
             canvas.style.height = `${totalHeight}px`;
             canvas.style.position = "absolute";
-            canvas.style.left = `${offsetX}px`;
-            canvas.style.top = `${offsetY}px`;
+            canvas.style.left = `${(window.innerWidth - totalWidth) / 2}px`;
+            canvas.style.top = `${(window.innerHeight - totalHeight) / 2}px`;
+
+            // Positioniere den Exit-Button unter dem Brett
+            const buttonTop = (window.innerHeight - totalHeight) / 2 + totalHeight + 20;
+            closeFullscreenButton.style.position = "fixed";
+            closeFullscreenButton.style.left = "50%";
+            closeFullscreenButton.style.top = `${buttonTop}px`;
+            closeFullscreenButton.style.transform = "translateX(-50%)";
         } else {
             maxWidth = window.innerWidth * 0.7;
             maxHeight = window.innerHeight * 0.6;
@@ -456,10 +460,6 @@ document.addEventListener("DOMContentLoaded", () => {
             closeFullscreenButton.style.opacity = "1";
             closeFullscreenButton.textContent = "Close Fullscreen";
 
-            closeFullscreenButton.style.position = "fixed";
-            closeFullscreenButton.style.left = "50%";
-            closeFullscreenButton.style.top = "50%";
-            closeFullscreenButton.style.transform = "translate(-50%, -50%)";
             closeFullscreenButton.style.zIndex = "1000";
             closeFullscreenButton.style.padding = "10px 20px";
             closeFullscreenButton.style.backgroundColor = isDarkmode ? "#333" : "#fff";
