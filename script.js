@@ -312,19 +312,19 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         }
 
-        // Beschriftung hinzufügen: Zahlen links (1-8) und Buchstaben unten (a-h) mit kleinerer Schrift
+        // Beschriftung hinzufügen: Zahlen links (1-8) und Buchstaben unten (a-h) mit angepasster Position und Schriftart
         ctx.fillStyle = isDarkmode ? "#e0e0e0" : "#333";
-        ctx.font = `${size * 0.3}px sans-serif`; // Kleinere Schriftgröße
+        ctx.font = `${size * 0.3}px Arial`; // Arial für klarere Darstellung
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
 
         for (let i = 0; i < 8; i++) {
             const displayY = effectiveRotation ? i : 7 - i;
             const displayX = effectiveRotation ? 7 - i : i;
-            // Zahlen links
-            ctx.fillText(8 - i, offsetX / 2, offsetY + displayY * size + size / 2);
-            // Buchstaben unten
-            ctx.fillText(String.fromCharCode(97 + i), offsetX + displayX * size + size / 2, offsetY + 8 * size + size * 0.3);
+            // Zahlen links: Mehr Platz durch offsetX * 0.7 statt offsetX / 2
+            ctx.fillText(8 - i, offsetX * 0.7, offsetY + displayY * size + size / 2);
+            // Buchstaben unten: Mehr Platz durch size * 0.5 statt size * 0.3
+            ctx.fillText(String.fromCharCode(97 + i), offsetX + displayX * size + size / 2, offsetY + 8 * size + size * 0.5);
         }
 
         if (gameOver) {
@@ -365,26 +365,54 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function resizeCanvas() {
         console.log("resizeCanvas called");
-        let maxWidth = window.innerWidth * 0.7;
-        let maxHeight = window.innerHeight * 0.6;
-        
-        if (window.innerWidth <= 768) {
-            maxWidth = window.innerWidth * 0.9;
-            maxHeight = window.innerHeight * 0.5;
+        let maxWidth, maxHeight;
+
+        if (fullscreenMode) {
+            // Im Vollbildmodus: Zentrieren durch gleichmäßigen Offset
+            maxWidth = window.innerWidth * 0.9; // 90% der Breite
+            maxHeight = window.innerHeight * 0.9; // 90% der Höhe
+            const boardDimension = Math.min(maxWidth, maxHeight);
+            size = Math.floor(Math.max(boardDimension / 8, CONFIG.minBoardSize));
+            const totalWidth = size * 8;
+            const totalHeight = size * 8;
+
+            // Zentrierung: Offset basierend auf der Bildschirmgröße berechnen
+            offsetX = (window.innerWidth - totalWidth) / 2;
+            offsetY = (window.innerHeight - totalHeight) / 2;
+
+            canvas.width = totalWidth + offsetX * 2;
+            canvas.height = totalHeight + offsetY * 2;
+            canvas.style.width = `${totalWidth}px`;
+            canvas.style.height = `${totalHeight}px`;
+            canvas.style.position = "absolute";
+            canvas.style.left = `${(window.innerWidth - totalWidth) / 2}px`;
+            canvas.style.top = `${(window.innerHeight - totalHeight) / 2}px`;
+        } else {
+            // Normaler Modus
+            maxWidth = window.innerWidth * 0.7;
+            maxHeight = window.innerHeight * 0.6;
+
+            if (window.innerWidth <= 768) {
+                maxWidth = window.innerWidth * 0.9;
+                maxHeight = window.innerHeight * 0.5;
+            }
+
+            const boardDimension = Math.min(maxWidth, maxHeight);
+            size = Math.floor(Math.max(boardDimension / 8, CONFIG.minBoardSize));
+            const totalWidth = size * 8;
+            const totalHeight = size * 8;
+
+            offsetX = (window.innerWidth - totalWidth) / 2 * CONFIG.offset;
+            offsetY = (window.innerHeight - totalHeight) / 2 * CONFIG.offset;
+
+            canvas.width = totalWidth + offsetX * 2;
+            canvas.height = totalHeight + offsetY * 2;
+            canvas.style.width = `${canvas.width}px`;
+            canvas.style.height = `${canvas.height}px`;
+            canvas.style.position = "relative";
+            canvas.style.left = "0px";
+            canvas.style.top = "0px";
         }
-
-        const boardDimension = Math.min(maxWidth, maxHeight);
-        size = Math.floor(Math.max(boardDimension / 8, CONFIG.minBoardSize));
-        const totalWidth = size * 8;
-        const totalHeight = size * 8;
-
-        offsetX = (window.innerWidth - totalWidth) / 2 * CONFIG.offset;
-        offsetY = (window.innerHeight - totalHeight) / 2 * CONFIG.offset;
-
-        canvas.width = totalWidth + offsetX * 2;
-        canvas.height = totalHeight + offsetY * 2;
-        canvas.style.width = `${canvas.width}px`;
-        canvas.style.height = `${canvas.height}px`;
 
         console.log("Canvas resized to:", canvas.width, canvas.height);
         if (gameStarted) {
@@ -413,6 +441,8 @@ document.addEventListener("DOMContentLoaded", () => {
             exitFullscreenButton.style.display = "block";
             closeFullscreenButton.style.display = "block";
             closeFullscreenButton.textContent = "Close Fullscreen";
+            closeFullscreenButton.style.visibility = "visible"; // Sicherstellen, dass der Button sichtbar ist
+            closeFullscreenButton.style.opacity = "1";
             console.log("closeFullscreenButton styles:", {
                 display: closeFullscreenButton.style.display,
                 visibility: closeFullscreenButton.style.visibility,
@@ -449,6 +479,8 @@ document.addEventListener("DOMContentLoaded", () => {
             fullscreenButton.style.display = "none";
             exitFullscreenButton.style.display = "none";
             closeFullscreenButton.style.display = "block";
+            closeFullscreenButton.style.visibility = "visible"; // Sicherstellen, dass der Button sichtbar ist
+            closeFullscreenButton.style.opacity = "1";
             closeFullscreenButton.textContent = "Close Fullscreen";
             console.log("closeFullscreenButton styles after fullscreenchange:", {
                 display: closeFullscreenButton.style.display,
@@ -472,21 +504,7 @@ document.addEventListener("DOMContentLoaded", () => {
     document.addEventListener('keydown', (event) => {
         if (event.key === 'Escape' && fullscreenMode) {
             console.log("Escape key pressed, exiting fullscreen mode");
-            if (document.exitFullscreen) {
-                document.exitFullscreen().catch((err) => {
-                    console.error("Failed to exit fullscreen mode:", err);
-                });
-            }
-            document.body.classList.remove("fullscreen");
-            fullscreenMode = false;
-            turnDisplay.style.display = "block";
-            moveList.style.display = "block";
-            openingDisplay.style.display = "block";
-            fullscreenButton.style.display = "block";
-            exitFullscreenButton.style.display = "none";
-            closeFullscreenButton.style.display = "none";
-            resizeCanvas();
-            drawBoard();
+            toggleFullscreenMode(); // Verwende die toggleFullscreenMode-Funktion für Konsistenz
         }
     });
 
@@ -866,10 +884,9 @@ document.addEventListener("DOMContentLoaded", () => {
                     let canCastle = true;
                     for (let i = 4; i >= 2; i--) {
                         const tempBoardCopy = tempBoard.map(row => [...row]);
-                        if (i < 4) {
-                            tempBoardCopy[7][i] = "K";
-                            tempBoardCopy[7][i + 1] = "";
-                        }
+                       .
+                        tempBoardCopy[7][i] = "K";
+                        tempBoardCopy[7][i + 1] = "";
                         const tempKingPos = { x: i, y: 7 };
                         if (isInCheck("white", tempBoardCopy, tempKingPos)) {
                             canCastle = false;
