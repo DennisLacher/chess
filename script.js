@@ -116,7 +116,7 @@ document.addEventListener("DOMContentLoaded", () => {
         2: { light: "#E0E0E0", dark: "#808080" },
         3: { light: "#ADD8E6", dark: "#4682B4" },
         4: { light: "#90EE90", dark: "#228B22" },
-        5: { light: "#FFDAB9", dark: "#CD853F" }
+        5: { light: "#FFD8B9", dark: "#CD853F" }
     };
 
     window.boardColors = designs[currentDesign];
@@ -388,24 +388,22 @@ document.addEventListener("DOMContentLoaded", () => {
         if (fullscreenMode) {
             maxWidth = window.innerWidth;
             maxHeight = window.innerHeight;
-            const boardDimension = Math.min(maxWidth, maxHeight) * 0.95;
+            const boardDimension = Math.min(maxWidth, maxHeight) * 0.95; // Skalierung an kleinere Dimension anpassen
             size = Math.floor(Math.max(boardDimension / 8, CONFIG.minBoardSize));
             const totalWidth = size * 8;
-            const totalHeight = size * 8 + size * 0.7; // Extra space for labels
+            const totalHeight = size * 8 + size * 0.7; // Extra space für Labels
 
-            // Zentrieren des Bretts im Vollbildmodus
+            // Präzise Zentrierung
             canvas.width = totalWidth;
             canvas.height = totalHeight;
             canvas.style.width = `${totalWidth}px`;
             canvas.style.height = `${totalHeight}px`;
             canvas.style.position = "absolute";
-            // Präzise Zentrierung
-            canvas.style.left = `${Math.max(0, (window.innerWidth - totalWidth) / 2)}px`;
-            canvas.style.top = `${Math.max(0, (window.innerHeight - totalHeight) / 2)}px`;
+            canvas.style.left = `${(window.innerWidth - totalWidth) / 2}px`; // Exakte Zentrierung
+            canvas.style.top = `${(window.innerHeight - totalHeight) / 2}px`;
             canvas.style.margin = "0";
             canvas.style.padding = "0";
             canvas.style.border = "0";
-            // Sicherstellen, dass keine zusätzlichen Stile die Positionierung beeinflussen
             canvas.style.boxSizing = "border-box";
         } else {
             maxWidth = window.innerWidth * 0.7;
@@ -464,10 +462,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
             // Styling und Positionierung des closeFullscreenButton
             closeFullscreenButton.style.display = "block";
-            closeFullscreenButton.style.position = "fixed";
+            closeFullscreenButton.style.position = "absolute";
             closeFullscreenButton.style.zIndex = "1000";
             closeFullscreenButton.style.padding = "10px 20px";
-            closeFullscreenButton.style.backgroundColor = "#666"; // Grau, wie gewünscht
+            closeFullscreenButton.style.backgroundColor = "#666"; // Grau
             closeFullscreenButton.style.color = "#fff";
             closeFullscreenButton.style.border = "none";
             closeFullscreenButton.style.borderRadius = "5px";
@@ -476,7 +474,7 @@ document.addEventListener("DOMContentLoaded", () => {
             closeFullscreenButton.style.opacity = "1";
             closeFullscreenButton.textContent = "Close Fullscreen";
 
-            // Positioniere den Button mittig unter dem Brett
+            // Mittige Positionierung unter dem Brett
             const totalWidth = size * 8;
             const totalHeight = size * 8 + size * 0.7;
             const buttonTop = (window.innerHeight - totalHeight) / 2 + totalHeight + 20;
