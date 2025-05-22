@@ -40,7 +40,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const designButton = document.getElementById("designButton");
     const darkmodeToggleButton = document.getElementById("darkmodeToggleButton");
     const fullscreenButton = document.getElementById("fullscreenButton");
-    const exitFullscreenButton = document.getElementById("exitFullscreenButton");
     const closeFullscreenButton = document.getElementById("closeFullscreenButton");
 
     const missingElements = [];
@@ -150,7 +149,6 @@ document.addEventListener("DOMContentLoaded", () => {
     restartButton.classList.add("hidden");
     darkmodeToggleButton.style.display = "none";
     fullscreenButton.style.display = "none";
-    exitFullscreenButton.style.display = "none";
     closeFullscreenButton.style.display = "none";
     console.log("Initial visibility set: startScreen visible, gameContainer hidden");
 
@@ -368,10 +366,11 @@ document.addEventListener("DOMContentLoaded", () => {
         let maxWidth, maxHeight;
 
         if (fullscreenMode) {
-            // Im Vollbildmodus: Zentrieren durch gleichmäßigen Offset
-            maxWidth = window.innerWidth * 0.9; // 90% der Breite
-            maxHeight = window.innerHeight * 0.9; // 90% der Höhe
-            const boardDimension = Math.min(maxWidth, maxHeight);
+            // Im Vollbildmodus: Zentrieren und Skalieren
+            maxWidth = window.innerWidth;
+            maxHeight = window.innerHeight;
+            // Das Brett soll maximal 90% der kleineren Dimension (Breite oder Höhe) einnehmen
+            const boardDimension = Math.min(maxWidth, maxHeight) * 0.9;
             size = Math.floor(Math.max(boardDimension / 8, CONFIG.minBoardSize));
             const totalWidth = size * 8;
             const totalHeight = size * 8;
@@ -380,13 +379,13 @@ document.addEventListener("DOMContentLoaded", () => {
             offsetX = (window.innerWidth - totalWidth) / 2;
             offsetY = (window.innerHeight - totalHeight) / 2;
 
-            canvas.width = totalWidth + offsetX * 2;
-            canvas.height = totalHeight + offsetY * 2;
+            canvas.width = totalWidth;
+            canvas.height = totalHeight;
             canvas.style.width = `${totalWidth}px`;
             canvas.style.height = `${totalHeight}px`;
             canvas.style.position = "absolute";
-            canvas.style.left = `${(window.innerWidth - totalWidth) / 2}px`;
-            canvas.style.top = `${(window.innerHeight - totalHeight) / 2}px`;
+            canvas.style.left = `${offsetX}px`;
+            canvas.style.top = `${offsetY}px`;
         } else {
             // Normaler Modus
             maxWidth = window.innerWidth * 0.7;
@@ -422,91 +421,36 @@ document.addEventListener("DOMContentLoaded", () => {
         console.log("resizeCanvas completed");
     }
 
-    const debouncedResizeCanvas = debounce(resizeCanvas, 200);
-
     function toggleFullscreenMode() {
         console.log("toggleFullscreenMode called");
         if (!fullscreenMode) {
+            // Vollbildmodus aktivieren
             if (document.documentElement.requestFullscreen) {
                 document.documentElement.requestFullscreen().catch((err) => {
                     console.error("Failed to enter fullscreen mode:", err);
                 });
             }
-            document.body.classList.add("fullscreen");
             fullscreenMode = true;
-            turnDisplay.style.display = "none";
-            moveList.style.display = "none";
-            openingDisplay.style.display = "none";
             fullscreenButton.style.display = "none";
-            exitFullscreenButton.style.display = "block";
             closeFullscreenButton.style.display = "block";
-            closeFullscreenButton.textContent = "Close Fullscreen";
-            closeFullscreenButton.style.visibility = "visible"; // Sicherstellen, dass der Button sichtbar ist
+            closeFullscreenButton.style.visibility = "visible";
             closeFullscreenButton.style.opacity = "1";
-            console.log("closeFullscreenButton styles:", {
-                display: closeFullscreenButton.style.display,
-                visibility: closeFullscreenButton.style.visibility,
-                opacity: closeFullscreenButton.style.opacity,
-            });
+            closeFullscreenButton.textContent = "Close Fullscreen";
         } else {
+            // Vollbildmodus beenden
             if (document.exitFullscreen) {
                 document.exitFullscreen().catch((err) => {
                     console.error("Failed to exit fullscreen mode:", err);
                 });
             }
-            document.body.classList.remove("fullscreen");
             fullscreenMode = false;
-            turnDisplay.style.display = "block";
-            moveList.style.display = "block";
-            openingDisplay.style.display = "block";
             fullscreenButton.style.display = "block";
-            exitFullscreenButton.style.display = "none";
             closeFullscreenButton.style.display = "none";
         }
         resizeCanvas();
         drawBoard();
         console.log("toggleFullscreenMode completed");
     }
-
-    document.addEventListener('fullscreenchange', () => {
-        console.log("fullscreenchange event fired");
-        fullscreenMode = !!document.fullscreenElement;
-        document.body.classList.toggle("fullscreen", fullscreenMode);
-        if (fullscreenMode) {
-            turnDisplay.style.display = "none";
-            moveList.style.display = "none";
-            openingDisplay.style.display = "none";
-            fullscreenButton.style.display = "none";
-            exitFullscreenButton.style.display = "none";
-            closeFullscreenButton.style.display = "block";
-            closeFullscreenButton.style.visibility = "visible"; // Sicherstellen, dass der Button sichtbar ist
-            closeFullscreenButton.style.opacity = "1";
-            closeFullscreenButton.textContent = "Close Fullscreen";
-            console.log("closeFullscreenButton styles after fullscreenchange:", {
-                display: closeFullscreenButton.style.display,
-                visibility: closeFullscreenButton.style.visibility,
-                opacity: closeFullscreenButton.style.opacity,
-            });
-        } else {
-            turnDisplay.style.display = "block";
-            moveList.style.display = "block";
-            openingDisplay.style.display = "block";
-            fullscreenButton.style.display = "block";
-            exitFullscreenButton.style.display = "none";
-            closeFullscreenButton.style.display = "none";
-        }
-        resizeCanvas();
-        drawBoard();
-        console.log("fullscreenchange handler completed");
-    });
-
-    // Escape-Taste für Vollbildmodus
-    document.addEventListener('keydown', (event) => {
-        if (event.key === 'Escape' && fullscreenMode) {
-            console.log("Escape key pressed, exiting fullscreen mode");
-            toggleFullscreenMode(); // Verwende die toggleFullscreenMode-Funktion für Konsistenz
-        }
-    });
 
     function startGame(freestyle = false) {
         console.log("startGame called with freestyle:", freestyle);
@@ -534,7 +478,6 @@ document.addEventListener("DOMContentLoaded", () => {
             document.body.classList.remove("fullscreen");
             document.body.classList.add("darkmode");
             fullscreenButton.style.display = "block";
-            exitFullscreenButton.style.display = "none";
             closeFullscreenButton.style.display = "none";
             moveList.innerHTML = "";
             startScreen.style.display = "none";
@@ -884,8 +827,10 @@ document.addEventListener("DOMContentLoaded", () => {
                     let canCastle = true;
                     for (let i = 4; i >= 2; i--) {
                         const tempBoardCopy = tempBoard.map(row => [...row]);
-                        tempBoardCopy[7][i] = "K";
-                        tempBoardCopy[7][i + 1] = "";
+                        if (i < 4) {
+                            tempBoardCopy[7][i] = "K";
+                            tempBoardCopy[7][i + 1] = "";
+                        }
                         const tempKingPos = { x: i, y: 7 };
                         if (isInCheck("white", tempBoardCopy, tempKingPos)) {
                             canCastle = false;
@@ -1306,25 +1251,17 @@ document.addEventListener("DOMContentLoaded", () => {
         });
 
         fullscreenButton.addEventListener("click", toggleFullscreenMode);
-        exitFullscreenButton.addEventListener("click", toggleFullscreenMode);
-        closeFullscreenButton.addEventListener("click", () => {
-            console.log("closeFullscreenButton clicked");
-            if (fullscreenMode) {
-                toggleFullscreenMode();
-            }
-        });
+        closeFullscreenButton.addEventListener("click", toggleFullscreenMode);
         closeFullscreenButton.addEventListener("touchstart", (e) => {
             e.preventDefault();
-            console.log("closeFullscreenButton touched");
-            if (fullscreenMode) {
-                toggleFullscreenMode();
-            }
+            toggleFullscreenMode();
         }, { passive: false });
 
         canvas.addEventListener("click", handleCanvasClick);
         canvas.addEventListener("touchstart", handleCanvasClick, { passive: false });
     }
 
+    const debouncedResizeCanvas = debounce(resizeCanvas, 200);
     window.addEventListener("resize", debouncedResizeCanvas);
     resizeCanvas();
     initializeGameButtons();
