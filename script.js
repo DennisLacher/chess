@@ -39,7 +39,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const openingDisplay = document.getElementById("openingDisplay");
     const designButton = document.getElementById("designButton");
     const darkmodeToggleButton = document.getElementById("darkmodeToggleButton");
-    const fullscreenButton = document.getElementById("fullscreenButton");
     const closeFullscreenButton = document.getElementById("closeFullscreenButton");
 
     const missingElements = [];
@@ -58,7 +57,6 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!openingDisplay) missingElements.push("openingDisplay (id='openingDisplay')");
     if (!designButton) missingElements.push("designButton (id='designButton')");
     if (!darkmodeToggleButton) missingElements.push("darkmodeToggleButton (id='darkmodeToggleButton')");
-    if (!fullscreenButton) missingElements.push("fullscreenButton (id='fullscreenButton')");
     if (!closeFullscreenButton) missingElements.push("closeFullscreenButton (id='closeFullscreenButton')");
     if (missingElements.length > 0) {
         console.error("The following DOM elements are missing:", missingElements.join(", "));
@@ -151,14 +149,18 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const openings = [
         { name: "Italian Game", moves: ["e4", "e5", "Nf3", "Nc6", "Bc4"], blackResponses: ["Bc5", "Nf6"] },
-        { name: "Sicilian Defense", moves: ["e4", "c5"], blackResponses: ["Nc6", "e6"] }
+        { name: "Sicilian Defense", moves: ["e4", "c5"], blackResponses: ["Nc6", "e6"] },
+        { name: "King's Gambit", moves: ["e4", "e5", "f4"], blackResponses: ["exf4", "d5"] },
+        { name: "Ruy Lopez (Spanish Opening)", moves: ["e4", "e5", "Nf3", "Nc6", "Bb5"], blackResponses: ["a6", "Nf6"] },
+        { name: "French Defense", moves: ["e4", "e6"], blackResponses: ["d5", "c5"] },
+        { name: "Queen's Gambit", moves: ["d4", "d5", "c4"], blackResponses: ["e6", "Nf6"] },
+        { name: "English Opening", moves: ["c4"], blackResponses: ["e5", "Nf6"] }
     ];
 
     startScreen.style.display = "block";
     gameContainer.style.display = "none";
     restartButton.classList.add("hidden");
     darkmodeToggleButton.style.display = "none";
-    fullscreenButton.style.display = "none";
     closeFullscreenButton.style.display = "none";
     console.log("Initial visibility set: startScreen visible, gameContainer hidden");
 
@@ -447,7 +449,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 });
             }
             fullscreenMode = true;
-            fullscreenButton.style.display = "none";
             rotateButton.style.display = "none";
             smartphoneModeButton.style.display = "none";
             soundToggleButton.style.display = "none";
@@ -485,7 +486,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 });
             }
             fullscreenMode = false;
-            fullscreenButton.style.display = "block";
             rotateButton.style.display = "block";
             smartphoneModeButton.style.display = "block";
             soundToggleButton.style.display = "block";
@@ -530,9 +530,6 @@ document.addEventListener("DOMContentLoaded", () => {
             console.log("Updating DOM elements visibility...");
             document.body.classList.remove("fullscreen");
             document.body.classList.add("darkmode");
-            fullscreenButton.style.display = "block";
-            fullscreenButton.style.visibility = "visible";
-            fullscreenButton.style.opacity = "1";
             rotateButton.style.display = "block";
             smartphoneModeButton.style.display = "block";
             soundToggleButton.style.display = "block";
@@ -854,8 +851,14 @@ document.addEventListener("DOMContentLoaded", () => {
                     newX += dx;
                     newY += dy;
                     if (newX < 0 || newX >= 8 || newY < 0 || newY >= 8) break;
+                    const targetPiece = tempBoard[newY][newX];
+                    if (targetPiece) {
+                        if ((targetPiece === targetPiece.toUpperCase()) !== isWhite) {
+                            moves.push({ toX: newX, toY: newY });
+                        }
+                        break;
+                    }
                     moves.push({ toX: newX, toY: newY });
-                    if (tempBoard[newY][newX]) break;
                 }
             });
         } else if (piece.toLowerCase() === "k") {
@@ -1316,8 +1319,6 @@ document.addEventListener("DOMContentLoaded", () => {
             window.updateBoardColors(currentDesign);
             drawBoard();
         });
-
-        fullscreenButton.addEventListener("click", toggleFullscreenMode);
 
         closeFullscreenButton.addEventListener("click", () => {
             toggleFullscreenMode();
