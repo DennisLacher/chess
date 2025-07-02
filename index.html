@@ -3,34 +3,37 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Schachspiel</title>
+    <title>Mensch ärger dich nicht</title>
     <link rel="stylesheet" href="style.css">
 </head>
-<body>
+<body class="darkmode">
     <div id="startScreen">
         <div class="start-buttons">
-            <button id="startButton">Start Game</button>
-            <button id="startFreestyleButton">Start Freestyle</button>
+            <button id="startChessButton">Schach spielen</button>
+            <button id="startLudoButton">Mensch ärger dich nicht</button>
+            <button id="startFreestyleButton">Freestyle-Schach</button>
         </div>
     </div>
+
     <div id="gameContainer">
-        <div id="turnDisplay">White is next</div>
-        <canvas id="chessboard"></canvas>
-        <div id="openingDisplay"></div>
+        <div id="turnDisplay">Rot ist dran</div>
+        <canvas id="gameBoard"></canvas>
         <div class="game-buttons">
-            <button id="rotateButton">Rotate Board</button>
+            <button id="rollDiceButton">Würfeln</button>
+            <button id="rotateButton">Brett drehen</button>
             <button id="smartphoneModeButton">Rotate On</button>
             <button id="soundToggleButton">Sound Off</button>
-            <button id="undoButton">Undo Move</button>
-            <button id="restartButton" class="hidden">Restart</button>
-            <button id="designButton">Change Design</button>
+            <button id="undoButton">Zug zurück</button>
+            <button id="restartButton">Neustart</button>
+            <button id="designButton">Design ändern</button>
             <button id="darkmodeToggleButton">Light Mode</button>
-            <button id="fullscreenButton">Fullscreen</button>
-            <button id="exitFullscreenButton">Exit Fullscreen</button>
+            <button id="fullscreenButton">Vollbild</button>
             <button id="closeFullscreenButton">X</button>
         </div>
+        <div id="diceDisplay">Würfel: -</div>
         <ul id="moveList"></ul>
     </div>
+
     <div id="version">Version 1.2</div>
     <script src="script.js"></script>
 </body>
