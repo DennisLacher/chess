@@ -1,6 +1,7 @@
 document.addEventListener("DOMContentLoaded", () => {
     console.log("Script loaded at", new Date().toISOString());
 
+    // Konfiguration
     const CONFIG = {
         defaultBoardSize: 60,
         minBoardSize: 40,
@@ -10,13 +11,10 @@ document.addEventListener("DOMContentLoaded", () => {
     };
 
     const SOUND = {
-        enabledByDefault: true,
-        moveSound: "move.mp3",
-        captureSound: "clap.mp3",
-        checkSound: "check.mp3",
-        checkmateSound: "checkmate.mp3",
+        enabledByDefault: false, // Sound deaktiviert, da Audiodateien nicht im Repository sind
     };
 
+    // DOM-Elemente
     const canvas = document.getElementById("gameBoard");
     const startScreen = document.getElementById("startScreen");
     const startChessButton = document.getElementById("startChessButton");
@@ -37,6 +35,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const diceDisplay = document.getElementById("diceDisplay");
     const moveList = document.getElementById("moveList");
 
+    // DOM-Elemente prüfen
     const missingElements = [];
     if (!canvas) missingElements.push("canvas (id='gameBoard')");
     if (!startScreen) missingElements.push("startScreen (id='startScreen')");
@@ -63,6 +62,7 @@ document.addEventListener("DOMContentLoaded", () => {
         return;
     }
 
+    // Spielvariablen
     let gameType = null;
     let currentPlayer = "white";
     let gameStarted = false;
@@ -91,31 +91,23 @@ document.addEventListener("DOMContentLoaded", () => {
     let currentDesign = 0;
     const ctx = canvas.getContext("2d");
 
+    // Designs
     const designs = [
         { light: "#f0d9b5", dark: "#b58863" },
         { light: "#e0e0e0", dark: "#769656" },
         { light: "#fff", dark: "#4b7399" }
     ];
     window.boardColors = designs[currentDesign];
-    console.log("Initial design and colors:", currentDesign, window.boardColors);
+    window.updateBoardColors = (index) => { window.boardColors = designs[index]; };
 
-    window.updateBoardColors = function (designNum) {
-        if (designs[designNum]) {
-            currentDesign = designNum;
-            window.boardColors = designs[currentDesign];
-            console.log("Updated board colors to design", currentDesign, window.boardColors);
-            if (gameStarted) drawBoard();
-        } else {
-            console.error("Invalid design number:", designNum);
-        }
-    };
-
+    // Schachfiguren
     const pieces = {
         r: "♜", n: "♞", b: "♝", q: "♛", k: "♚", p: "♟",
         R: "♖", N: "♘", B: "♗", Q: "♕", K: "♔", P: "♙",
         red: "🔴", yellow: "🟡"
     };
 
+    // Schach-Openings
     const openings = [
         { name: "Italian Game", moves: ["e4", "e5", "Nf3", "Nc6", "Bc4"], blackResponses: ["Bc5", "Nf6"] },
         { name: "Sicilian Defense", moves: ["e4", "c5"], blackResponses: ["Nc6", "e6"] },
@@ -126,6 +118,7 @@ document.addEventListener("DOMContentLoaded", () => {
         { name: "English Opening", moves: ["c4"], blackResponses: ["e5", "Nf6"] }
     ];
 
+    // Ludo-Brett
     let ludoBoard = Array(40).fill(null);
     let redHome = Array(4).fill("red");
     let yellowHome = Array(4).fill("yellow");
@@ -159,6 +152,7 @@ document.addEventListener("DOMContentLoaded", () => {
         { x: 5, y: 5 }, { x: 6, y: 5 }, { x: 5, y: 4 }, { x: 6, y: 4 }
     ];
 
+    // Schachbrett
     let chessBoard = [
         ["r", "n", "b", "q", "k", "b", "n", "r"],
         ["p", "p", "p", "p", "p", "p", "p", "p"],
@@ -175,22 +169,43 @@ document.addEventListener("DOMContentLoaded", () => {
     let isWhiteInCheck = false;
     let isBlackInCheck = false;
 
+    // Initiale Anzeige
     startScreen.style.display = "block";
     gameContainer.style.display = "none";
     restartButton.classList.add("hidden");
     darkmodeToggleButton.style.display = "none";
     closeFullscreenButton.style.display = "none";
 
+    // Event-Listener für Buttons
+    startChessButton.addEventListener("click", () => startChessGame(false));
+    startLudoButton.addEventListener("click", startLudoGame);
+    startFreestyleButton.addEventListener("click", () => startChessGame(true));
+    rollDiceButton.addEventListener("click", rollDice);
+    rotateButton.addEventListener("click", toggleRotateBoard);
+    smartphoneModeButton.addEventListener("click", toggleSmartphoneMode);
+    soundToggleButton.addEventListener("click", toggleSound);
+    undoButton.addEventListener("click", undoMove);
+    restartButton.addEventListener("click", restartGame);
+    designButton.addEventListener("click", changeDesign);
+    darkmodeToggleButton.addEventListener("click", toggleDarkmode);
+    fullscreenButton.addEventListener("click", toggleFullscreenMode);
+    closeFullscreenButton.addEventListener("click", toggleFullscreenMode);
+    canvas.addEventListener("click", (event) => {
+        if (gameType === "chess") handleChessClick(event);
+        else if (gameType === "ludo") handleLudoClick(event);
+    });
+
+    // Funktionen
     function initializeDarkmodeToggle() {
         if (darkmodeToggleButton && gameStarted) {
             darkmodeToggleButton.textContent = isDarkmode ? "Light Mode" : "Dark Mode";
-            darkmodeToggleButton.addEventListener("click", toggleDarkmodeHandler);
+            darkmodeToggleButton.addEventListener("click", toggleDarkmode);
         } else if (darkmodeToggleButton && !gameStarted) {
             darkmodeToggleButton.style.display = "none";
         }
     }
 
-    function toggleDarkmodeHandler() {
+    function toggleDarkmode() {
         isDarkmode = !isDarkmode;
         document.body.classList.toggle("darkmode", isDarkmode);
         darkmodeToggleButton.textContent = isDarkmode ? "Light Mode" : "Dark Mode";
@@ -501,7 +516,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     function drawBoard() {
-        console.log("drawBoard called with gameType:", gameType);
         if (gameType === "ludo") {
             drawLudoBoard();
         } else {
@@ -509,20 +523,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
-    function debounce(func, wait) {
-        let timeout;
-        return function executedFunction(...args) {
-            const later = () => {
-                clearTimeout(timeout);
-                func(...args);
-            };
-            clearTimeout(timeout);
-            timeout = setTimeout(later, wait);
-        };
-    }
-
     function resizeCanvas() {
-        console.log("resizeCanvas called");
         let maxWidth, maxHeight;
 
         if (fullscreenMode) {
@@ -540,10 +541,6 @@ document.addEventListener("DOMContentLoaded", () => {
             canvas.style.position = "absolute";
             canvas.style.left = `${(window.innerWidth - totalWidth) / 2}px`;
             canvas.style.top = `${(window.innerHeight - totalHeight) / 2}px`;
-            canvas.style.margin = "0";
-            canvas.style.padding = "0";
-            canvas.style.border = "0";
-            canvas.style.boxSizing = "border-box";
         } else {
             maxWidth = window.innerWidth * 0.7;
             maxHeight = window.innerHeight * 0.6;
@@ -570,20 +567,13 @@ document.addEventListener("DOMContentLoaded", () => {
             canvas.style.top = "0px";
         }
 
-        console.log("Canvas resized to:", canvas.width, canvas.height, "with offsetX:", offsetX, "offsetY:", offsetY);
-        if (gameStarted) {
-            console.log("Calling drawBoard from resizeCanvas");
-            drawBoard();
-        }
+        if (gameStarted) drawBoard();
     }
 
     function toggleFullscreenMode() {
-        console.log("toggleFullscreenMode called");
         if (!fullscreenMode) {
             if (document.documentElement.requestFullscreen) {
-                document.documentElement.requestFullscreen().catch((err) => {
-                    console.error("Failed to enter fullscreen mode:", err);
-                });
+                document.documentElement.requestFullscreen().catch((err) => console.error("Failed to enter fullscreen:", err));
             }
             fullscreenMode = true;
             document.body.classList.add("fullscreen");
@@ -601,9 +591,7 @@ document.addEventListener("DOMContentLoaded", () => {
             closeFullscreenButton.style.display = "block";
         } else {
             if (document.exitFullscreen) {
-                document.exitFullscreen().catch((err) => {
-                    console.error("Failed to exit fullscreen mode:", err);
-                });
+                document.exitFullscreen().catch((err) => console.error("Failed to exit fullscreen:", err));
             }
             fullscreenMode = false;
             document.body.classList.remove("fullscreen");
@@ -625,7 +613,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     function startLudoGame() {
-        console.log("startLudoGame called");
         gameType = "ludo";
         currentPlayer = "red";
         gameStarted = true;
@@ -647,7 +634,6 @@ document.addEventListener("DOMContentLoaded", () => {
         yellowGoal = Array(4).fill(null);
 
         document.body.classList.remove("fullscreen");
-        document.body.classList.add("darkmode");
         rollDiceButton.style.display = "block";
         rotateButton.style.display = "block";
         smartphoneModeButton.style.display = "block";
@@ -664,8 +650,6 @@ document.addEventListener("DOMContentLoaded", () => {
         moveList.innerHTML = "";
         startScreen.style.display = "none";
         gameContainer.style.display = "flex";
-        gameContainer.style.visibility = "visible";
-        gameContainer.style.opacity = "1";
         restartButton.classList.remove("hidden");
         darkmodeToggleButton.style.display = "block";
 
@@ -677,7 +661,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     function startChessGame(freestyle = false) {
-        console.log("startChessGame called with freestyle:", freestyle);
         gameType = "chess";
         currentPlayer = "white";
         gameStarted = true;
@@ -724,7 +707,6 @@ document.addEventListener("DOMContentLoaded", () => {
         updateKingPositions();
 
         document.body.classList.remove("fullscreen");
-        document.body.classList.add("darkmode");
         rollDiceButton.style.display = "none";
         rotateButton.style.display = "block";
         smartphoneModeButton.style.display = "block";
@@ -741,8 +723,6 @@ document.addEventListener("DOMContentLoaded", () => {
         moveList.innerHTML = "";
         startScreen.style.display = "none";
         gameContainer.style.display = "flex";
-        gameContainer.style.visibility = "visible";
-        gameContainer.style.opacity = "1";
         restartButton.classList.remove("hidden");
         darkmodeToggleButton.style.display = "block";
 
@@ -754,18 +734,15 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     function shuffleArray(array) {
-        console.log("shuffleArray called");
         let shuffled = [...array];
         for (let i = shuffled.length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * (i + 1));
             [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
         }
-        console.log("shuffleArray completed");
         return shuffled;
     }
 
     function updateKingPositions(tempBoard = chessBoard) {
-        console.log("updateKingPositions called");
         for (let y = 0; y < 8; y++) {
             for (let x = 0; x < 8; x++) {
                 const piece = tempBoard[y][x];
@@ -773,16 +750,11 @@ document.addEventListener("DOMContentLoaded", () => {
                 if (piece === "K") kingPositions.white = { x, y };
             }
         }
-        console.log("King positions updated:", kingPositions);
     }
 
     function isInCheck(color, tempBoard = chessBoard, tempKingPos = null) {
-        console.log("isInCheck called for color:", color);
         const kingPos = tempKingPos || (color === "white" ? kingPositions.white : kingPositions.black);
-        if (!kingPos) {
-            console.log("No king position found for", color);
-            return false;
-        }
+        if (!kingPos) return false;
         const opponentColor = color === "white" ? "black" : "white";
         for (let y = 0; y < 8; y++) {
             for (let x = 0; x < 8; x++) {
@@ -791,39 +763,30 @@ document.addEventListener("DOMContentLoaded", () => {
                 if (isOpponent) {
                     const moves = getLegalMovesForCheck(x, y, tempBoard);
                     if (moves.some((m) => m.toX === kingPos.x && m.toY === kingPos.y)) {
-                        console.log("King in check at", kingPos, "by", piece, "at", x, y);
                         return true;
                     }
                 }
             }
         }
-        console.log("isInCheck completed, no check found");
         return false;
     }
 
     function updateCheckStatus() {
-        console.log("updateCheckStatus called");
         const whiteWasInCheck = isWhiteInCheck;
         const blackWasInCheck = isBlackInCheck;
         isWhiteInCheck = isInCheck("white");
         isBlackInCheck = isInCheck("black");
         if ((isWhiteInCheck && !whiteWasInCheck) || (isBlackInCheck && !blackWasInCheck)) {
             if (soundEnabled) {
-                const audio = new Audio(SOUND.checkSound);
-                audio.play().catch((e) => console.error("Check audio play failed:", e));
+                console.log("Check sound would play if audio files were available");
             }
         }
-        console.log("updateCheckStatus completed");
     }
 
     function getLegalMovesForCheck(x, y, tempBoard = chessBoard) {
-        console.log("getLegalMovesForCheck called for", x, y);
         const moves = [];
         const piece = tempBoard[y][x];
-        if (!piece) {
-            console.log("No piece at", x, y);
-            return moves;
-        }
+        if (!piece) return moves;
         const isWhite = piece === piece.toUpperCase();
         if (piece.toLowerCase() === "p") {
             const direction = isWhite ? -1 : 1;
@@ -899,23 +862,16 @@ document.addEventListener("DOMContentLoaded", () => {
                 }
             });
         }
-        console.log("getLegalMovesForCheck completed with moves:", moves);
         return moves;
     }
 
     function getLegalMoves(x, y, tempBoard = chessBoard) {
-        console.log("getLegalMoves called for", x, y);
         const moves = [];
         const piece = tempBoard[y][x];
-        if (!piece) {
-            console.log("No piece at", x, y);
-            return moves;
-        }
+        if (!piece) return moves;
         const isWhite = piece === piece.toUpperCase();
-        if ((isWhite && currentPlayer !== "white") || (!isWhite && currentPlayer !== "black")) {
-            console.log("Not player's turn:", currentPlayer);
-            return moves;
-        }
+        if ((isWhite && currentPlayer !== "white") || (!isWhite && currentPlayer !== "black")) return moves;
+
         if (piece.toLowerCase() === "p") {
             const direction = isWhite ? -1 : 1;
             const startRow = isWhite ? 6 : 1;
@@ -1005,4 +961,377 @@ document.addEventListener("DOMContentLoaded", () => {
                         }
                         break;
                     }
-                   
+                    moves.push({ toX: newX, toY: newY });
+                }
+            });
+        } else if (piece.toLowerCase() === "k") {
+            const kingMoves = [
+                [0, 1], [0, -1], [1, 0], [-1, 0],
+                [1, 1], [1, -1], [-1, 1], [-1, -1]
+            ];
+            kingMoves.forEach(([dx, dy]) => {
+                const newX = x + dx;
+                const newY = y + dy;
+                if (newX >= 0 && newX < 8 && newY >= 0 && newY < 8) {
+                    const targetPiece = tempBoard[newY][newX];
+                    if (!targetPiece || (targetPiece === targetPiece.toUpperCase()) !== isWhite) {
+                        moves.push({ toX: newX, toY: newY });
+                    }
+                }
+            });
+            if (isWhite && castlingAvailability.white.kingside && !tempBoard[7][5] && !tempBoard[7][6] && tempBoard[7][7] === "R") {
+                if (!isInCheck("white") && !isInCheck("white", tempBoard, { x: 5, y: 7 }) && !isInCheck("white", tempBoard, { x: 6, y: 7 })) {
+                    moves.push({ toX: 6, toY: 7, castling: "kingside" });
+                }
+            }
+            if (isWhite && castlingAvailability.white.queenside && !tempBoard[7][3] && !tempBoard[7][2] && !tempBoard[7][1] && tempBoard[7][0] === "R") {
+                if (!isInCheck("white") && !isInCheck("white", tempBoard, { x: 3, y: 7 }) && !isInCheck("white", tempBoard, { x: 2, y: 7 })) {
+                    moves.push({ toX: 2, toY: 7, castling: "queenside" });
+                }
+            }
+            if (!isWhite && castlingAvailability.black.kingside && !tempBoard[0][5] && !tempBoard[0][6] && tempBoard[0][7] === "r") {
+                if (!isInCheck("black") && !isInCheck("black", tempBoard, { x: 5, y: 0 }) && !isInCheck("black", tempBoard, { x: 6, y: 0 })) {
+                    moves.push({ toX: 6, toY: 0, castling: "kingside" });
+                }
+            }
+            if (!isWhite && castlingAvailability.black.queenside && !tempBoard[0][3] && !tempBoard[0][2] && !tempBoard[0][1] && tempBoard[0][0] === "r") {
+                if (!isInCheck("black") && !isInCheck("black", tempBoard, { x: 3, y: 0 }) && !isInCheck("black", tempBoard, { x: 2, y: 0 })) {
+                    moves.push({ toX: 2, toY: 0, castling: "queenside" });
+                }
+            }
+        }
+
+        const legalMoves = [];
+        moves.forEach((move) => {
+            const tempBoardCopy = JSON.parse(JSON.stringify(tempBoard));
+            tempBoardCopy[move.toY][move.toX] = tempBoard[y][x];
+            tempBoardCopy[y][x] = "";
+            const tempKingPos = piece.toLowerCase() === "k" ? { x: move.toX, y: move.toY } : null;
+            if (!isInCheck(currentPlayer, tempBoardCopy, tempKingPos)) {
+                legalMoves.push(move);
+            }
+        });
+        return legalMoves;
+    }
+
+    function rollDice() {
+        if (gameOver || gameType !== "ludo") return;
+        diceRoll = Math.floor(Math.random() * 6) + 1;
+        legalMoves = [];
+        if (diceRoll === 6) {
+            if (currentPlayer === "red" && redHome.some(piece => piece)) {
+                legalMoves.push({ pos: redHomePositions[redHome.findIndex(piece => piece)], field: redStartField });
+            } else if (currentPlayer === "yellow" && yellowHome.some(piece => piece)) {
+                legalMoves.push({ pos: yellowHomePositions[yellowHome.findIndex(piece => piece)], field: yellowStartField });
+            }
+        }
+        ludoBoard.forEach((piece, i) => {
+            if (piece && piece.startsWith(currentPlayer)) {
+                const newField = (i + diceRoll) % 40;
+                if (newField !== redGoalEntry && newField !== yellowGoalEntry) {
+                    legalMoves.push({ pos: fieldPositions[i], field: newField });
+                } else if ((currentPlayer === "red" && newField === redGoalEntry && redGoal.some(g => !g)) ||
+                          (currentPlayer === "yellow" && newField === yellowGoalEntry && yellowGoal.some(g => !g))) {
+                    legalMoves.push({ pos: fieldPositions[i], field: newField, goal: true });
+                }
+            }
+        });
+        drawBoard();
+        if (legalMoves.length === 0) {
+            currentPlayer = currentPlayer === "red" ? "yellow" : "red";
+            updateTurnDisplay();
+            diceRoll = null;
+            drawBoard();
+        }
+    }
+
+    function toggleRotateBoard() {
+        rotateBoard = !rotateBoard;
+        drawBoard();
+    }
+
+    function toggleSmartphoneMode() {
+        smartphoneMode = !smartphoneMode;
+        drawBoard();
+    }
+
+    function toggleSound() {
+        soundEnabled = !soundEnabled;
+        soundToggleButton.textContent = soundEnabled ? "Sound aus" : "Sound an";
+    }
+
+    function undoMove() {
+        if (moveHistory.length === 0 || gameOver) return;
+        const lastMove = moveHistory.pop();
+        if (gameType === "ludo") {
+            if (lastMove.goal) {
+                const goalArray = lastMove.player === "red" ? redGoal : yellowGoal;
+                const homeArray = lastMove.player === "red" ? redHome : yellowHome;
+                goalArray[lastMove.toIndex] = null;
+                homeArray[lastMove.fromIndex] = lastMove.piece;
+            } else {
+                ludoBoard[lastMove.toField] = null;
+                if (lastMove.fromField !== null) {
+                    ludoBoard[lastMove.fromField] = lastMove.piece;
+                } else {
+                    const homeArray = lastMove.player === "red" ? redHome : yellowHome;
+                    homeArray[lastMove.fromIndex] = lastMove.piece;
+                }
+            }
+            currentPlayer = lastMove.player;
+            diceRoll = null;
+            legalMoves = [];
+        } else {
+            chessBoard = lastMove.board;
+            currentPlayer = lastMove.player;
+            castlingAvailability = lastMove.castling;
+            kingPositions = lastMove.kings;
+            isWhiteInCheck = lastMove.whiteCheck;
+            isBlackInCheck = lastMove.blackCheck;
+            moveNotations.pop();
+            moveCount = Math.floor((moveNotations.length + 1) / 2) + 1;
+            selectedPiece = null;
+            legalMoves = [];
+        }
+        updateTurnDisplay();
+        drawBoard();
+    }
+
+    function restartGame() {
+        if (gameType === "ludo") {
+            startLudoGame();
+        } else {
+            startChessGame(gameType === "chess" && chessBoard[0][4] !== "k");
+        }
+    }
+
+    function changeDesign() {
+        currentDesign = (currentDesign + 1) % designs.length;
+        window.updateBoardColors(currentDesign);
+        drawBoard();
+    }
+
+    function handleChessClick(event) {
+        if (gameOver || gameType !== "chess") return;
+        const rect = canvas.getBoundingClientRect();
+        const x = event.clientX - rect.left;
+        const y = event.clientY - rect.top;
+        let boardX = Math.floor((x - (fullscreenMode ? 0 : offsetX)) / size);
+        let boardY = Math.floor((y - (fullscreenMode ? 0 : offsetY)) / size);
+        if (rotateBoard || (smartphoneMode && currentPlayer === "black")) {
+            boardX = 7 - boardX;
+            boardY = 7 - boardY;
+        }
+        if (boardX < 0 || boardX >= 8 || boardY < 0 || boardY >= 8) return;
+
+        if (selectedPiece) {
+            const move = legalMoves.find(m => m.toX === boardX && m.toY === boardY);
+            if (move) {
+                const tempBoard = JSON.parse(JSON.stringify(chessBoard));
+                const piece = chessBoard[selectedPiece.y][selectedPiece.x];
+                const capturedPiece = chessBoard[move.toY][move.toX];
+                chessBoard[move.toY][move.toX] = piece;
+                chessBoard[selectedPiece.y][selectedPiece.x] = "";
+                if (move.castling) {
+                    if (move.castling === "kingside") {
+                        chessBoard[move.toY][5] = chessBoard[move.toY][7];
+                        chessBoard[move.toY][7] = "";
+                    } else {
+                        chessBoard[move.toY][3] = chessBoard[move.toY][0];
+                        chessBoard[move.toY][0] = "";
+                    }
+                }
+                if (piece.toLowerCase() === "k") {
+                    castlingAvailability[currentPlayer].kingside = false;
+                    castlingAvailability[currentPlayer].queenside = false;
+                }
+                if (piece.toLowerCase() === "r") {
+                    if (selectedPiece.x === 0) castlingAvailability[currentPlayer].queenside = false;
+                    if (selectedPiece.x === 7) castlingAvailability[currentPlayer].kingside = false;
+                }
+                updateKingPositions();
+                updateCheckStatus();
+                moveHistory.push({
+                    board: tempBoard,
+                    player: currentPlayer,
+                    castling: JSON.parse(JSON.stringify(castlingAvailability)),
+                    kings: JSON.parse(JSON.stringify(kingPositions)),
+                    whiteCheck: isWhiteInCheck,
+                    blackCheck: isBlackInCheck
+                });
+                const fromNotation = `${String.fromCharCode(97 + selectedPiece.x)}${8 - selectedPiece.y}`;
+                const toNotation = `${String.fromCharCode(97 + boardX)}${8 - boardY}`;
+                const notation = `${piece.toLowerCase() === "p" ? "" : piece.toUpperCase()}${capturedPiece ? "x" : ""}${toNotation}`;
+                moveNotations.push({ notation, moveNumber: moveCount });
+                moveList.innerHTML = moveNotations.map((m, i) => `<li${i === moveNotations.length - 1 ? ' class="last-move"' : ""}>${Math.floor(i / 2) + 1}. ${m.notation}</li>`).join("");
+                moveCount = Math.floor((moveNotations.length + 1) / 2) + 1;
+                currentPlayer = currentPlayer === "white" ? "black" : "white";
+                selectedPiece = null;
+                legalMoves = [];
+                if (soundEnabled) {
+                    console.log(capturedPiece ? "Capture sound would play" : "Move sound would play");
+                }
+                if (move.promotion) {
+                    showPromotionChoices(boardX, boardY, piece === piece.toUpperCase());
+                } else {
+                    checkGameOver();
+                }
+                updateTurnDisplay();
+                drawBoard();
+            } else {
+                selectedPiece = null;
+                legalMoves = [];
+                if (chessBoard[boardY][boardX] && (chessBoard[boardY][boardX] === chessBoard[boardY][boardX].toUpperCase() === (currentPlayer === "white"))) {
+                    selectedPiece = { x: boardX, y: boardY, piece: chessBoard[boardY][boardX] };
+                    legalMoves = getLegalMoves(boardX, boardY);
+                }
+                drawBoard();
+            }
+        } else {
+            if (chessBoard[boardY][boardX] && (chessBoard[boardY][boardX] === chessBoard[boardY][boardX].toUpperCase() === (currentPlayer === "white"))) {
+                selectedPiece = { x: boardX, y: boardY, piece: chessBoard[boardY][boardX] };
+                legalMoves = getLegalMoves(boardX, boardY);
+                drawBoard();
+            }
+        }
+    }
+
+    function showPromotionChoices(x, y, isWhite) {
+        const choices = isWhite ? ["Q", "R", "B", "N"] : ["q", "r", "b", "n"];
+        const promotionDiv = document.createElement("div");
+        promotionDiv.id = "promotionChoices";
+        choices.forEach(piece => {
+            const button = document.createElement("button");
+            button.classList.add("promotion-button");
+            button.textContent = pieces[piece];
+            button.addEventListener("click", () => {
+                chessBoard[y][x] = piece;
+                promotionDiv.remove();
+                checkGameOver();
+                drawBoard();
+            });
+            promotionDiv.appendChild(button);
+        });
+        gameContainer.appendChild(promotionDiv);
+    }
+
+    function checkGameOver() {
+        let hasLegalMoves = false;
+        for (let y = 0; y < 8; y++) {
+            for (let x = 0; x < 8; x++) {
+                const piece = chessBoard[y][x];
+                if (piece && (piece === piece.toUpperCase() === (currentPlayer === "white"))) {
+                    if (getLegalMoves(x, y).length > 0) {
+                        hasLegalMoves = true;
+                        break;
+                    }
+                }
+            }
+            if (hasLegalMoves) break;
+        }
+        if (!hasLegalMoves) {
+            gameOver = true;
+            if (isInCheck(currentPlayer)) {
+                winnerText = currentPlayer === "white" ? "Schwarz gewinnt (Schachmatt)!" : "Weiß gewinnt (Schachmatt)!";
+                if (soundEnabled) {
+                    console.log("Checkmate sound would play");
+                }
+            } else {
+                winnerText = "Patt!";
+            }
+            updateTurnDisplay();
+            drawBoard();
+        }
+    }
+
+    function handleLudoClick(event) {
+        if (gameOver || gameType !== "ludo" || !diceRoll) return;
+        const rect = canvas.getBoundingClientRect();
+        const x = event.clientX - rect.left;
+        const y = event.clientY - rect.top;
+        const boardX = Math.floor((x - (fullscreenMode ? 0 : offsetX)) / size);
+        const boardY = Math.floor((y - (fullscreenMode ? 0 : offsetY)) / size);
+        const fieldIdx = fieldPositions.findIndex(pos => pos.x === boardX && pos.y === boardY);
+        const homeIdx = currentPlayer === "red" ? redHomePositions.findIndex(pos => pos.x === boardX && pos.y === boardY) : yellowHomePositions.findIndex(pos => pos.x === boardX && pos.y === boardY);
+
+        if (fieldIdx !== -1 && ludoBoard[fieldIdx] && ludoBoard[fieldIdx].startsWith(currentPlayer)) {
+            selectedPiece = { pos: fieldPositions[fieldIdx], piece: ludoBoard[fieldIdx], field: fieldIdx };
+            legalMoves = legalMoves.filter(move => move.pos.x === boardX && move.pos.y === boardY);
+            drawBoard();
+        } else if (homeIdx !== -1 && (currentPlayer === "red" ? redHome[homeIdx] : yellowHome[homeIdx])) {
+            selectedPiece = { pos: currentPlayer === "red" ? redHomePositions[homeIdx] : yellowHomePositions[homeIdx], piece: currentPlayer === "red" ? redHome[homeIdx] : yellowHome[homeIdx], homeIndex: homeIdx };
+            legalMoves = legalMoves.filter(move => move.pos.x === boardX && move.pos.y === boardY);
+            drawBoard();
+        } else {
+            const move = legalMoves.find(m => m.pos.x === boardX && m.pos.y === boardY);
+            if (move && selectedPiece) {
+                const tempBoard = JSON.parse(JSON.stringify(ludoBoard));
+                const tempRedHome = [...redHome];
+                const tempYellowHome = [...yellowHome];
+                const tempRedGoal = [...redGoal];
+                const tempYellowGoal = [...yellowGoal];
+                let fromField = null;
+                let fromIndex = null;
+
+                if (selectedPiece.field != null) {
+                    fromField = selectedPiece.field;
+                    ludoBoard[selectedPiece.field] = null;
+                } else {
+                    fromIndex = selectedPiece.homeIndex;
+                    if (currentPlayer === "red") {
+                        redHome[fromIndex] = null;
+                    } else {
+                        yellowHome[fromIndex] = null;
+                    }
+                }
+
+                if (move.goal) {
+                    const goalArray = currentPlayer === "red" ? redGoal : yellowGoal;
+                    const goalIndex = goalArray.findIndex(g => !g);
+                    goalArray[goalIndex] = selectedPiece.piece;
+                } else {
+                    if (ludoBoard[move.field] && !ludoBoard[move.field].startsWith(currentPlayer)) {
+                        const opponentPiece = ludoBoard[move.field];
+                        const opponentHome = opponentPiece.startsWith("red") ? redHome : yellowHome;
+                        const homeIndex = opponentHome.findIndex(h => !h);
+                        opponentHome[homeIndex] = opponentPiece;
+                    }
+                    ludoBoard[move.field] = selectedPiece.piece;
+                }
+
+                moveHistory.push({
+                    board: tempBoard,
+                    redHome: tempRedHome,
+                    yellowHome: tempYellowHome,
+                    redGoal: tempRedGoal,
+                    yellowGoal: tempYellowGoal,
+                    player: currentPlayer,
+                    piece: selectedPiece.piece,
+                    fromField,
+                    toField: move.field,
+                    fromIndex,
+                    toIndex: move.goal ? goalArray.findIndex(g => g === selectedPiece.piece) : null,
+                    goal: move.goal
+                });
+
+                diceRoll = null;
+                legalMoves = [];
+                selectedPiece = null;
+
+                if ((currentPlayer === "red" && redGoal.every(g => g)) || (currentPlayer === "yellow" && yellowGoal.every(g => g))) {
+                    gameOver = true;
+                    winnerText = `${currentPlayer === "red" ? "Rot" : "Gelb"} gewinnt!`;
+                } else {
+                    currentPlayer = currentPlayer === "red" ? "yellow" : "red";
+                }
+
+                updateTurnDisplay();
+                drawBoard();
+            }
+        }
+    }
+
+    // Initialisierung
+    window.addEventListener("resize", resizeCanvas);
+    resizeCanvas();
+});
