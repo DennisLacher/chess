@@ -86,6 +86,13 @@ canvas {
     width: 100%;
 }
 
+#diceDisplay {
+    margin: 10px 0;
+    font-size: 18px;
+    text-align: center;
+    width: 100%;
+}
+
 .game-buttons {
     margin-top: 10px;
     display: flex;
@@ -109,13 +116,6 @@ canvas {
 
 .game-buttons button:hover {
     background-color: #005d87;
-}
-
-#openingDisplay {
-    margin: 20px 0;
-    font-size: 18px;
-    text-align: center;
-    width: 100%;
 }
 
 #moveList {
@@ -154,31 +154,6 @@ canvas {
     to { opacity: 0; }
 }
 
-#promotionChoices {
-    position: absolute;
-    background-color: #333;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    padding: 5px;
-    box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
-}
-
-.promotion-button {
-    display: block;
-    width: 40px;
-    height: 40px;
-    font-size: 24px;
-    margin: 5px;
-    cursor: pointer;
-    border: none;
-    background: none;
-    color: #e0e0e0;
-}
-
-.promotion-button:hover {
-    background-color: #505050;
-}
-
 .fullscreen {
     width: 100vw;
     height: 100vh;
@@ -211,10 +186,10 @@ canvas {
     border: none;
     cursor: pointer;
     padding: 0;
-    z-index: 10000; /* Erhöht für Überlagerung */
+    z-index: 10000;
     opacity: 1 !important;
     visibility: visible !important;
-    touch-action: manipulation; /* Verbessert Touch-Events */
+    touch-action: manipulation;
 }
 
 .fullscreen #closeFullscreenButton:hover {
